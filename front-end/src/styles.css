@@ -1,0 +1,203 @@
+/* =========================
+   Design tokens
+========================= */
+:root {
+  --bg-gradient: linear-gradient(180deg, #f6f7fb 0%, #eef2ff 100%);
+  --panel-bg: #ffffff;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --border-soft: rgba(0,0,0,0.06);
+  --accent: #0369a1;
+}
+
+/* =========================
+   Reset & base
+========================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: var(--text-main);
+}
+
+/* =========================
+   App layout
+========================= */
+.app-root {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg-gradient);
+  overflow: hidden;
+}
+
+/* =========================
+   Main content
+========================= */
+.main-area {
+  width: 100%;
+  height: 100%;
+  padding: 32px 40px;
+  overflow-y: auto;
+}
+
+/* =========================
+   Left menu (genres)
+========================= */
+.left-menu {
+  background: var(--panel-bg);
+  border-right: 1px solid var(--border-soft);
+  padding: 22px;
+  overflow-y: auto;
+}
+
+.left-menu .logo {
+  margin-bottom: 18px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.genre-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.genre-btn {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.genre-btn:hover {
+  background: #f3f4f6;
+}
+
+.genre-btn.selected {
+  background: #e5f5ff;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* =========================
+   Horizontal rows (CORE)
+========================= */
+.row-section {
+  margin-bottom: 36px;
+}
+
+.row-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+/* THIS IS CRITICAL */
+.row-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 10px;
+
+  /* prevents iframe + cards collapsing */
+  min-height: 180px;
+  scroll-behavior: smooth;
+}
+
+.row-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.row-scroll::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 999px;
+}
+
+/* =========================
+   Podcast cards
+========================= */
+.podcast-card {
+  min-width: 360px;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.podcast-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.podcast-card iframe {
+  width: 100%;
+  height: 152px; /* REQUIRED for Spotify */
+  border: none;
+  border-radius: 12px;
+}
+
+/* =========================
+   Text document cards
+========================= */
+.doc-card {
+  min-width: 240px;
+  max-width: 240px;
+  background: var(--panel-bg);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+}
+
+.doc-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.doc-author {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* =========================
+   Empty row text
+========================= */
+.row-empty {
+  font-size: 14px;
+  color: var(--text-muted);
+  padding: 8px 4px;
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 900px) {
+  .app-root {
+    grid-template-columns: 64px 1fr;
+  }
+
+  .left-menu {
+    padding: 12px;
+  }
+
+  .left-menu .logo {
+    font-size: 16px;
+  }
+}
