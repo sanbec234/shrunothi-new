@@ -172,15 +172,73 @@ def genre_material(genre_id):
         return jsonify([]), 200
 
     docs = []
+
     for fname in os.listdir(material_dir):
-        if fname.endswith(".txt") and fname.startswith(f"{genre_id}_"):
+        if not fname.endswith(".txt"):
+            continue
+
+        file_path = os.path.join(material_dir, fname)
+
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+
+            if len(lines) < 3:
+                continue  # invalid file format
+
+            title = lines[0].strip()
+            file_genre = lines[1].strip().lower()
+            author = lines[2].strip() or "Unknown"
+
+            # genre filter now comes from line 2
+            if file_genre != genre_id.lower():
+                continue
+
             docs.append({
-                "id": fname,
-                "filename": fname,
-                "author": "Unknown"
+                "id": fname,          # stable identifier
+                "filename": title,    # clean title for UI
+                "author": author
             })
 
+        except Exception as e:
+            print(f"Failed reading {fname}: {e}")
+
     return jsonify(docs), 200
+
+
+@app.route("/material/<file_id>", methods=["GET"])
+def get_material_file(file_id):
+    material_dir = os.path.join(CORPUS_DIR, "material")
+    file_path = os.path.join(material_dir, file_id)
+
+    if not os.path.isfile(file_path):
+        return jsonify({"error": "File not found"}), 404
+
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        # Expecting:
+        # line 1 → title
+        # line 2 → genre
+        # line 3 → author
+        # line 4 → blank
+        # line 5+ → actual content
+
+        if len(lines) <= 4:
+            content = ""
+        else:
+            content = "".join(lines[4:]).strip()
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify({
+        "id": file_id,
+        "content": content
+    }), 200
+
+
     
 if __name__ == "__main__":
     print("Mock frontend adapter running on http://0.0.0.0:5001")

@@ -114,10 +114,34 @@ export default function Home(): JSX.Element {
      TEMPORARY PLACEHOLDERS
      (APIs NOT IMPLEMENTED YET)
   ========================= */
+  
   useEffect(() => {
-    setMaterialDocs([]);
-    setSelfHelpDocs([]);
-  }, []);
+    let mounted = true;
+
+    if (!selectedGenre) {
+      setMaterialDocs([]);
+      return;
+    }
+
+    async function loadMaterial() {
+      try {
+        const res = await api.get<TextDoc[]>(
+          `/genres/${selectedGenre.id}/material`
+        );
+        if (!mounted) return;
+        setMaterialDocs(res.data || []);
+      } catch (err) {
+        console.error("Failed to load material", err);
+        setMaterialDocs([]);
+      }
+    }
+
+    loadMaterial();
+    return () => {
+      mounted = false;
+    };
+  }, [selectedGenre]);
+
 
   /* =========================
      Render
@@ -162,13 +186,21 @@ export default function Home(): JSX.Element {
 
         {/* -------- Material Row -------- */}
         <HorizontalRow title="Material">
-          <div className="row-empty">
-            Material API not connected yet
-          </div>
-          {materialDocs.map((doc) => (
-            <TextDocCard key={doc.id} doc={doc} />
-          ))}
+          {materialDocs.length === 0 ? (
+            <div className="row-empty">
+              No material found for this genre
+            </div>
+          ) : (
+            materialDocs.map((doc) => (
+              <TextDocCard
+                key={doc.id}
+                doc={doc}
+                onClick={() => setActiveDoc(doc)}
+              />
+            ))
+          )}
         </HorizontalRow>
+
 
         {/* -------- Self-Help Row -------- */}
         <HorizontalRow title="Self Help">
