@@ -181,15 +181,35 @@ body,
 }
 
 .doc-title {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
-  margin-bottom: 6px;
+  margin: 0;          /* 🔑 remove default h* margins */
+  line-height: 1.25;
 }
 
+
 .doc-author {
-  font-size: 13px;
-  color: var(--text-muted);
+  font-size: 15px;
+  color: #6b7280;
+  margin: 0;          /* 🔑 remove paragraph margin */
+  line-height: 1.2;
 }
+
+.doc-preview {
+  margin-top: 4px;    /* was too large before */
+  font-size: 15px;
+  line-height: 1.4;
+  color: #374151;
+
+  /* clamp */
+  line-clamp: 2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+
 
 /* =========================
    Empty row text
@@ -319,6 +339,7 @@ body,
   line-height: 1.65;
   color: #111827;
 }
+
 
 /* =========================
    Responsive

@@ -141,6 +141,7 @@ export default function Home(): JSX.Element {
       mounted = false;
     };
   }, [selectedGenre]);
+  
 
 
   /* =========================

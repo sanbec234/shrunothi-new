@@ -1,3 +1,21 @@
+// import type { TextDoc } from "../types";
+
+// type Props = {
+//   doc: TextDoc;
+//   onClick?: () => void;
+// };
+
+// export default function TextDocCard({ doc, onClick }: Props) {
+//   return (
+//     <div className="doc-card" onClick={onClick}>
+//       <div className="doc-title">{doc.filename}</div>
+//       <div className="doc-author">{doc.author}</div>
+//     </div>
+//   );
+// }
+
+import { useEffect, useState } from "react";
+import { api } from "../api/client";
 import type { TextDoc } from "../types";
 
 type Props = {
@@ -6,10 +24,48 @@ type Props = {
 };
 
 export default function TextDocCard({ doc, onClick }: Props) {
+  const [preview, setPreview] = useState<string>("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadPreview() {
+      try {
+        const res = await api.get<{ content: string }>(
+          `/material/${doc.id}`
+        );
+
+        if (!mounted) return;
+
+        // Take first 2–3 meaningful lines as preview
+        const lines = res.data.content
+          .split("\n")
+          .map((l) => l.trim())
+          .filter(Boolean);
+
+        const words = lines.join(" ").split(" ").slice(0, 22);
+        setPreview(words.join(" ") + "…");
+
+      } catch (err) {
+        console.error("Failed to load preview", err);
+        setPreview("");
+      }
+    }
+
+    loadPreview();
+    return () => {
+      mounted = false;
+    };
+  }, [doc.id]);
+
   return (
     <div className="doc-card" onClick={onClick}>
       <div className="doc-title">{doc.filename}</div>
       <div className="doc-author">{doc.author}</div>
+
+      {preview && (
+        <p className="doc-preview">{preview}</p>
+      )}
     </div>
   );
 }

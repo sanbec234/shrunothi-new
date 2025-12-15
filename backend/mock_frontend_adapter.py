@@ -183,20 +183,23 @@ def genre_material(genre_id):
             with open(file_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
 
+            # Expecting:
+            # line 1 → filename (title)
+            # line 2 → genre
+            # line 3 → author
             if len(lines) < 3:
-                continue  # invalid file format
+                continue
 
-            title = lines[0].strip()
+            filename = lines[0].strip()
             file_genre = lines[1].strip().lower()
             author = lines[2].strip() or "Unknown"
 
-            # genre filter now comes from line 2
             if file_genre != genre_id.lower():
                 continue
 
             docs.append({
-                "id": fname,          # stable identifier
-                "filename": title,    # clean title for UI
+                "id": fname,
+                "filename": filename,
                 "author": author
             })
 
@@ -218,17 +221,12 @@ def get_material_file(file_id):
         with open(file_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
 
-        # Expecting:
-        # line 1 → title
+        # Skip metadata:
+        # line 1 → filename
         # line 2 → genre
         # line 3 → author
         # line 4 → blank
-        # line 5+ → actual content
-
-        if len(lines) <= 4:
-            content = ""
-        else:
-            content = "".join(lines[4:]).strip()
+        content = "".join(lines[4:]).strip() if len(lines) > 4 else ""
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
