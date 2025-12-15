@@ -209,12 +209,43 @@ def genre_material(genre_id):
     return jsonify(docs), 200
 
 
+# @app.route("/material/<file_id>", methods=["GET"])
+# def get_material_file(file_id):
+#     material_dir = os.path.join(CORPUS_DIR, "material")
+#     file_path = os.path.join(material_dir, file_id)
+
+#     if not os.path.isfile(file_path):
+#         return jsonify({"error": "File not found"}), 404
+
+#     try:
+#         with open(file_path, "r", encoding="utf-8") as f:
+#             lines = f.readlines()
+
+#         # Skip metadata:
+#         # line 1 → filename
+#         # line 2 → genre
+#         # line 3 → author
+#         # line 4 → blank
+#         content = "".join(lines[4:]).strip() if len(lines) > 4 else ""
+
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+
+#     return jsonify({
+#         "id": file_id,
+#         "content": content
+#     }), 200
+
 @app.route("/material/<file_id>", methods=["GET"])
 def get_material_file(file_id):
-    material_dir = os.path.join(CORPUS_DIR, "material")
-    file_path = os.path.join(material_dir, file_id)
+    material_path = os.path.join(CORPUS_DIR, "material", file_id)
+    self_help_path = os.path.join(CORPUS_DIR, "self-help", file_id)
 
-    if not os.path.isfile(file_path):
+    if os.path.isfile(material_path):
+        file_path = material_path
+    elif os.path.isfile(self_help_path):
+        file_path = self_help_path
+    else:
         return jsonify({"error": "File not found"}), 404
 
     try:
@@ -222,7 +253,7 @@ def get_material_file(file_id):
             lines = f.readlines()
 
         # Skip metadata:
-        # line 1 → filename
+        # line 1 → title
         # line 2 → genre
         # line 3 → author
         # line 4 → blank
@@ -236,7 +267,36 @@ def get_material_file(file_id):
         "content": content
     }), 200
 
+@app.route("/corpus/self-help", methods=["GET"])
+def self_help_corpus():
+    self_help_dir = os.path.join(CORPUS_DIR, "self-help")
+    
+    if not os.path.isdir(self_help_dir):
+        return jsonify([]), 200
 
+    docs = []
+
+    for fname in os.listdir(self_help_dir):
+        if not fname.endswith(".txt"):
+            continue
+
+        file_path = os.path.join(self_help_dir, fname)
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        title = lines[0].strip() if len(lines) > 0 else fname
+        author = lines[2].strip() if len(lines) > 2 else "Unknown"
+        preview = " ".join(lines[3:]).strip()
+
+        docs.append({
+            "id": fname,
+            "filename": title,
+            "author": author,
+            "preview": preview
+        })
+
+    return jsonify(docs), 200
     
 if __name__ == "__main__":
     print("Mock frontend adapter running on http://0.0.0.0:5001")

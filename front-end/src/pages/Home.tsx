@@ -141,7 +141,27 @@ export default function Home(): JSX.Element {
       mounted = false;
     };
   }, [selectedGenre]);
-  
+
+  useEffect(() => {
+  let mounted = true;
+
+  async function loadSelfHelp() {
+    try {
+      const res = await api.get<TextDoc[]>("/corpus/self-help");
+      if (!mounted) return;
+      setSelfHelpDocs(res.data || []);
+    } catch (err) {
+      console.error("Failed to load self-help corpus", err);
+    }
+  }
+
+  loadSelfHelp();
+
+  return () => {
+    mounted = false;
+  };
+}, []);
+
 
 
   /* =========================
@@ -203,15 +223,21 @@ export default function Home(): JSX.Element {
         </HorizontalRow>
 
 
-        {/* -------- Self-Help Row -------- */}
-        <HorizontalRow title="Self Help">
-          <div className="row-empty">
-            Self-help corpus not connected yet
-          </div>
-          {selfHelpDocs.map((doc) => (
-            <TextDocCard key={doc.id} doc={doc} />
-          ))}
+       <HorizontalRow title="Self Help">
+          {selfHelpDocs.length === 0 ? (
+            <div className="row-empty">No self-help material available</div>
+          ) : (
+            selfHelpDocs.map((doc) => (
+
+              <TextDocCard
+                key={doc.id}
+                doc={doc}
+                onClick={() => setActiveDoc(doc)}
+              />
+            ))
+          )}
         </HorizontalRow>
+        
       </main>
       {activeDoc && (
         <DocModal
