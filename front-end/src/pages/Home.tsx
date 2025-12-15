@@ -4,6 +4,7 @@ import LeftMenu from "../components/LeftMenu";
 import HorizontalRow from "../components/HorizontalRow";
 import TextDocCard from "../components/TextDocCard";
 import type { Genre } from "../types";
+import DocModal from "../components/DocModal";
 
 /* ---- types (match mock backend) ---- */
 type Podcast = {
@@ -26,6 +27,8 @@ export default function Home(): JSX.Element {
   const [podcasts, setPodcasts] = useState<Podcast[] | null>(null);
   const [materialDocs, setMaterialDocs] = useState<TextDoc[]>([]);
   const [selfHelpDocs, setSelfHelpDocs] = useState<TextDoc[]>([]);
+  const [activeDoc, setActiveDoc] = useState<TextDoc | null>(null);
+
 
   /* =========================
      Load genres (WORKING)
@@ -177,6 +180,12 @@ export default function Home(): JSX.Element {
           ))}
         </HorizontalRow>
       </main>
+      {activeDoc && (
+        <DocModal
+          doc={activeDoc}
+          onClose={() => setActiveDoc(null)}
+        />
+      )}
     </div>
   );
 }

@@ -14,7 +14,13 @@ export default function LeftMenu({
     <aside className="left-menu">
       <div className="logo"> 
         {/* Replace with <img src="/path/to/logo.png" alt="logo" /> if you have it */}
-        <div style={{ fontWeight: 700 }}>Shrunothi</div>
+        <div className="logo">
+          <img
+            src="/logo.png"
+            alt="Shrunothi"
+            className="logo-img"
+          />
+        </div>
       </div>
 
       <div className="genre-list">

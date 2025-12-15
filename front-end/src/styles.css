@@ -185,6 +185,62 @@ body,
   padding: 8px 4px;
 }
 
+/* ===== Modal overlay ===== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* ===== Modal panel ===== */
+.modal-panel {
+  background: white;
+  width: 640px;
+  max-width: 90vw;
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+/* Close button */
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+/* Content */
+.modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.modal-author {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.modal-body {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.logo-img {
+  height: 150px;
+  width: auto;
+}
+
 /* =========================
    Responsive
 ========================= */

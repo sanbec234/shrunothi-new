@@ -14,6 +14,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import random
 import datetime
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -160,6 +161,27 @@ def ask():
 def health():
     return jsonify({"status": "ok", "time": datetime.datetime.utcnow().isoformat() + "Z"}), 200
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CORPUS_DIR = os.path.join(BASE_DIR, "corpus")
+
+@app.route("/genres/<genre_id>/material", methods=["GET"])
+def genre_material(genre_id):
+    material_dir = os.path.join(CORPUS_DIR, "material")
+
+    if not os.path.isdir(material_dir):
+        return jsonify([]), 200
+
+    docs = []
+    for fname in os.listdir(material_dir):
+        if fname.endswith(".txt") and fname.startswith(f"{genre_id}_"):
+            docs.append({
+                "id": fname,
+                "filename": fname,
+                "author": "Unknown"
+            })
+
+    return jsonify(docs), 200
+    
 if __name__ == "__main__":
     print("Mock frontend adapter running on http://0.0.0.0:5001")
     app.run(host="0.0.0.0", port=5001, debug=True)
