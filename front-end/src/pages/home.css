@@ -1,0 +1,186 @@
+/* =========================
+   Home layout
+========================= */
+.main-area {
+  width: 100%;
+  height: 100%;
+  padding: 32px 40px;
+  overflow-y: auto;
+}
+
+/* =========================
+   Horizontal rows
+========================= */
+.row-section {
+  margin-bottom: 36px;
+}
+
+.row-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.row-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 10px;
+  min-height: 180px;
+}
+
+/* =========================
+   Podcast cards
+========================= */
+.podcast-card {
+  min-width: 360px;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.podcast-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.podcast-card iframe {
+  width: 100%;
+  height: 152px;
+  border: none;
+  border-radius: 12px;
+}
+
+/* =========================
+   Text document cards
+========================= */
+.doc-card {
+  min-width: 360px;
+  max-width: 360px;
+  height: 200px;
+
+  background: var(--panel-bg);
+  border-radius: 14px;
+  padding: 18px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  cursor: pointer;
+}
+
+.doc-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.doc-author {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.doc-preview {
+  font-size: 15px;
+  line-height: 1.4;
+  color: #374151;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* =========================
+   Empty row text
+========================= */
+.row-empty {
+  font-size: 14px;
+  color: var(--text-muted);
+  padding: 8px 4px;
+}
+
+/* =========================
+   Modal
+========================= */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-panel {
+  background: #ffffff;
+  width: 90vw;
+  max-width: 820px;
+  max-height: 85vh;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.modal-author {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modal-body pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-serif, Georgia, serif;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.logo-img {
+  height: 150px;
+  width: auto;
+}
+
+.home-root {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg-gradient);
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .home-root {
+    grid-template-columns: 64px 1fr;
+  }
+}

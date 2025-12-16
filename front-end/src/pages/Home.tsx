@@ -3,8 +3,9 @@ import { api } from "../api/client";
 import LeftMenu from "../components/LeftMenu";
 import HorizontalRow from "../components/HorizontalRow";
 import TextDocCard from "../components/TextDocCard";
-import type { Genre } from "../types";
+import type { Genre } from "../types/index";
 import DocModal from "../components/DocModal";
+import "./Home.css";
 
 /* ---- types (match mock backend) ---- */
 type Podcast = {
@@ -168,7 +169,7 @@ export default function Home(): JSX.Element {
      Render
   ========================= */
   return (
-    <div className="app-root">
+    <div className="home-root">
       <LeftMenu
         genres={genres}
         selected={selectedGenre}

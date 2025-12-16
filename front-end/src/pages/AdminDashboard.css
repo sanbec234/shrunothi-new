@@ -1,0 +1,168 @@
+/* ===== HARD RESET FOR ADMIN PAGE ===== */
+.admin-root {
+  position: relative;
+
+  /* break out of any grid/flex parent */
+  display: block !important;
+  width: 100vw !important;
+  min-height: 100vh !important;
+
+  /* override inherited layout constraints */
+  margin: 0 !important;
+  padding: 32px 48px !important;
+
+  /* visual */
+  background-color: #121212;
+  color: #eaeaea;
+
+  /* neutralize parent alignment */
+  left: 0;
+  right: 0;
+}
+
+
+.admin-root h1 {
+  font-size: 28px;
+  margin-bottom: 24px;
+}
+
+.admin-root h2 {
+  font-size: 20px;
+  margin: 32px 0 12px;
+  border-bottom: 1px solid #2a2a2a;
+  padding-bottom: 6px;
+}
+
+/* ===== Sections ===== */
+
+.admin-section {
+  margin-bottom: 40px;
+}
+
+/* ===== Buttons ===== */
+
+.admin-btn {
+  background: #1f1f1f;
+  color: #ffffff;
+  border: 1px solid #333;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.admin-btn:hover {
+  background: #2a2a2a;
+}
+
+.admin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== Tables ===== */
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.admin-table th {
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #bbbbbb;
+  border-bottom: 1px solid #2a2a2a;
+  padding: 8px;
+}
+
+.admin-table td {
+  padding: 8px;
+  border-bottom: 1px solid #1e1e1e;
+  vertical-align: top;
+}
+
+/* ===== Inputs ===== */
+
+.admin-input {
+  width: 100%;
+  background: #1a1a1a;
+  color: #eaeaea;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 14px;
+}
+
+.admin-input:focus {
+  outline: none;
+  border-color: #555;
+}
+
+/* ===== Genre Status ===== */
+
+.genre-active {
+  color: #4ade80; /* green */
+  font-weight: 600;
+}
+
+.genre-incomplete {
+  color: #facc15; /* yellow */
+  font-weight: 600;
+}
+
+/* ===== Checkbox Groups ===== */
+
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.checkbox-group label {
+  font-size: 13px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.checkbox-group input {
+  margin-right: 6px;
+}
+
+/* ===== Subtle separation ===== */
+
+.admin-spacer {
+  height: 16px;
+}
+
+.genre-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.genre-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-delete {
+  background: transparent;
+  border: 1px solid #ff4d4f;
+  color: #ff4d4f;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background: rgba(255, 77, 79, 0.12);
+}
