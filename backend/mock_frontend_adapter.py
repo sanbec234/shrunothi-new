@@ -208,34 +208,6 @@ def genre_material(genre_id):
 
     return jsonify(docs), 200
 
-
-# @app.route("/material/<file_id>", methods=["GET"])
-# def get_material_file(file_id):
-#     material_dir = os.path.join(CORPUS_DIR, "material")
-#     file_path = os.path.join(material_dir, file_id)
-
-#     if not os.path.isfile(file_path):
-#         return jsonify({"error": "File not found"}), 404
-
-#     try:
-#         with open(file_path, "r", encoding="utf-8") as f:
-#             lines = f.readlines()
-
-#         # Skip metadata:
-#         # line 1 → filename
-#         # line 2 → genre
-#         # line 3 → author
-#         # line 4 → blank
-#         content = "".join(lines[4:]).strip() if len(lines) > 4 else ""
-
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
-
-#     return jsonify({
-#         "id": file_id,
-#         "content": content
-#     }), 200
-
 @app.route("/material/<file_id>", methods=["GET"])
 def get_material_file(file_id):
     material_path = os.path.join(CORPUS_DIR, "material", file_id)
