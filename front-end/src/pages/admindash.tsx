@@ -1,493 +1,5 @@
-// import { useState } from "react";
-// import "./admindash.css";
-
-// /* ---------- Types ---------- */
-
-// type Genre = {
-//   id: string;
-//   name: string;
-// };
-
-// type Podcast = {
-//   id: string;
-//   title: string;
-//   spotifyUrl: string;
-//   genreId: string;
-// };
-
-// type Material = {
-//   id: string;
-//   title: string;
-//   content: string;
-//   genreId: string;
-// };
-
-// /* ---------- Helpers ---------- */
-
-// const uid = () => crypto.randomUUID();
-
-// /* ---------- Component ---------- */
-
-// export default function AdminDashboard() {
-//   /* ================= DATA ================= */
-
-//   const [genres, setGenres] = useState<Genre[]>([]);
-//   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
-//   const [materials, setMaterials] = useState<Material[]>([]);
-
-//   /* ================= SECTION TOGGLES ================= */
-
-//   const [genresOpen, setGenresOpen] = useState(true);
-//   const [podcastsOpen, setPodcastsOpen] = useState(false);
-//   const [materialsOpen, setMaterialsOpen] = useState(false);
-
-//   /* ================= ADD GENRE (WIZARD) ================= */
-
-//   const [showAddGenre, setShowAddGenre] = useState(false);
-//   const [step, setStep] = useState<1 | 2 | 3>(1);
-
-//   const [genreName, setGenreName] = useState("");
-//   const [podcastTitle, setPodcastTitle] = useState("");
-//   const [spotifyUrl, setSpotifyUrl] = useState("");
-//   const [materialTitle, setMaterialTitle] = useState("");
-//   const [materialContent, setMaterialContent] = useState("");
-
-//   /* ================= ADD PODCAST ================= */
-
-//   const [showAddPodcast, setShowAddPodcast] = useState(false);
-//   const [newPodcastTitle, setNewPodcastTitle] = useState("");
-//   const [newSpotifyUrl, setNewSpotifyUrl] = useState("");
-//   const [selectedPodcastGenreId, setSelectedPodcastGenreId] = useState("");
-
-//   /* ================= ADD MATERIAL ================= */
-
-//   const [showAddMaterial, setShowAddMaterial] = useState(false);
-//   const [newMaterialTitle, setNewMaterialTitle] = useState("");
-//   const [newMaterialContent, setNewMaterialContent] = useState("");
-//   const [selectedMaterialGenreId, setSelectedMaterialGenreId] = useState("");
-
-//   /* ================= HELPERS ================= */
-
-//   function resetGenreWizard() {
-//     setStep(1);
-//     setGenreName("");
-//     setPodcastTitle("");
-//     setSpotifyUrl("");
-//     setMaterialTitle("");
-//     setMaterialContent("");
-//   }
-
-//   function closeGenreModal() {
-//     setShowAddGenre(false);
-//     resetGenreWizard();
-//   }
-
-//   function createGenreFlow() {
-//     const genreId = uid();
-
-//     setGenres((prev) => [...prev, { id: genreId, name: genreName }]);
-//     setPodcasts((prev) => [
-//       ...prev,
-//       { id: uid(), title: podcastTitle, spotifyUrl, genreId }
-//     ]);
-//     setMaterials((prev) => [
-//       ...prev,
-//       { id: uid(), title: materialTitle, content: materialContent, genreId }
-//     ]);
-
-//     closeGenreModal();
-//   }
-
-//   function addPodcast() {
-//     if (!newPodcastTitle || !newSpotifyUrl || !selectedPodcastGenreId) return;
-
-//     setPodcasts((prev) => [
-//       ...prev,
-//       {
-//         id: uid(),
-//         title: newPodcastTitle,
-//         spotifyUrl: newSpotifyUrl,
-//         genreId: selectedPodcastGenreId
-//       }
-//     ]);
-
-//     setShowAddPodcast(false);
-//     setNewPodcastTitle("");
-//     setNewSpotifyUrl("");
-//     setSelectedPodcastGenreId("");
-//   }
-
-//   function addMaterial() {
-//     if (!newMaterialTitle || !newMaterialContent || !selectedMaterialGenreId)
-//       return;
-
-//     setMaterials((prev) => [
-//       ...prev,
-//       {
-//         id: uid(),
-//         title: newMaterialTitle,
-//         content: newMaterialContent,
-//         genreId: selectedMaterialGenreId
-//       }
-//     ]);
-
-//     setShowAddMaterial(false);
-//     setNewMaterialTitle("");
-//     setNewMaterialContent("");
-//     setSelectedMaterialGenreId("");
-//   }
-
-//   const podcastCount = (genreId: string) =>
-//     podcasts.filter((p) => p.genreId === genreId).length;
-
-//   const materialCount = (genreId: string) =>
-//     materials.filter((m) => m.genreId === genreId).length;
-
-//   /* ================= UI ================= */
-
-//   return (
-//     <div className="admin">
-//       <h2>Admin Dashboard</h2>
-
-//       {/* ================= GENRES ================= */}
-//       <section>
-//         <div
-//           className={`section-header ${genresOpen ? "open" : ""}`}
-//           onClick={() => setGenresOpen(!genresOpen)}
-//         >
-//           <span>▶</span> Genres
-//         </div>
-
-//         {genresOpen && (
-//           <>
-//             <button className="mt-12" onClick={() => setShowAddGenre(true)}>
-//               + Add Genre
-//             </button>
-
-//             <table>
-//               <thead>
-//                 <tr>
-//                   <th>Name</th>
-//                   <th>Podcasts</th>
-//                   <th>Materials</th>
-//                   <th>Actions</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {genres.map((g) => (
-//                   <tr key={g.id}>
-//                     <td>{g.name}</td>
-//                     <td>{podcastCount(g.id)}</td>
-//                     <td>{materialCount(g.id)}</td>
-//                     <td>Edit</td>
-//                   </tr>
-//                 ))}
-
-//                 {genres.length === 0 && (
-//                   <tr>
-//                     <td colSpan={4} className="empty">
-//                       No genres created yet
-//                     </td>
-//                   </tr>
-//                 )}
-//               </tbody>
-//             </table>
-//           </>
-//         )}
-//       </section>
-
-//       {/* ================= PODCASTS ================= */}
-//       <section>
-//         <div
-//           className={`section-header ${podcastsOpen ? "open" : ""}`}
-//           onClick={() => setPodcastsOpen(!podcastsOpen)}
-//         >
-//           <span>▶</span> Podcasts
-//         </div>
-
-//         {podcastsOpen && (
-//           <>
-//             <button className="mt-12" onClick={() => setShowAddPodcast(true)}>
-//               + Add Podcast
-//             </button>
-
-//             <table>
-//               <thead>
-//                 <tr>
-//                   <th>Title</th>
-//                   <th>Genre</th>
-//                   <th>Actions</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {podcasts.map((p) => (
-//                   <tr key={p.id}>
-//                     <td>{p.title}</td>
-//                     <td>{genres.find((g) => g.id === p.genreId)?.name}</td>
-//                     <td>Edit</td>
-//                   </tr>
-//                 ))}
-
-//                 {podcasts.length === 0 && (
-//                   <tr>
-//                     <td colSpan={3} className="empty">
-//                       No podcasts yet
-//                     </td>
-//                   </tr>
-//                 )}
-//               </tbody>
-//             </table>
-//           </>
-//         )}
-//       </section>
-
-//       {/* ================= MATERIALS ================= */}
-//       <section>
-//         <div
-//           className={`section-header ${materialsOpen ? "open" : ""}`}
-//           onClick={() => setMaterialsOpen(!materialsOpen)}
-//         >
-//           <span>▶</span> Materials
-//         </div>
-
-//         {materialsOpen && (
-//           <>
-//             <button className="mt-12" onClick={() => setShowAddMaterial(true)}>
-//               + Add Material
-//             </button>
-
-//             <table>
-//               <thead>
-//                 <tr>
-//                   <th>Title</th>
-//                   <th>Genre</th>
-//                   <th>Actions</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {materials.map((m) => (
-//                   <tr key={m.id}>
-//                     <td>{m.title}</td>
-//                     <td>{genres.find((g) => g.id === m.genreId)?.name}</td>
-//                     <td>Edit</td>
-//                   </tr>
-//                 ))}
-
-//                 {materials.length === 0 && (
-//                   <tr>
-//                     <td colSpan={3} className="empty">
-//                       No materials yet
-//                     </td>
-//                   </tr>
-//                 )}
-//               </tbody>
-//             </table>
-//           </>
-//         )}
-//       </section>
-
-//       {/* ================= ADD GENRE MODAL ================= */}
-//       {showAddGenre && (
-//         <div className="modal-overlay">
-//           <div className="modal">
-//             <button className="modal-close" onClick={closeGenreModal}>
-//               ✕
-//             </button>
-
-//             <div className="step">Step {step} of 3</div>
-
-//             {step === 1 && (
-//               <>
-//                 <input
-//                   placeholder="Genre name"
-//                   value={genreName}
-//                   onChange={(e) => setGenreName(e.target.value)}
-//                 />
-//                 <div className="modal-actions">
-//                   <span />
-//                   <button disabled={!genreName} onClick={() => setStep(2)}>
-//                     Next
-//                   </button>
-//                 </div>
-//               </>
-//             )}
-
-//             {step === 2 && (
-//               <>
-//                 <input
-//                   placeholder="Podcast title"
-//                   value={podcastTitle}
-//                   onChange={(e) => setPodcastTitle(e.target.value)}
-//                 />
-//                 <input
-//                   placeholder="Spotify URL"
-//                   value={spotifyUrl}
-//                   onChange={(e) => setSpotifyUrl(e.target.value)}
-//                 />
-//                 <div className="modal-actions">
-//                   <button className="secondary" onClick={() => setStep(1)}>
-//                     Back
-//                   </button>
-//                   <button
-//                     disabled={!podcastTitle || !spotifyUrl}
-//                     onClick={() => setStep(3)}
-//                   >
-//                     Next
-//                   </button>
-//                 </div>
-//               </>
-//             )}
-
-//             {step === 3 && (
-//               <>
-//                 <input
-//                   placeholder="Material title"
-//                   value={materialTitle}
-//                   onChange={(e) => setMaterialTitle(e.target.value)}
-//                 />
-//                 <textarea
-//                   placeholder="Material content"
-//                   value={materialContent}
-//                   onChange={(e) => setMaterialContent(e.target.value)}
-//                 />
-//                 <div className="modal-actions">
-//                   <button className="secondary" onClick={() => setStep(2)}>
-//                     Back
-//                   </button>
-//                   <button
-//                     disabled={!materialTitle || !materialContent}
-//                     onClick={createGenreFlow}
-//                   >
-//                     Create Genre
-//                   </button>
-//                 </div>
-//               </>
-//             )}
-//           </div>
-//         </div>
-//       )}
-
-//       {/* ================= ADD PODCAST MODAL ================= */}
-//       {showAddPodcast && (
-//         <div className="modal-overlay">
-//           <div className="modal">
-//             <button
-//               className="modal-close"
-//               onClick={() => setShowAddPodcast(false)}
-//             >
-//               ✕
-//             </button>
-
-//             <div className="step">Add Podcast</div>
-
-//             <input
-//               placeholder="Podcast title"
-//               value={newPodcastTitle}
-//               onChange={(e) => setNewPodcastTitle(e.target.value)}
-//             />
-//             <input
-//               placeholder="Spotify URL"
-//               value={newSpotifyUrl}
-//               onChange={(e) => setNewSpotifyUrl(e.target.value)}
-//             />
-
-//             <select
-//               value={selectedPodcastGenreId}
-//               onChange={(e) => setSelectedPodcastGenreId(e.target.value)}
-//             >
-//               <option value="">Select genre</option>
-//               {genres.map((g) => (
-//                 <option key={g.id} value={g.id}>
-//                   {g.name}
-//                 </option>
-//               ))}
-//             </select>
-
-//             <div className="modal-actions">
-//               <button
-//                 className="secondary"
-//                 onClick={() => setShowAddPodcast(false)}
-//               >
-//                 Cancel
-//               </button>
-//               <button
-//                 disabled={
-//                   !newPodcastTitle ||
-//                   !newSpotifyUrl ||
-//                   !selectedPodcastGenreId
-//                 }
-//                 onClick={addPodcast}
-//               >
-//                 Add Podcast
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* ================= ADD MATERIAL MODAL ================= */}
-//       {showAddMaterial && (
-//         <div className="modal-overlay">
-//           <div className="modal">
-//             <button
-//               className="modal-close"
-//               onClick={() => setShowAddMaterial(false)}
-//             >
-//               ✕
-//             </button>
-
-//             <div className="step">Add Material</div>
-
-//             <input
-//               placeholder="Material title"
-//               value={newMaterialTitle}
-//               onChange={(e) => setNewMaterialTitle(e.target.value)}
-//             />
-
-//             <textarea
-//               placeholder="Material content"
-//               value={newMaterialContent}
-//               onChange={(e) => setNewMaterialContent(e.target.value)}
-//             />
-
-//             <select
-//               value={selectedMaterialGenreId}
-//               onChange={(e) => setSelectedMaterialGenreId(e.target.value)}
-//             >
-//               <option value="">Select genre</option>
-//               {genres.map((g) => (
-//                 <option key={g.id} value={g.id}>
-//                   {g.name}
-//                 </option>
-//               ))}
-//             </select>
-
-//             <div className="modal-actions">
-//               <button
-//                 className="secondary"
-//                 onClick={() => setShowAddMaterial(false)}
-//               >
-//                 Cancel
-//               </button>
-//               <button
-//                 disabled={
-//                   !newMaterialTitle ||
-//                   !newMaterialContent ||
-//                   !selectedMaterialGenreId
-//                 }
-//                 onClick={addMaterial}
-//               >
-//                 Add Material
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-import { useState } from "react";
+const API_BASE = "http://localhost:5001";
+import { useState, useEffect } from "react";
 import "./admindash.css";
 
 /* ---------- Types ---------- */
@@ -576,6 +88,31 @@ export default function AdminDashboard() {
   const [newSelfHelpAuthor, setNewSelfHelpAuthor] = useState("");
   const [newSelfHelpContent, setNewSelfHelpContent] = useState("");
 
+   useEffect(() => {
+    async function loadGenres() {
+      const res = await fetch("http://localhost:5001/genres");
+      const data = await res.json();
+      setGenres(data);
+    }
+
+    loadGenres();
+  }, []);
+
+  useEffect(() => {
+    async function loadPodcasts() {
+      try {
+        const res = await fetch(`${API_BASE}/podcasts`);
+        const data = await res.json();
+        setPodcasts(data);
+      } catch (err) {
+        console.error("Failed to load podcasts", err);
+      }
+    }
+
+    loadPodcasts();
+  }, []);
+
+
   /* ================= HELPERS ================= */
 
   function resetGenreWizard() {
@@ -594,68 +131,130 @@ export default function AdminDashboard() {
     resetGenreWizard();
   }
 
-  function createGenre() {
-    const genreId = uid();
+  // function createGenre() {
+  //   const genreId = uid();
 
-    setGenres((g) => [...g, { id: genreId, name: genreName }]);
-    setPodcasts((p) => [
-      ...p,
-      {
-        id: uid(),
-        title: podcastTitle,
-        author: podcastAuthor,
-        spotifyUrl,
-        genreId
-      }
-    ]);
-    setMaterials((m) => [
-      ...m,
-      {
-        id: uid(),
-        title: materialTitle,
-        author: materialAuthor,
-        content: materialContent,
-        genreId
-      }
-    ]);
+  //   setGenres((g) => [...g, { id: genreId, name: genreName }]);
+  //   setPodcasts((p) => [
+  //     ...p,
+  //     {
+  //       id: uid(),
+  //       title: podcastTitle,
+  //       author: podcastAuthor,
+  //       spotifyUrl,
+  //       genreId
+  //     }
+  //   ]);
+  //   setMaterials((m) => [
+  //     ...m,
+  //     {
+  //       id: uid(),
+  //       title: materialTitle,
+  //       author: materialAuthor,
+  //       content: materialContent,
+  //       genreId
+  //     }
+  //   ]);
 
-    closeGenreModal();
+  //   closeGenreModal();
+  // }
+  async function createGenre() {
+    try {
+      const res = await fetch("http://localhost:5001/admin/genres", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name: genreName })
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to create genre");
+      }
+
+      // Re-fetch genres from backend (single source of truth)
+      const genresRes = await fetch("http://localhost:5001/genres");
+      const genresData = await genresRes.json();
+
+      setGenres(genresData);
+      closeGenreModal();
+
+    } catch (err) {
+      console.error(err);
+      alert("Error creating genre");
+    }
   }
 
-  function addPodcast() {
-    if (!newPodcastTitle || !newPodcastAuthor || !newSpotifyUrl || !podcastGenreId) return;
+  // function addPodcast() {
+  //   if (!newPodcastTitle || !newPodcastAuthor || !newSpotifyUrl || !podcastGenreId) return;
 
-    setPodcasts((p) => [
-      ...p,
-      {
-        id: uid(),
-        title: newPodcastTitle,
-        author: newPodcastAuthor,
-        spotifyUrl: newSpotifyUrl,
-        genreId: podcastGenreId
-      }
-    ]);
+  //   // setPodcasts((p) => [
+  //   //   ...p,
+  //   //   {
+  //   //     id: uid(),
+  //   //     title: newPodcastTitle,
+  //   //     author: newPodcastAuthor,
+  //   //     spotifyUrl: newSpotifyUrl,
+  //   //     genreId: podcastGenreId
+  //   //   }
+  //   // ]);
 
-    setShowAddPodcast(false);
-    setNewPodcastTitle("");
-    setNewPodcastAuthor("");
-    setNewSpotifyUrl("");
-    setPodcastGenreId("");
+  //   setShowAddPodcast(false);
+  //   setNewPodcastTitle("");
+  //   setNewPodcastAuthor("");
+  //   setNewSpotifyUrl("");
+  //   setPodcastGenreId("");
+  // }
+  async function addPodcast() {
+    if (!newPodcastTitle || !newPodcastAuthor || !newSpotifyUrl || !podcastGenreId) {
+      alert("All fields required");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/podcasts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newPodcastTitle,
+          author: newPodcastAuthor,
+          spotifyUrl: newSpotifyUrl,
+          genreId: podcastGenreId
+        })
+      });
+
+      if (!res.ok) throw new Error("Failed to create podcast");
+
+      // re-fetch podcasts
+      const podsRes = await fetch(`${API_BASE}/podcasts`);
+      const podsData = await podsRes.json();
+      setPodcasts(podsData);
+
+      setShowAddPodcast(false);
+      setNewPodcastTitle("");
+      setNewPodcastAuthor("");
+      setNewSpotifyUrl("");
+      setPodcastGenreId("");
+
+    } catch (err) {
+      console.error(err);
+      alert("Error adding podcast");
+    }
   }
 
   function addMaterial() {
     if (!newMaterialTitle || !newMaterialAuthor || !newMaterialContent || !materialGenreId) return;
 
-    setMaterials((m) => [
-      ...m,
-      {
-        id: uid(),
-        title: newMaterialTitle,
-        author: newMaterialAuthor,
-        content: newMaterialContent,
-        genreId: materialGenreId
-      }
-    ]);
+    // setMaterials((m) => [
+    //   ...m,
+    //   {
+    //     id: uid(),
+    //     title: newMaterialTitle,
+    //     author: newMaterialAuthor,
+    //     content: newMaterialContent,
+    //     genreId: materialGenreId
+    //   }
+    // ]);
 
     setShowAddMaterial(false);
     setNewMaterialTitle("");
