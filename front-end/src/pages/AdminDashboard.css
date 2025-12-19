@@ -166,3 +166,19 @@
 .btn-delete:hover {
   background: rgba(255, 77, 79, 0.12);
 }
+
+.admin-select {
+  width: 100%;
+  min-height: 38px;
+  background: #1a1a1a;
+  color: #eaeaea;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 6px;
+  font-size: 14px;
+}
+
+.admin-select option {
+  background: #121212;
+  color: #eaeaea;
+}

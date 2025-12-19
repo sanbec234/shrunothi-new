@@ -2,7 +2,7 @@ import { type JSX } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import Home from './pages/Home';
-import AdminDashboard from './pages/AdminDashboard';
+import AdminDashboard from './pages/admindash';
 
 export default function App(): JSX.Element {
   return (
