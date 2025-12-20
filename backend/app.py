@@ -10,7 +10,11 @@ from admin_api.routes.genres import bp as admin_genres
 from public_api.routes.genres import bp as public_genres
 from admin_api.routes.podcasts import bp as admin_podcasts
 from public_api.routes.podcasts import bp as public_podcasts
-
+from admin_api.routes.materials import bp as admin_materials
+from public_api.routes.materials import bp as public_materials
+from admin_api.routes.self_help import bp as admin_self_help
+from public_api.routes.self_help import bp as public_self_help
+from public_api.routes.genre_podcasts import bp as genre_podcasts_bp
 
 def create_app():
     app = Flask(__name__)
@@ -21,7 +25,11 @@ def create_app():
     app.register_blueprint(public_genres)  # /genres
     app.register_blueprint(admin_podcasts)
     app.register_blueprint(public_podcasts)
-
+    app.register_blueprint(admin_materials)
+    app.register_blueprint(public_materials)
+    app.register_blueprint(admin_self_help)
+    app.register_blueprint(public_self_help)
+    app.register_blueprint(genre_podcasts_bp)
 
     # ---- Health check ----
     @app.route("/health", methods=["GET"])

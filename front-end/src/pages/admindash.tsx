@@ -112,6 +112,34 @@ export default function AdminDashboard() {
     loadPodcasts();
   }, []);
 
+  useEffect(() => {
+    async function loadMaterials() {
+      try {
+        const res = await fetch(`${API_BASE}/materials`);
+        const data = await res.json();
+        setMaterials(data);
+      } catch (err) {
+        console.error("Failed to load materials", err);
+      }
+    }
+
+    loadMaterials();
+  }, []);
+
+  useEffect(() => {
+    async function loadSelfHelp() {
+      try {
+        const res = await fetch(`${API_BASE}/self-help`);
+        const data = await res.json();
+        setSelfHelps(data);
+      } catch (err) {
+        console.error("Failed to load self-help", err);
+      }
+    }
+
+    loadSelfHelp();
+  }, []);
+
 
   /* ================= HELPERS ================= */
 
@@ -130,34 +158,7 @@ export default function AdminDashboard() {
     setShowAddGenre(false);
     resetGenreWizard();
   }
-
-  // function createGenre() {
-  //   const genreId = uid();
-
-  //   setGenres((g) => [...g, { id: genreId, name: genreName }]);
-  //   setPodcasts((p) => [
-  //     ...p,
-  //     {
-  //       id: uid(),
-  //       title: podcastTitle,
-  //       author: podcastAuthor,
-  //       spotifyUrl,
-  //       genreId
-  //     }
-  //   ]);
-  //   setMaterials((m) => [
-  //     ...m,
-  //     {
-  //       id: uid(),
-  //       title: materialTitle,
-  //       author: materialAuthor,
-  //       content: materialContent,
-  //       genreId
-  //     }
-  //   ]);
-
-  //   closeGenreModal();
-  // }
+  
   async function createGenre() {
     try {
       const res = await fetch("http://localhost:5001/admin/genres", {
@@ -185,26 +186,6 @@ export default function AdminDashboard() {
     }
   }
 
-  // function addPodcast() {
-  //   if (!newPodcastTitle || !newPodcastAuthor || !newSpotifyUrl || !podcastGenreId) return;
-
-  //   // setPodcasts((p) => [
-  //   //   ...p,
-  //   //   {
-  //   //     id: uid(),
-  //   //     title: newPodcastTitle,
-  //   //     author: newPodcastAuthor,
-  //   //     spotifyUrl: newSpotifyUrl,
-  //   //     genreId: podcastGenreId
-  //   //   }
-  //   // ]);
-
-  //   setShowAddPodcast(false);
-  //   setNewPodcastTitle("");
-  //   setNewPodcastAuthor("");
-  //   setNewSpotifyUrl("");
-  //   setPodcastGenreId("");
-  // }
   async function addPodcast() {
     if (!newPodcastTitle || !newPodcastAuthor || !newSpotifyUrl || !podcastGenreId) {
       alert("All fields required");
@@ -242,45 +223,76 @@ export default function AdminDashboard() {
     }
   }
 
-  function addMaterial() {
-    if (!newMaterialTitle || !newMaterialAuthor || !newMaterialContent || !materialGenreId) return;
+  async function addMaterial() {
+    if (!newMaterialTitle || !newMaterialAuthor || !newMaterialContent || !materialGenreId) {
+      alert("All fields required");
+      return;
+    }
 
-    // setMaterials((m) => [
-    //   ...m,
-    //   {
-    //     id: uid(),
-    //     title: newMaterialTitle,
-    //     author: newMaterialAuthor,
-    //     content: newMaterialContent,
-    //     genreId: materialGenreId
-    //   }
-    // ]);
+    try {
+      const res = await fetch(`${API_BASE}/admin/materials`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newMaterialTitle,
+          author: newMaterialAuthor,
+          content: newMaterialContent,
+          genreId: materialGenreId
+        })
+      });
 
-    setShowAddMaterial(false);
-    setNewMaterialTitle("");
-    setNewMaterialAuthor("");
-    setNewMaterialContent("");
-    setMaterialGenreId("");
+      if (!res.ok) throw new Error("Failed to create material");
+
+      const matsRes = await fetch(`${API_BASE}/materials`);
+      const matsData = await matsRes.json();
+      setMaterials(matsData);
+
+      setShowAddMaterial(false);
+      setNewMaterialTitle("");
+      setNewMaterialAuthor("");
+      setNewMaterialContent("");
+      setMaterialGenreId("");
+
+    } catch (err) {
+      console.error(err);
+      alert("Error adding material");
+    }
   }
 
-  function addSelfHelp() {
-    if (!newSelfHelpTitle || !newSelfHelpAuthor || !newSelfHelpContent) return;
+  async function addSelfHelp() {
+    if (!newSelfHelpTitle || !newSelfHelpAuthor || !newSelfHelpContent) {
+      alert("All fields required");
+      return;
+    }
 
-    setSelfHelps((s) => [
-      ...s,
-      {
-        id: uid(),
-        title: newSelfHelpTitle,
-        author: newSelfHelpAuthor,
-        content: newSelfHelpContent
-      }
-    ]);
+    try {
+      const res = await fetch(`${API_BASE}/admin/self-help`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newSelfHelpTitle,
+          author: newSelfHelpAuthor,
+          content: newSelfHelpContent
+        })
+      });
 
-    setShowAddSelfHelp(false);
-    setNewSelfHelpTitle("");
-    setNewSelfHelpAuthor("");
-    setNewSelfHelpContent("");
+      if (!res.ok) throw new Error("Failed to create self-help");
+
+      const shRes = await fetch(`${API_BASE}/self-help`);
+      const shData = await shRes.json();
+      setSelfHelps(shData);
+
+      setShowAddSelfHelp(false);
+      setNewSelfHelpTitle("");
+      setNewSelfHelpAuthor("");
+      setNewSelfHelpContent("");
+
+    } catch (err) {
+      console.error(err);
+      alert("Error adding self-help");
+    }
   }
+
 
   const podcastCount = (id: string) =>
     podcasts.filter((p) => p.genreId === id).length;

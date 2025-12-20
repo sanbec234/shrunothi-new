@@ -30,29 +30,6 @@ export default function Home(): JSX.Element {
   const [selfHelpDocs, setSelfHelpDocs] = useState<TextDoc[]>([]);
   const [activeDoc, setActiveDoc] = useState<TextDoc | null>(null);
 
-
-  /* =========================
-     Load genres (WORKING)
-  ========================= */
-  // useEffect(() => {
-  //   let mounted = true;
-
-  //   async function loadGenres() {
-  //     try {
-  //       const res = await api.get<Genre[]>("/genres");
-  //       if (!mounted) return;
-  //       setGenres(res.data || []);
-  //     } catch (err) {
-  //       console.error("Failed to load genres", err);
-  //     }
-  //   }
-
-  //   loadGenres();
-  //   return () => {
-  //     mounted = false;
-  //   };
-  // }, []);
-
   useEffect(() => {
   let mounted = true;
 

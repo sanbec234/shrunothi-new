@@ -1,0 +1,21 @@
+from flask import Blueprint, jsonify
+from db.client import get_db
+from bson import ObjectId
+
+bp = Blueprint("public_genre_material", __name__)
+
+@bp.route("/genres/<genre_id>/material", methods=["GET"])
+def genre_material(genre_id):
+    db = get_db()
+
+    docs = db.materials.find({ "genreId": genre_id })
+
+    materials = []
+    for d in docs:
+        materials.append({
+            "id": str(d["_id"]),
+            "filename": d["title"],   # frontend expects `filename`
+            "author": d.get("author", "Unknown")
+        })
+
+    return jsonify(materials), 200
