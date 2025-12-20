@@ -1,13 +1,23 @@
 from datetime import datetime
 
-def serialize_podcast(doc):
+# def serialize_podcast(doc):
+#     return {
+#         "id": str(doc["_id"]),
+#         "title": doc["title"],
+#         "author": doc["author"],
+#         "spotifyUrl": doc["spotifyUrl"],
+#         "genreId": doc["genreId"]
+#     }
+
+def serialize_podcast(d):
     return {
-        "id": str(doc["_id"]),
-        "title": doc["title"],
-        "author": doc["author"],
-        "spotifyUrl": doc["spotifyUrl"],
-        "genreId": doc["genreId"]
+        "id": str(d["_id"]),
+        "title": d.get("title", ""),
+        "author": d.get("author", ""),
+        "spotifyUrl": d.get("spotifyUrl", ""), 
+        "genreId": str(d.get("genreId")) if d.get("genreId") else None
     }
+
 
 def create_podcast(db, data):
     now = datetime.utcnow()

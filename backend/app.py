@@ -18,7 +18,12 @@ from public_api.routes.genre_podcasts import bp as genre_podcasts_bp
 
 def create_app():
     app = Flask(__name__)
-    CORS(app)
+    CORS(
+        app,
+        supports_credentials=True,
+        resources={r"/*": {"origins": "http://localhost:5173"}}
+    )
+
 
     # ---- Register blueprints ----
     app.register_blueprint(admin_genres)   # /admin/genres

@@ -88,6 +88,14 @@ export default function AdminDashboard() {
   const [newSelfHelpAuthor, setNewSelfHelpAuthor] = useState("");
   const [newSelfHelpContent, setNewSelfHelpContent] = useState("");
 
+  /* ================= EDIT PODCAST ================= */
+  const [editingPodcast, setEditingPodcast] = useState<Podcast | null>(null);
+  const [editPodcastTitle, setEditPodcastTitle] = useState("");
+  const [editPodcastAuthor, setEditPodcastAuthor] = useState("");
+  const [editSpotifyUrl, setEditSpotifyUrl] = useState("");
+  const [editPodcastGenreId, setEditPodcastGenreId] = useState("");
+
+
    useEffect(() => {
     async function loadGenres() {
       const res = await fetch("http://localhost:5001/genres");
@@ -370,7 +378,19 @@ export default function AdminDashboard() {
                     <td>{p.title}</td>
                     <td>{p.author}</td>
                     <td>{genres.find((g) => g.id === p.genreId)?.name}</td>
-                    <td>Edit</td>
+                    <td>
+                      <button
+                        onClick={() => {
+                          setEditingPodcast(p);
+                          setEditPodcastTitle(p.title);
+                          setEditPodcastAuthor(p.author);
+                          setEditSpotifyUrl(p.spotifyUrl);
+                          setEditPodcastGenreId(p.genreId);
+                        }}
+                      >
+                        Edit
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 {podcasts.length === 0 && (
@@ -540,6 +560,79 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+      {/* ================= EDIT PODCAST MODAL ================= */}
+      {editingPodcast && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <button
+              className="modal-close"
+              onClick={() => setEditingPodcast(null)}
+            >
+              ✕
+            </button>
+
+            <h3>Edit Podcast</h3>
+
+            <input
+              value={editPodcastTitle}
+              onChange={(e) => setEditPodcastTitle(e.target.value)}
+              placeholder="Title"
+            />
+
+            <input
+              value={editPodcastAuthor}
+              onChange={(e) => setEditPodcastAuthor(e.target.value)}
+              placeholder="Author"
+            />
+
+            <input
+              value={editSpotifyUrl}
+              onChange={(e) => setEditSpotifyUrl(e.target.value)}
+              placeholder="Spotify URL"
+            />
+
+            <select
+              value={editPodcastGenreId}
+              onChange={(e) => setEditPodcastGenreId(e.target.value)}
+            >
+              <option value="">Select genre</option>
+              {genres.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={async () => {
+                await fetch(
+                  `${API_BASE}/admin/podcasts/${editingPodcast.id}`,
+                  {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      title: editPodcastTitle,
+                      author: editPodcastAuthor,
+                      spotifyUrl: editSpotifyUrl,
+                      genreId: editPodcastGenreId
+                    })
+                  }
+                );
+
+                // 🔁 re-fetch podcasts
+                const res = await fetch(`${API_BASE}/admin/podcasts`);
+                const data = await res.json();
+                setPodcasts(data);
+
+                setEditingPodcast(null);
+              }}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      )}
+
 
       {/* ================= ADD MATERIAL MODAL ================= */}
       {showAddMaterial && (
