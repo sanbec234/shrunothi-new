@@ -7,6 +7,9 @@ from public_api.routes.genre_material import bp as genre_material_bp
 from public_api.routes.material import bp as material_bp
 from public_api.routes.corpus_self_help import bp as corpus_self_help_bp
 
+from admin_api.routes.self_help import bp as admin_self_help
+from public_api.routes.self_help import bp as public_self_help
+
 def create_app():
     app = Flask(__name__)
     CORS(app)
@@ -16,6 +19,9 @@ def create_app():
     app.register_blueprint(genre_material_bp)
     app.register_blueprint(material_bp)
     app.register_blueprint(corpus_self_help_bp)
+    app.register_blueprint(admin_self_help)
+    app.register_blueprint(public_self_help)
+
     
     @app.route("/health")
     def health():

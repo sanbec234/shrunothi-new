@@ -1,13 +1,5 @@
 from datetime import datetime
 
-# def serialize_podcast(doc):
-#     return {
-#         "id": str(doc["_id"]),
-#         "title": doc["title"],
-#         "author": doc["author"],
-#         "spotifyUrl": doc["spotifyUrl"],
-#         "genreId": doc["genreId"]
-#     }
 
 def serialize_podcast(d):
     return {

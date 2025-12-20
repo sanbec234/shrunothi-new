@@ -1,11 +1,12 @@
 from datetime import datetime
+from bson import ObjectId
 
 def serialize_material(doc):
     return {
         "id": str(doc["_id"]),
-        "title": doc["title"],
-        "author": doc["author"],
-        "genreId": doc["genreId"]
+        "title": doc.get("title"),
+        "author": doc.get("author"),
+        "genreId": str(doc["genreId"]) if doc.get("genreId") else None,
     }
 
 def create_material(db, data):

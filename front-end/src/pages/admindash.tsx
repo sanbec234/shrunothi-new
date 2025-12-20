@@ -95,6 +95,21 @@ export default function AdminDashboard() {
   const [editSpotifyUrl, setEditSpotifyUrl] = useState("");
   const [editPodcastGenreId, setEditPodcastGenreId] = useState("");
 
+  /* ================= EDIT MATERIAL ================= */
+  const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
+  const [editMaterialTitle, setEditMaterialTitle] = useState("");
+  const [editMaterialAuthor, setEditMaterialAuthor] = useState("");
+  const [editMaterialContent, setEditMaterialContent] = useState("");
+  const [editMaterialGenreId, setEditMaterialGenreId] = useState("");
+
+  /* ================= EDIT SELF HELP ================= */
+  const [editingSelfHelp, setEditingSelfHelp] = useState<SelfHelp | null>(null);
+  const [editSelfHelpTitle, setEditSelfHelpTitle] = useState("");
+  const [editSelfHelpAuthor, setEditSelfHelpAuthor] = useState("");
+  const [editSelfHelpContent, setEditSelfHelpContent] = useState("");
+
+  const [successMessage, setSuccessMessage] = useState("");
+
 
    useEffect(() => {
     async function loadGenres() {
@@ -429,7 +444,21 @@ export default function AdminDashboard() {
                     <td>{m.title}</td>
                     <td>{m.author}</td>
                     <td>{genres.find((g) => g.id === m.genreId)?.name}</td>
-                    <td>Edit</td>
+                    <button
+                      onClick={async () => {
+                        setEditingMaterial(m);
+                        setEditMaterialTitle(m.title);
+                        setEditMaterialAuthor(m.author);
+                        setEditMaterialGenreId(m.genreId);
+
+                        // 🔥 fetch full content explicitly
+                        const res = await fetch(`${API_BASE}/material/${m.id}`);
+                        const data = await res.json();
+                        setEditMaterialContent(data.content);
+                      }}
+                    >
+                      Edit
+                    </button>
                   </tr>
                 ))}
                 {materials.length === 0 && (
@@ -466,7 +495,22 @@ export default function AdminDashboard() {
                   <tr key={s.id}>
                     <td>{s.title}</td>
                     <td>{s.author}</td>
-                    <td>Edit</td>
+                    <td>
+                      <button
+                        onClick={() => {
+                          setEditingSelfHelp(s);
+                          setEditSelfHelpTitle(s.title);
+                          setEditSelfHelpAuthor(s.author);
+
+                          // fetch full content if needed
+                          fetch(`${API_BASE}/material/${s.id}`)
+                            .then(res => res.json())
+                            .then(data => setEditSelfHelpContent(data.content));
+                        }}
+                      >
+                        Edit
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 {selfHelps.length === 0 && (
@@ -560,6 +604,7 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
       {/* ================= EDIT PODCAST MODAL ================= */}
       {editingPodcast && (
         <div className="modal-overlay">
@@ -570,6 +615,13 @@ export default function AdminDashboard() {
             >
               ✕
             </button>
+
+            {/* ✅ Success message */}
+            {successMessage && (
+              <div className="success-banner">
+                {successMessage}
+              </div>
+            )}
 
             <h3>Edit Podcast</h3>
 
@@ -619,12 +671,29 @@ export default function AdminDashboard() {
                   }
                 );
 
-                // 🔁 re-fetch podcasts
-                const res = await fetch(`${API_BASE}/admin/podcasts`);
-                const data = await res.json();
-                setPodcasts(data);
+                // ✅ update local state immediately (NO reload)
+                setPodcasts((prev) =>
+                  prev.map((p) =>
+                    p.id === editingPodcast.id
+                      ? {
+                          ...p,
+                          title: editPodcastTitle,
+                          author: editPodcastAuthor,
+                          spotifyUrl: editSpotifyUrl,
+                          genreId: editPodcastGenreId
+                        }
+                      : p
+                  )
+                );
 
-                setEditingPodcast(null);
+                // ✅ success feedback
+                setSuccessMessage("Podcast updated successfully");
+
+                // ⏱ close modal
+                setTimeout(() => {
+                  setEditingPodcast(null);
+                  setSuccessMessage("");
+                }, 800);
               }}
             >
               Save
@@ -632,7 +701,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
-
 
       {/* ================= ADD MATERIAL MODAL ================= */}
       {showAddMaterial && (
@@ -651,6 +719,100 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* ================= EDIT MATERIAL MODAL ================= */}
+      {editingMaterial && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <button
+              className="modal-close"
+              onClick={() => setEditingMaterial(null)}
+            >
+              ✕
+            </button>
+
+            {successMessage && (
+              <div className="success-banner">
+                {successMessage}
+              </div>
+            )}
+
+            <h3>Edit Material</h3>
+
+            <input
+              value={editMaterialTitle}
+              onChange={(e) => setEditMaterialTitle(e.target.value)}
+              placeholder="Title"
+            />
+
+            <input
+              value={editMaterialAuthor}
+              onChange={(e) => setEditMaterialAuthor(e.target.value)}
+              placeholder="Author"
+            />
+
+            <textarea
+              value={editMaterialContent}
+              onChange={(e) => setEditMaterialContent(e.target.value)}
+              placeholder="Content"
+            />
+
+            <select
+              value={editMaterialGenreId}
+              onChange={(e) => setEditMaterialGenreId(e.target.value)}
+            >
+              <option value="">Select genre</option>
+              {genres.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={async () => {
+                await fetch(
+                  `${API_BASE}/admin/materials/${editingMaterial.id}`,
+                  {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      title: editMaterialTitle,
+                      author: editMaterialAuthor,
+                      content: editMaterialContent,
+                      genreId: editMaterialGenreId
+                    })
+                  }
+                );
+
+                // ✅ optimistic UI update
+                setMaterials((prev) =>
+                  prev.map((m) =>
+                    m.id === editingMaterial.id
+                      ? {
+                          ...m,
+                          title: editMaterialTitle,
+                          author: editMaterialAuthor,
+                          content: editMaterialContent,
+                          genreId: editMaterialGenreId
+                        }
+                      : m
+                  )
+                );
+
+                setSuccessMessage("Material updated successfully");
+
+                setTimeout(() => {
+                  setEditingMaterial(null);
+                  setSuccessMessage("");
+                }, 800);
+              }}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ================= ADD SELF-HELP MODAL ================= */}
       {showAddSelfHelp && (
         <div className="modal-overlay">
@@ -660,6 +822,67 @@ export default function AdminDashboard() {
             <input placeholder="Author" value={newSelfHelpAuthor} onChange={(e) => setNewSelfHelpAuthor(e.target.value)} />
             <textarea placeholder="Content" value={newSelfHelpContent} onChange={(e) => setNewSelfHelpContent(e.target.value)} />
             <button onClick={addSelfHelp}>Add Self-Help</button>
+          </div>
+        </div>
+      )}
+
+      {/* ================= EDIT SELF-HELP MODAL ================= */}
+      {editingSelfHelp && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <button
+              className="modal-close"
+              onClick={() => setEditingSelfHelp(null)}
+            >
+              ✕
+            </button>
+
+            <h3>Edit Self-Help</h3>
+
+            <input
+              placeholder="Title"
+              value={editSelfHelpTitle}
+              onChange={(e) => setEditSelfHelpTitle(e.target.value)}
+            />
+
+            <input
+              placeholder="Author"
+              value={editSelfHelpAuthor}
+              onChange={(e) => setEditSelfHelpAuthor(e.target.value)}
+            />
+
+            <textarea
+              placeholder="Content"
+              value={editSelfHelpContent}
+              onChange={(e) => setEditSelfHelpContent(e.target.value)}
+              rows={10}
+            />
+
+            <button
+              onClick={async () => {
+                await fetch(
+                  `${API_BASE}/admin/self-help/${editingSelfHelp.id}`,
+                  {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      title: editSelfHelpTitle,
+                      author: editSelfHelpAuthor,
+                      content: editSelfHelpContent
+                    })
+                  }
+                );
+
+                // 🔁 Refresh self-help list (no reload)
+                const res = await fetch(`${API_BASE}/self-help`);
+                const data = await res.json();
+                setSelfHelps(data);
+
+                setEditingSelfHelp(null);
+              }}
+            >
+              Save
+            </button>
           </div>
         </div>
       )}
