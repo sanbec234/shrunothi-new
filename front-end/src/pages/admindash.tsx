@@ -185,32 +185,131 @@ export default function AdminDashboard() {
     resetGenreWizard();
   }
   
-  async function createGenre() {
+  // async function createGenreBundle() {
+  //   try {
+  //     // ✅ frontend validation (no orphans)
+  //     if (
+  //       !genreName ||
+  //       !podcastTitle ||
+  //       !podcastAuthor ||
+  //       !spotifyUrl ||
+  //       !materialTitle ||
+  //       !materialAuthor ||
+  //       !materialContent
+  //     ) {
+  //       alert("All fields are required");
+  //       return;
+  //     }
+
+  //     // 1️⃣ Create genre
+  //     const genreRes = await fetch(`${API_BASE}/admin/genres`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ name: genreName })
+  //     });
+
+  //     if (!genreRes.ok) throw new Error("Genre creation failed");
+
+  //     const genre = await genreRes.json();
+  //     const genreId = genre.id;
+
+  //     // 2️⃣ Create podcast
+  //     await fetch(`${API_BASE}/admin/podcasts`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         title: podcastTitle,
+  //         author: podcastAuthor,
+  //         spotifyUrl,
+  //         genreId
+  //       })
+  //     });
+
+  //     // 3️⃣ Create material
+  //     await fetch(`${API_BASE}/admin/materials`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         title: materialTitle,
+  //         author: materialAuthor,
+  //         content: materialContent,
+  //         genreId
+  //       })
+  //     });
+
+  //     // 4️⃣ Refresh UI
+  //     const genresRes = await fetch(`${API_BASE}/genres`);
+  //     setGenres(await genresRes.json());
+
+  //     closeGenreModal();
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Failed to create genre bundle");
+  //   }
+  // }
+
+  async function createGenreBundle() {
     try {
-      const res = await fetch("http://localhost:5001/admin/genres", {
+      // 1️⃣ Create genre
+      const genreRes = await fetch(`${API_BASE}/admin/genres`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: genreName })
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to create genre");
+      if (!genreRes.ok) throw new Error("Genre creation failed");
+
+      const genre = await genreRes.json();
+      const genreId = genre.id;
+
+      // 2️⃣ Create podcast (only if filled)
+      if (podcastTitle && podcastAuthor && spotifyUrl) {
+        await fetch(`${API_BASE}/admin/podcasts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: podcastTitle,
+            author: podcastAuthor,
+            spotifyUrl,
+            genreId
+          })
+        });
       }
 
-      // Re-fetch genres from backend (single source of truth)
-      const genresRes = await fetch("http://localhost:5001/genres");
-      const genresData = await genresRes.json();
+      // 3️⃣ Create material (only if filled)
+      if (materialTitle && materialAuthor && materialContent) {
+        await fetch(`${API_BASE}/admin/materials`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: materialTitle,
+            author: materialAuthor,
+            content: materialContent,
+            genreId
+          })
+        });
+      }
 
-      setGenres(genresData);
+      // 🔁 4️⃣ REFRESH ALL DATA (this is what you were missing)
+      const [gRes, pRes, mRes] = await Promise.all([
+        fetch(`${API_BASE}/genres`),
+        fetch(`${API_BASE}/podcasts`),
+        fetch(`${API_BASE}/materials`)
+      ]);
+
+      setGenres(await gRes.json());
+      setPodcasts(await pRes.json());
+      setMaterials(await mRes.json());
+
+      // 5️⃣ Close modal
       closeGenreModal();
 
     } catch (err) {
       console.error(err);
-      alert("Error creating genre");
+      alert("Failed to create genre bundle");
     }
   }
+
 
   async function addPodcast() {
     if (!newPodcastTitle || !newPodcastAuthor || !newSpotifyUrl || !podcastGenreId) {
@@ -666,7 +765,7 @@ export default function AdminDashboard() {
                   value={materialContent}
                   onChange={(e) => setMaterialContent(e.target.value)}
                 />
-                <button onClick={createGenre}>Create Genre</button>
+                <button onClick={createGenreBundle}>Create Genre</button>
               </>
             )}
           </div>
