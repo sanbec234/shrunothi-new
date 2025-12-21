@@ -53,3 +53,22 @@ def update_material(material_id):
     )
 
     return jsonify({ "status": "updated" }), 200
+
+@bp.route("/admin/materials/<material_id>", methods=["DELETE", "OPTIONS"])
+def delete_material(material_id):
+    if request.method == "OPTIONS":
+        return "", 200
+
+    db = get_db()
+
+    try:
+        oid = ObjectId(material_id)
+    except Exception:
+        return jsonify({ "error": "Invalid material id" }), 400
+
+    result = db.materials.delete_one({ "_id": oid })
+
+    if result.deleted_count == 0:
+        return jsonify({ "error": "Material not found" }), 404
+
+    return jsonify({ "status": "deleted" }), 200

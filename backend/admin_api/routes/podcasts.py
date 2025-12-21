@@ -71,3 +71,21 @@ def update_podcast(podcast_id):
 
     return jsonify({ "status": "updated" }), 200
 
+@bp.route("/admin/podcasts/<podcast_id>", methods=["DELETE", "OPTIONS"])
+def delete_podcast(podcast_id):
+    if request.method == "OPTIONS":
+        return "", 200
+
+    db = get_db()
+
+    try:
+        oid = ObjectId(podcast_id)
+    except Exception:
+        return jsonify({ "error": "Invalid podcast id" }), 400
+
+    result = db.podcasts.delete_one({ "_id": oid })
+
+    if result.deleted_count == 0:
+        return jsonify({ "error": "Podcast not found" }), 404
+
+    return jsonify({ "status": "deleted" }), 200

@@ -87,6 +87,9 @@ export default function AdminDashboard() {
   const [newSelfHelpTitle, setNewSelfHelpTitle] = useState("");
   const [newSelfHelpAuthor, setNewSelfHelpAuthor] = useState("");
   const [newSelfHelpContent, setNewSelfHelpContent] = useState("");
+  /* ================= EDIT GENRE ================= */
+  const [editingGenre, setEditingGenre] = useState<Genre | null>(null);
+  const [editGenreName, setEditGenreName] = useState("");
 
   /* ================= EDIT PODCAST ================= */
   const [editingPodcast, setEditingPodcast] = useState<Podcast | null>(null);
@@ -354,7 +357,40 @@ export default function AdminDashboard() {
                     <td>{g.name}</td>
                     <td>{podcastCount(g.id)}</td>
                     <td>{materialCount(g.id)}</td>
-                    <td>Edit</td>
+                    <td>
+                      <button
+                        onClick={() => {
+                          setEditingGenre(g);
+                          setEditGenreName(g.name);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="danger"
+                        onClick={async () => {
+                          if (!confirm("Delete this genre?")) return;
+
+                          const res = await fetch(
+                            `${API_BASE}/admin/genres/${g.id}`,
+                            { method: "DELETE" }
+                          );
+
+                          if (!res.ok) {
+                            const err = await res.json();
+                            alert(err.error); // e.g. "Genre has podcasts"
+                            return;
+                          }
+
+                          // ✅ refresh from PUBLIC API
+                          const genresRes = await fetch(`${API_BASE}/genres`);
+                          const data = await genresRes.json();
+                          setGenres(data);
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 {genres.length === 0 && (
@@ -404,6 +440,21 @@ export default function AdminDashboard() {
                         }}
                       >
                         Edit
+                      </button>
+                      <button
+                        className="danger"
+                        onClick={async () => {
+                          if (!confirm("Delete this podcast?")) return;
+
+                          await fetch(`${API_BASE}/admin/podcasts/${p.id}`, {
+                            method: "DELETE"
+                          });
+
+                          const res = await fetch(`${API_BASE}/podcasts`);
+                          setPodcasts(await res.json());
+                        }}
+                      >
+                        Delete
                       </button>
                     </td>
                   </tr>
@@ -459,6 +510,23 @@ export default function AdminDashboard() {
                     >
                       Edit
                     </button>
+                    <button
+                      className="danger"
+                      onClick={async () => {
+                        if (!confirm("Delete this material?")) return;
+
+                        await fetch(`${API_BASE}/admin/materials/${m.id}`, {
+                          method: "DELETE"
+                        });
+
+                        // ✅ refresh from PUBLIC API
+                        const res = await fetch(`${API_BASE}/materials`);
+                        const data = await res.json();
+                        setMaterials(data);
+                      }}
+                    >
+                      Delete
+                    </button>
                   </tr>
                 ))}
                 {materials.length === 0 && (
@@ -509,6 +577,23 @@ export default function AdminDashboard() {
                         }}
                       >
                         Edit
+                      </button>
+                      <button
+                        className="danger"
+                        onClick={async () => {
+                          if (!confirm("Delete this self-help guide?")) return;
+
+                          await fetch(`${API_BASE}/admin/self-help/${s.id}`, {
+                            method: "DELETE"
+                          });
+
+                          // ✅ refresh from PUBLIC API
+                          const res = await fetch(`${API_BASE}/self-help`);
+                          const data = await res.json();
+                          setSelfHelps(data);
+                        }}
+                      >
+                        Delete
                       </button>
                     </td>
                   </tr>
@@ -584,6 +669,51 @@ export default function AdminDashboard() {
                 <button onClick={createGenre}>Create Genre</button>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ================= EDIT GENRE MODAL ================= */}      
+      {editingGenre && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <button
+              className="modal-close"
+              onClick={() => setEditingGenre(null)}
+            >
+              ✕
+            </button>
+
+            <h3>Edit Genre</h3>
+
+            <input
+              value={editGenreName}
+              onChange={(e) => setEditGenreName(e.target.value)}
+              placeholder="Genre name"
+            />
+
+            <button
+              disabled={!editGenreName.trim()}
+              onClick={async () => {
+                await fetch(
+                  `${API_BASE}/admin/genres/${editingGenre.id}`,
+                  {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: editGenreName })
+                  }
+                );
+
+                // 🔁 refresh genres
+                const res = await fetch(`${API_BASE}/genres`);
+                const data = await res.json();
+                setGenres(data);
+
+                setEditingGenre(null);
+              }}
+            >
+              Save
+            </button>
           </div>
         </div>
       )}

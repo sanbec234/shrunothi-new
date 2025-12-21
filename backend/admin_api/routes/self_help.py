@@ -52,3 +52,22 @@ def update_self_help(self_help_id):
         return jsonify({ "error": "Self-help not found" }), 404
 
     return jsonify({ "status": "updated" }), 200
+
+@bp.route("/admin/self-help/<self_help_id>", methods=["DELETE", "OPTIONS"])
+def delete_self_help(self_help_id):
+    if request.method == "OPTIONS":
+        return "", 200
+
+    db = get_db()
+
+    try:
+        oid = ObjectId(self_help_id)
+    except Exception:
+        return jsonify({ "error": "Invalid self-help id" }), 400
+
+    result = db.self_help.delete_one({ "_id": oid })
+
+    if result.deleted_count == 0:
+        return jsonify({ "error": "Self-help not found" }), 404
+
+    return jsonify({ "status": "deleted" }), 200
