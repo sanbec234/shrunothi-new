@@ -30,6 +30,69 @@ export default function Home(): JSX.Element {
   const [selfHelpDocs, setSelfHelpDocs] = useState<TextDoc[]>([]);
   const [activeDoc, setActiveDoc] = useState<TextDoc | null>(null);
 
+  /* ---- This block disables screenshots and printing ---- */
+
+  useEffect(() => {
+    const blockKeys = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+
+      if (
+        key === "printscreen" ||
+        (e.ctrlKey && key === "p") ||
+        (e.metaKey && key === "p") ||
+        (e.ctrlKey && e.shiftKey && key === "i") ||
+        (e.metaKey && e.altKey && key === "i")
+      ) {
+        e.preventDefault();
+        alert("Screenshots and printing are disabled.");
+      }
+    };
+
+    window.addEventListener("keydown", blockKeys);
+    return () => window.removeEventListener("keydown", blockKeys);
+  }, []);
+
+
+  /* ---- disable right click ---- */
+
+  // useEffect(() => {
+  //   const block = (e: MouseEvent) => e.preventDefault();
+  //   document.addEventListener("contextmenu", block);
+  //   return () => document.removeEventListener("contextmenu", block);
+  // }, []);
+
+
+  useEffect(() => {
+  const handleBlur = () => {
+    document.documentElement.classList.add("blurred");
+  };
+
+  const handleFocus = () => {
+    document.documentElement.classList.remove("blurred");
+  };
+
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      handleBlur();
+    } else {
+      handleFocus();
+    }
+  };
+
+  window.addEventListener("blur", handleBlur);
+  window.addEventListener("focus", handleFocus);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+
+  return () => {
+    window.removeEventListener("blur", handleBlur);
+    window.removeEventListener("focus", handleFocus);
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+  };
+}, []);
+
+  /* =========================
+          Load genres  
+  ========================= */
   useEffect(() => {
   let mounted = true;
 

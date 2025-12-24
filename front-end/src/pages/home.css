@@ -179,6 +179,12 @@
   overflow: hidden;
 }
 
+.blurred {
+  filter: blur(14px) brightness(0.7);
+  transition: filter 0.15s ease;
+}
+
+
 @media (max-width: 900px) {
   .home-root {
     grid-template-columns: 64px 1fr;

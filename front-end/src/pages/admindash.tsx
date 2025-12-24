@@ -185,69 +185,6 @@ export default function AdminDashboard() {
     resetGenreWizard();
   }
   
-  // async function createGenreBundle() {
-  //   try {
-  //     // ✅ frontend validation (no orphans)
-  //     if (
-  //       !genreName ||
-  //       !podcastTitle ||
-  //       !podcastAuthor ||
-  //       !spotifyUrl ||
-  //       !materialTitle ||
-  //       !materialAuthor ||
-  //       !materialContent
-  //     ) {
-  //       alert("All fields are required");
-  //       return;
-  //     }
-
-  //     // 1️⃣ Create genre
-  //     const genreRes = await fetch(`${API_BASE}/admin/genres`, {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ name: genreName })
-  //     });
-
-  //     if (!genreRes.ok) throw new Error("Genre creation failed");
-
-  //     const genre = await genreRes.json();
-  //     const genreId = genre.id;
-
-  //     // 2️⃣ Create podcast
-  //     await fetch(`${API_BASE}/admin/podcasts`, {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         title: podcastTitle,
-  //         author: podcastAuthor,
-  //         spotifyUrl,
-  //         genreId
-  //       })
-  //     });
-
-  //     // 3️⃣ Create material
-  //     await fetch(`${API_BASE}/admin/materials`, {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         title: materialTitle,
-  //         author: materialAuthor,
-  //         content: materialContent,
-  //         genreId
-  //       })
-  //     });
-
-  //     // 4️⃣ Refresh UI
-  //     const genresRes = await fetch(`${API_BASE}/genres`);
-  //     setGenres(await genresRes.json());
-
-  //     closeGenreModal();
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert("Failed to create genre bundle");
-  //   }
-  // }
-
   async function createGenreBundle() {
     try {
       // 1️⃣ Create genre
@@ -365,7 +302,7 @@ export default function AdminDashboard() {
           genreId: materialGenreId
         })
       });
-
+ 
       if (!res.ok) throw new Error("Failed to create material");
 
       const matsRes = await fetch(`${API_BASE}/materials`);

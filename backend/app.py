@@ -17,6 +17,9 @@ from public_api.routes.self_help import bp as public_self_help
 from public_api.routes.genre_podcasts import bp as genre_podcasts_bp
 from public_api.routes.material import bp as public_material
 
+#Login route
+from auth.routes import auth_bp
+
 def create_app():
     app = Flask(__name__)
     CORS(
@@ -37,6 +40,7 @@ def create_app():
     app.register_blueprint(public_self_help)
     app.register_blueprint(genre_podcasts_bp)
     app.register_blueprint(public_material)
+    app.register_blueprint(auth_bp)  # /auth
 
     # ---- Health check ----
     @app.route("/health", methods=["GET"])
