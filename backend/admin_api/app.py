@@ -3,6 +3,7 @@ from flask_cors import CORS
 
 from db.client import get_db
 from admin_api.routes.genres import bp as genre_bp
+from admin_api.routes.admin_emails import bp as admin_emails_bp
 
 def create_app():
     app = Flask(__name__)

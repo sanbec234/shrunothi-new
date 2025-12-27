@@ -6,6 +6,7 @@ import TextDocCard from "../components/TextDocCard";
 import type { Genre } from "../types/index";
 import DocModal from "../components/DocModal";
 import "./Home.css";
+import LoginPopup from "../components/GoogleAuthPopup";
 
 /* ---- types (match mock backend) ---- */
 type Podcast = {
@@ -20,6 +21,8 @@ type TextDoc = {
 };
 
 export default function Home(): JSX.Element {
+
+  const user = JSON.parse(localStorage.getItem("authUser") || "null");
   /* ---- sidebar ---- */
   const [genres, setGenres] = useState<Genre[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<Genre | null>(null);
@@ -30,6 +33,12 @@ export default function Home(): JSX.Element {
   const [selfHelpDocs, setSelfHelpDocs] = useState<TextDoc[]>([]);
   const [activeDoc, setActiveDoc] = useState<TextDoc | null>(null);
 
+  const [showLogin, setShowLogin] = useState(false);
+  const [pendingDoc, setPendingDoc] = useState<TextDoc | null>(null);
+
+  const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
+  const isLoggedIn = Boolean(authUser);
+  
   /* ---- This block disables screenshots and printing ---- */
 
   useEffect(() => {
@@ -214,6 +223,7 @@ export default function Home(): JSX.Element {
         genres={genres}
         selected={selectedGenre}
         onSelect={(g) => setSelectedGenre(g)}
+        user={user}
       />
 
       <main className="main-area">
@@ -257,7 +267,15 @@ export default function Home(): JSX.Element {
               <TextDocCard
                 key={doc.id}
                 doc={doc}
-                onClick={() => setActiveDoc(doc)}
+                onClick={() => {
+                  if (!isLoggedIn) {
+                    setPendingDoc(doc);
+                    setShowLogin(true);
+                    return;
+                  }
+
+                  setActiveDoc(doc);
+                }}
               />
             ))
           )}
@@ -284,6 +302,22 @@ export default function Home(): JSX.Element {
         <DocModal
           doc={activeDoc}
           onClose={() => setActiveDoc(null)}
+        />
+      )}
+      {showLogin && (
+        <LoginPopup
+          onSuccess={() => {
+            setShowLogin(false);
+
+            if (pendingDoc) {
+              setActiveDoc(pendingDoc);
+              setPendingDoc(null);
+            }
+          }}
+          onClose={() => {
+            setShowLogin(false);
+            setPendingDoc(null);
+          }}
         />
       )}
     </div>

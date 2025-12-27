@@ -16,6 +16,8 @@ from admin_api.routes.self_help import bp as admin_self_help
 from public_api.routes.self_help import bp as public_self_help
 from public_api.routes.genre_podcasts import bp as genre_podcasts_bp
 from public_api.routes.material import bp as public_material
+from admin_api.routes.admin_emails import bp as admin_emails_bp
+from admin_api.routes.users import bp as admin_users
 
 #Login route
 from auth.routes import auth_bp
@@ -41,7 +43,9 @@ def create_app():
     app.register_blueprint(genre_podcasts_bp)
     app.register_blueprint(public_material)
     app.register_blueprint(auth_bp)  # /auth
-
+    app.register_blueprint(admin_emails_bp)
+    app.register_blueprint(admin_users)
+    
     # ---- Health check ----
     @app.route("/health", methods=["GET"])
     def health():

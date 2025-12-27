@@ -36,6 +36,16 @@ const uid = () => crypto.randomUUID();
 /* ---------- Component ---------- */
 
 export default function AdminDashboard() {
+
+  const user = JSON.parse(localStorage.getItem("authUser") || "null");
+
+  const [users, setUsers] = useState<any[]>([]);
+
+  // ---- Admin Emails ----
+  const [adminEmails, setAdminEmails] = useState<{ id: string; email: string }[]>([]);
+  const [showAddAdmin, setShowAddAdmin] = useState(false);
+  const [newAdminEmail, setNewAdminEmail] = useState("");
+
   /* ================= DATA ================= */
 
   const [genres, setGenres] = useState<Genre[]>([]);
@@ -114,7 +124,7 @@ export default function AdminDashboard() {
   const [successMessage, setSuccessMessage] = useState("");
 
 
-   useEffect(() => {
+  useEffect(() => {
     async function loadGenres() {
       const res = await fetch("http://localhost:5001/genres");
       const data = await res.json();
@@ -166,6 +176,13 @@ export default function AdminDashboard() {
     loadSelfHelp();
   }, []);
 
+  useEffect(() => {
+    loadAdminEmails();
+  }, []);
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
   /* ================= HELPERS ================= */
 
@@ -184,7 +201,19 @@ export default function AdminDashboard() {
     setShowAddGenre(false);
     resetGenreWizard();
   }
+
+  /* ================= LOAD ADMIN EMAILS ================= */
+  async function loadAdminEmails() {
+    try {
+      const res = await fetch(`${API_BASE}/admin/admin-emails`);
+      const data = await res.json();
+      setAdminEmails(data);
+    } catch (err) {
+      console.error("Failed to load admin emails", err);
+    }
+  }
   
+
   async function createGenreBundle() {
     try {
       // 1️⃣ Create genre
@@ -302,7 +331,7 @@ export default function AdminDashboard() {
           genreId: materialGenreId
         })
       });
- 
+
       if (!res.ok) throw new Error("Failed to create material");
 
       const matsRes = await fetch(`${API_BASE}/materials`);
@@ -355,7 +384,63 @@ export default function AdminDashboard() {
     }
   }
 
+  async function addAdminEmail() {
+    if (!newAdminEmail.trim()) return;
 
+    try {
+      const res = await fetch(`${API_BASE}/admin/admin-emails`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newAdminEmail.trim() })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || "Failed to add admin");
+        return;
+      }
+
+      await loadAdminEmails(); // single source of truth
+      setNewAdminEmail("");
+      setShowAddAdmin(false);
+    } catch (err) {
+      console.error(err);
+      alert("Network error");
+    }
+  }
+
+  async function deleteAdminEmail(id: string) {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to remove this admin?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(
+        `${API_BASE}/admin/admin-emails/${id}`,
+        { method: "DELETE" }
+      );
+
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || "Failed to delete admin");
+        return;
+      }
+
+      // 🔁 refresh list
+      await loadAdminEmails();
+    } catch (err) {
+      console.error(err);
+      alert("Network error");
+    }
+  }
+
+  async function loadUsers() {
+    const res = await fetch(`${API_BASE}/admin/users`);
+    const data = await res.json();
+    setUsers(data);
+  }
+  
   const podcastCount = (id: string) =>
     podcasts.filter((p) => p.genreId === id).length;
 
@@ -644,6 +729,97 @@ export default function AdminDashboard() {
           </>
         )}
       </section>
+      {/* ================= ADMIN EMAILS ================= */}
+      <section>
+        <h2>Admin Emails</h2>
+
+        <button onClick={() => setShowAddAdmin(true)}>
+          + Add Admin Email
+        </button>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {adminEmails.length === 0 ? (
+              <tr>
+                <td colSpan={3} className="empty">
+                  No admin emails added
+                </td>
+              </tr>
+            ) : (
+              adminEmails.map((a) => (
+                <tr key={a.id}>
+                  <td>{a.email}</td>
+                  <td>
+                    <button
+                      className="secondary"
+                      onClick={() => deleteAdminEmail(a.id)}
+                      disabled={a.email === user.email}
+                      title={
+                        a.email === user.email
+                          ? "You cannot remove yourself"
+                          : "Remove admin"
+                      }
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </section>
+      <section>
+        <h2>Users</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>First Login</th>
+              <th>Last Login</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {users.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="empty">
+                  No users yet
+                </td>
+              </tr>
+            ) : (
+              users.map((u) => (
+                <tr key={u.id}>
+                  <td>{u.name || "—"}</td>
+                  <td>{u.email}</td>
+                  <td>{u.role}</td>
+                  <td>
+                    {u.created_at
+                      ? new Date(u.created_at).toLocaleString()
+                      : "—"}
+                  </td>
+                  <td>
+                    {u.last_login
+                      ? new Date(u.last_login).toLocaleString()
+                      : "—"}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </section>
 
       {/* ================= ADD GENRE MODAL ================= */}
       {showAddGenre && (
@@ -709,7 +885,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* ================= EDIT GENRE MODAL ================= */}      
+      {/* ================= EDIT GENRE MODAL ================= */}
       {editingGenre && (
         <div className="modal-overlay">
           <div className="modal">
@@ -842,12 +1018,12 @@ export default function AdminDashboard() {
                   prev.map((p) =>
                     p.id === editingPodcast.id
                       ? {
-                          ...p,
-                          title: editPodcastTitle,
-                          author: editPodcastAuthor,
-                          spotifyUrl: editSpotifyUrl,
-                          genreId: editPodcastGenreId
-                        }
+                        ...p,
+                        title: editPodcastTitle,
+                        author: editPodcastAuthor,
+                        spotifyUrl: editSpotifyUrl,
+                        genreId: editPodcastGenreId
+                      }
                       : p
                   )
                 );
@@ -955,12 +1131,12 @@ export default function AdminDashboard() {
                   prev.map((m) =>
                     m.id === editingMaterial.id
                       ? {
-                          ...m,
-                          title: editMaterialTitle,
-                          author: editMaterialAuthor,
-                          content: editMaterialContent,
-                          genreId: editMaterialGenreId
-                        }
+                        ...m,
+                        title: editMaterialTitle,
+                        author: editMaterialAuthor,
+                        content: editMaterialContent,
+                        genreId: editMaterialGenreId
+                      }
                       : m
                   )
                 );
@@ -1049,6 +1225,31 @@ export default function AdminDashboard() {
             >
               Save
             </button>
+          </div>
+        </div>
+      )}
+
+      {showAddAdmin && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <button
+              className="modal-close"
+              onClick={() => setShowAddAdmin(false)}
+            >
+              ✕
+            </button>
+
+            <h3>Add Admin Email</h3>
+
+            <input
+              placeholder="admin@email.com"
+              value={newAdminEmail}
+              onChange={(e) => setNewAdminEmail(e.target.value)}
+            />
+            <button onClick={addAdminEmail}>
+              Add
+            </button>
+
           </div>
         </div>
       )}
