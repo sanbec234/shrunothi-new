@@ -1,6 +1,6 @@
 import { type JSX } from "react";
 import type { Genre } from "../types/index";
-import "./LeftMenu.css";
+import "../components/leftmenu.css";
 type User = {
   name: string;
   email: string;
