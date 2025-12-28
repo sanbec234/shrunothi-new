@@ -1,9 +1,7 @@
-import axios from 'axios';
-
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
+import axios from "axios";
 
 export const api = axios.create({
-  baseURL,
-  headers: { 'Content-Type': 'application/json' },
-  timeout: 10000,
+  baseURL: import.meta.env.VITE_API_URL,
+  headers: { "Content-Type": "application/json" },
+  // timeout: 10000,
 });
