@@ -331,7 +331,7 @@ import HorizontalRow from "../components/HorizontalRow";
 import TextDocCard from "../components/TextDocCard";
 import type { Genre } from "../types/index";
 import DocModal from "../components/DocModal";
-import "./Home.css";
+import "../pages/home.css";
 import LoginPopup from "../components/GoogleAuthPopup";
 
 /* ---- types ---- */
