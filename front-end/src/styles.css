@@ -1,57 +1,46 @@
 /* =========================
-   Design tokens
+   Design tokens (scoped)
 ========================= */
 :root {
   --bg-gradient: linear-gradient(180deg, #f6f7fb 0%, #eef2ff 100%);
   --panel-bg: #ffffff;
   --text-main: #111827;
   --text-muted: #6b7280;
-  --border-soft: rgba(0,0,0,0.06);
+  --border-soft: rgba(0, 0, 0, 0.06);
   --accent: #0369a1;
 }
 
 /* =========================
-   Reset & base
+   Left menu (SCOPED)
 ========================= */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
 
-html,
-body,
-#root {
-  height: 100%;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  color: var(--text-main);
-  width: 100%;
-}
-
-/* =========================
-   Left menu (global)
-========================= */
 .left-menu {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;              /* ⬅ only the menu is fixed */
   background: var(--panel-bg);
   border-right: 1px solid var(--border-soft);
   padding: 22px;
-  overflow-y: auto;
 }
 
+/* Logo */
 .left-menu .logo {
   margin-bottom: 18px;
   font-size: 18px;
   font-weight: 700;
 }
 
-.genre-list {
+/* Genre list scrolls, not page */
+.left-menu .genre-list {
+  flex: 1;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.genre-btn {
+/* Buttons */
+.left-menu .genre-btn {
   background: transparent;
   border: none;
   text-align: left;
@@ -63,24 +52,56 @@ body,
   cursor: pointer;
 }
 
-.genre-btn:hover {
+.left-menu .genre-btn:hover {
   background: #f3f4f6;
 }
 
-.genre-btn.selected {
+.left-menu .genre-btn.selected {
   background: #e5f5ff;
   color: var(--accent);
   font-weight: 600;
 }
 
 /* =========================
-   Responsive shell
+   User footer (bottom)
 ========================= */
-@media (max-width: 900px) {
-  .home-root {
-    grid-template-columns: 64px 1fr;
-  }
 
+.left-menu .user-box {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.left-menu .user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.left-menu .logout-btn {
+  background: transparent;
+  border: none;
+  color: #dc2626;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.left-menu .logout-btn:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   Responsive (menu only)
+========================= */
+
+@media (max-width: 900px) {
   .left-menu {
     padding: 12px;
   }

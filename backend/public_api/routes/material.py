@@ -13,19 +13,22 @@ def get_material(material_id):
     except Exception:
         return jsonify({ "error": "Invalid id" }), 400
 
-    # 1️⃣ Try materials
     doc = db.materials.find_one({ "_id": oid })
     if doc:
         return jsonify({
             "id": material_id,
+            "title": doc.get("title"),
+            "author": doc.get("author"),
+            "genreId": str(doc.get("genreId")) if doc.get("genreId") else None,
             "content": doc.get("content", "")
         }), 200
 
-    # 2️⃣ Try self_help (confirmed from Atlas)
     doc = db.self_help.find_one({ "_id": oid })
     if doc:
         return jsonify({
             "id": material_id,
+            "title": doc.get("title"),
+            "author": doc.get("author"),
             "content": doc.get("content", "")
         }), 200
 

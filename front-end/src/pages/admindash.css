@@ -1,43 +1,86 @@
-/* ---------- Base ---------- */
+/* =====================
+   Design tokens
+===================== */
+:root {
+  --bg-page: #f5f6fa;
+  --bg-card: #ffffff;
+  --bg-soft: #f9fafb;
 
+  --text-main: #111827;
+  --text-muted: #6b7280;
+
+  --border-light: #e5e7eb;
+  --border-soft: #eef0f3;
+
+  --accent: #2563eb;       /* blue */
+  --accent-soft: #e0e7ff;
+  --danger: #dc2626;
+  --success: #059669;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  min-height: 100vh;
+}
+
+/* =====================
+   Base
+===================== */
 * {
   box-sizing: border-box;
 }
 
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #f7f7f8;
-  color: #111;
+html,body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #ffffff;
+  color: var(--text-main);
+  height: 100% !important;
 }
 
-/* ---------- Layout ---------- */
-
+/* =====================
+   Layout
+===================== */
 .admin {
-  width: 100%;
-  padding: 24px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 28px 80px;
+  min-height: 100vh !important;
 }
 
 h2 {
+  font-size: 28px;
+  font-weight: 700;
   margin-bottom: 24px;
 }
 
+/* =====================
+   Sections (cards)
+===================== */
 section {
-  margin-bottom: 32px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 20px 20px 24px;
+  margin-bottom: 28px;
+  border: 1px solid var(--border-soft);
 }
 
-/* ---------- Section headers ---------- */
-
+/* =====================
+   Section headers
+===================== */
 .section-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
   user-select: none;
   font-size: 18px;
   font-weight: 600;
+  margin-bottom: 14px;
 }
 
 .section-header span {
+  font-size: 12px;
   transition: transform 0.2s ease;
 }
 
@@ -45,57 +88,86 @@ section {
   transform: rotate(90deg);
 }
 
-/* ---------- Buttons ---------- */
-
+/* =====================
+   Buttons
+===================== */
 button {
-  background: #111;
+  background: var(--accent);
   color: #fff;
   border: none;
   padding: 8px 14px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+button:active {
+  transform: translateY(1px);
 }
 
 button:disabled {
-  background: #bbb;
+  background: #c7c9d1;
   cursor: not-allowed;
 }
 
 button.secondary {
-  background: #e5e5e5;
-  color: #111;
+  background: var(--bg-soft);
+  color: var(--text-main);
+  border: 1px solid var(--border-light);
 }
 
-/* ---------- Tables ---------- */
+button.secondary:hover {
+  background: #eef2ff;
+}
 
+button.danger {
+  background: var(--danger);
+}
+
+button.danger:hover {
+  background: #b91c1c;
+}
+
+/* =====================
+   Tables
+===================== */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 12px;
-  background: #fff;
-  border-radius: 8px;
+  margin-top: 14px;
+  border-radius: var(--radius-md);
   overflow: hidden;
-
-  /* 👇 this is the key */
-  min-height: 100px;
+  border: 1px solid var(--border-light);
 }
 
+thead {
+  background: var(--bg-soft);
+}
 
 th {
   text-align: left;
-  font-size: 13px;
+  font-size: 12px;
   text-transform: uppercase;
-  color: #555;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
   padding: 12px;
-  background: #fafafa;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-light);
 }
 
 td {
-  padding: 12px;
-  border-bottom: 1px solid #eee;
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--border-soft);
   font-size: 14px;
+}
+
+tbody tr:hover {
+  background: #f9fafb;
 }
 
 tbody tr:last-child td {
@@ -104,56 +176,69 @@ tbody tr:last-child td {
 
 .empty {
   text-align: center;
-  color: #777;
-  padding: 24px;
+  color: var(--text-muted);
+  padding: 28px;
 }
 
-/* ---------- Forms ---------- */
-
+/* =====================
+   Forms
+===================== */
 input,
 textarea,
 select {
   width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  padding: 11px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
   font-size: 14px;
+  margin-bottom: 14px;
+  outline: none;
+  background: #fff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 textarea {
-  min-height: 100px;
+  min-height: 110px;
   resize: vertical;
 }
 
-/* ---------- Modal ---------- */
-
+/* =====================
+   Modal
+===================== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 15, 15, 0.55);
-  backdrop-filter: blur(2px);
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
+
 .modal {
   position: relative;
-  width: 420px;
+  width: 440px;
   max-width: calc(100vw - 32px);
   background: #ffffff;
-  border-radius: 14px;
-  padding: 28px 24px 24px;
+  border-radius: 18px;
+  padding: 28px 26px 24px;
   box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.18),
+    0 20px 40px rgba(0, 0, 0, 0.18),
     0 1px 0 rgba(255, 255, 255, 0.6) inset;
   animation: modalIn 0.18s ease-out;
 }
 
 @keyframes modalIn {
   from {
-    transform: translateY(6px) scale(0.98);
+    transform: translateY(10px) scale(0.97);
     opacity: 0;
   }
   to {
@@ -162,107 +247,53 @@ textarea {
   }
 }
 
-
-.modal h4 {
-  margin-bottom: 16px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-/* ---------- Step indicator ---------- */
-
-.step {
-  font-size: 15px;
-  font-weight: 500;
-  color: #6b7280;
+.modal h3 {
+  margin-top: 0;
   margin-bottom: 18px;
-}
-/* ---------- Utilities ---------- */
-
-.mt-12 {
-  margin-top: 12px;
+  font-size: 18px;
 }
 
-.mt-20 {
-  margin-top: 20px;
-}
-
-.modal {
-  position: relative;
-}
-
+/* Close button */
 .modal-close {
   position: absolute;
   top: 14px;
   right: 14px;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   border: none;
-  background: transparent;
+  background: var(--bg-soft);
   font-size: 18px;
-  line-height: 1;
   cursor: pointer;
-  color: #6b7280;
-  transition: background 0.15s ease, color 0.15s ease;
+  color: var(--text-muted);
 }
 
 .modal-close:hover {
-  background: #f3f4f6;
-  color: #111;
+  background: #eef2ff;
+  color: var(--text-main);
 }
 
-.modal input,
-.modal textarea {
-  width: 100%;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 12px 14px;
-  font-size: 14px;
-  margin-bottom: 14px;
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.modal input:focus,
-.modal textarea:focus {
-  border-color: #111;
-  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.modal-actions button {
-  border-radius: 10px;
-  padding: 10px 16px;
-  font-size: 14px;
-}
-
-.modal-actions .secondary {
-  background: #f3f4f6;
-  color: #111;
-}
-
-.modal-actions button:not(.secondary) {
-  background: #111;
-  color: #fff;
-}
-
+/* =====================
+   Success banner
+===================== */
 .success-banner {
-  background: #e6fffa;
-  color: #065f46;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 12px;
+  background: #ecfdf5;
+  color: var(--success);
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  margin-bottom: 14px;
   font-weight: 500;
   text-align: center;
+}
+
+/* =====================
+   Utilities
+===================== */
+.mt-12 { margin-top: 12px; }
+.mt-20 { margin-top: 20px; }
+
+td .action-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* scalable spacing */
 }

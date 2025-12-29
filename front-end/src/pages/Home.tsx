@@ -41,6 +41,8 @@ export default function Home(): JSX.Element {
   const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
   const isLoggedIn = Boolean(authUser);
 
+  
+
   /* =========================
      Disable screenshots / focus
   ========================= */
