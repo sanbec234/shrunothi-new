@@ -123,6 +123,9 @@ export default function AdminDashboard() {
 
   const [successMessage, setSuccessMessage] = useState("");
 
+  /* ================= FILTER DATA ================= */
+  const [podcastGenreFilter, setPodcastGenreFilter] = useState<string>("all");
+  const [materialGenreFilter, setMaterialGenreFilter] = useState<string>("all");
 
   useEffect(() => {
     async function loadGenres() {
@@ -197,6 +200,16 @@ export default function AdminDashboard() {
     setShowAddGenre(false);
     resetGenreWizard();
   }
+
+  const visiblePodcasts =
+  podcastGenreFilter === "all"
+    ? podcasts
+    : podcasts.filter((p) => p.genreId === podcastGenreFilter);
+
+  const visibleMaterials =
+  materialGenreFilter === "all"
+    ? materials
+    : materials.filter((m) => m.genreId === materialGenreFilter);
 
   /* ================= LOAD ADMIN EMAILS ================= */
   async function loadAdminEmails() {
@@ -391,198 +404,264 @@ export default function AdminDashboard() {
       {/* ================= GENRES ================= */}
       <section>
         <div className="section-header open" onClick={() => setGenresOpen(!genresOpen)}>
-          <span>▶</span> Genres
-        </div>
+          <span>▶</span> 
+          Genres
+        </div> 
 
         {genresOpen && (
           <>
             <button onClick={() => setShowAddGenre(true)}>+ Add Genre</button>
-
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Podcasts</th>
-                  <th>Materials</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {genres.map((g) => (
-                  <tr key={g.id}>
-                    <td>{g.name}</td>
-                    <td>{podcastCount(g.id)}</td>
-                    <td>{materialCount(g.id)}</td>
-                    <td>
-                      <div className="action-group">
-                        <button
-                          onClick={() => {
-                            setEditingGenre(g);
-                            setEditGenreName(g.name);
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="danger"
-                          onClick={async () => {
-                            if (!confirm("Delete this genre?")) return;
-
-                            try {
-                              await api.delete(`/admin/genres/${g.id}`);
-                              const genresRes = await api.get("/genres");
-                              setGenres(genresRes.data);
-                            } catch (err: any) {
-                              alert(err.response?.data?.error || "Failed to delete genre");
-                            }
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {genres.length === 0 && (
+            <div className="section-body">
+              <table>
+                <thead>
                   <tr>
-                    <td colSpan={4} className="empty">No genres yet</td>
+                    <th>Name</th>
+                    <th>Podcasts</th>
+                    <th>Materials</th>
+                    <th>Actions</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {genres.map((g) => (
+                    <tr key={g.id}>
+                      <td  data-label="Name">{g.name}</td>
+                      <td  data-label="Podcasts">{podcastCount(g.id)}</td>
+                      <td  data-label="Materials">{materialCount(g.id)}</td>
+                      <td data-label="Actions">
+                        <div className="action-group">
+                          <button
+                            onClick={() => {
+                              setEditingGenre(g);
+                              setEditGenreName(g.name);
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="danger"
+                            onClick={async () => {
+                              if (!confirm("Delete this genre?")) return;
+
+                              try {
+                                await api.delete(`/admin/genres/${g.id}`);
+                                const genresRes = await api.get("/genres");
+                                setGenres(genresRes.data);
+                              } catch (err: any) {
+                                alert(err.response?.data?.error || "Failed to delete genre");
+                              }
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {genres.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="empty">No genres yet</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </>
         )}
       </section>
 
       {/* ================= PODCASTS ================= */}
       <section>
-        <div className="section-header" onClick={() => setPodcastsOpen(!podcastsOpen)}>
-          <span>▶</span> Podcasts
+        {/* Header */}
+        <div
+          className="section-header"
+          onClick={() => setPodcastsOpen(!podcastsOpen)}
+        >
+          <span className={podcastsOpen ? "open" : ""}>▶</span>
+          <span>Podcasts</span>
         </div>
 
         {podcastsOpen && (
           <>
-            <button onClick={() => setShowAddPodcast(true)}>+ Add Podcast</button>
+            {/* Controls */}
+            <div className="section-controls">
+              <button onClick={() => setShowAddPodcast(true)}>
+                + Add Podcast
+              </button>
 
-            <table>
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Author</th>
-                  <th>Genre</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {podcasts.map((p) => (
-                  <tr key={p.id}>
-                    <td>{p.title}</td>
-                    <td>{p.author}</td>
-                    <td>{genres.find((g) => g.id === p.genreId)?.name}</td>
-                    <td>
-                      <div className="action-group">
-                        <button
-                          onClick={() => {
-                            setEditingPodcast(p);
-                            setEditPodcastTitle(p.title);
-                            setEditPodcastAuthor(p.author);
-                            setEditSpotifyUrl(p.spotifyUrl);
-                            setEditPodcastGenreId(p.genreId);
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="danger"
-                          onClick={async () => {
-                            if (!confirm("Delete this podcast?")) return;
-
-                            await api.delete(`/admin/podcasts/${p.id}`);
-                            const res = await api.get("/podcasts");
-                            setPodcasts(res.data);
-                          }}
-                        >
-                          Delete
-                        </button>
-                       </div>
-                    </td>
-                  </tr>
+              <select
+                value={podcastGenreFilter}
+                onChange={(e) => setPodcastGenreFilter(e.target.value)}
+              >
+                <option value="all">All genres</option>
+                {genres.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name}
+                  </option>
                 ))}
-                {podcasts.length === 0 && (
+              </select>
+            </div>
+
+            {/* Body */}
+            <div className="section-body">
+              <table>
+                <thead>
                   <tr>
-                    <td colSpan={4} className="empty">No podcasts yet</td>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Genre</th>
+                    <th>Actions</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody>
+                  {visiblePodcasts.map((p) => (
+                    <tr key={p.id}>
+                      <td data-label="Title">{p.title}</td>
+                      <td data-label="Author">{p.author}</td>
+                      <td data-label="Genre">
+                        {genres.find((g) => g.id === p.genreId)?.name}
+                      </td>
+                      <td data-label="Actions">
+                        <div className="action-group">
+                          <button
+                            onClick={() => {
+                              setEditingPodcast(p);
+                              setEditPodcastTitle(p.title);
+                              setEditPodcastAuthor(p.author);
+                              setEditSpotifyUrl(p.spotifyUrl);
+                              setEditPodcastGenreId(p.genreId);
+                            }}
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            className="danger"
+                            onClick={async () => {
+                              if (!confirm("Delete this podcast?")) return;
+
+                              await api.delete(`/admin/podcasts/${p.id}`);
+                              const res = await api.get("/podcasts");
+                              setPodcasts(res.data);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+
+                  {visiblePodcasts.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="empty">
+                        No podcasts for this genre
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </>
         )}
       </section>
 
       {/* ================= MATERIALS ================= */}
       <section>
-        <div className="section-header" onClick={() => setMaterialsOpen(!materialsOpen)}>
-          <span>▶</span> Materials
+        {/* Header */}
+        <div
+          className="section-header"
+          onClick={() => setMaterialsOpen(!materialsOpen)}
+        >
+          <span className={materialsOpen ? "open" : ""}>▶</span>
+          <span>Materials</span>
         </div>
 
         {materialsOpen && (
           <>
-            <button onClick={() => setShowAddMaterial(true)}>+ Add Material</button>
+            {/* Controls */}
+            <div className="section-controls">
+              <button onClick={() => setShowAddMaterial(true)}>
+                + Add Material
+              </button>
 
-            <table>
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Author</th>
-                  <th>Genre</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {materials.map((m) => (
-                  <tr key={m.id}>
-                    <td>{m.title}</td>
-                    <td>{m.author}</td>
-                    <td>{genres.find((g) => g.id === m.genreId)?.name}</td>
-                    <td>
-                      <div className="action-group">
-                        <button
-                          onClick={async () => {
-                            setEditingMaterial(m);
-                            setEditMaterialTitle(m.title);
-                            setEditMaterialAuthor(m.author);
-                            setEditMaterialGenreId(m.genreId);
-
-                            // 🔥 fetch full content explicitly
-                            const res = await api.get(`/material/${m.id}`);
-                            setEditMaterialContent(res.data.content);
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="danger"
-                          onClick={async () => {
-                            if (!confirm("Delete this material?")) return;
-
-                            await api.delete(`/admin/materials/${m.id}`);
-                            const res = await api.get("/materials");
-                            setMaterials(res.data);
-                          }}
-                        >
-                          Delete
-                        </button>
-                        </div>
-                    </td>
-                  </tr>
+              <select
+                value={materialGenreFilter}
+                onChange={(e) => setMaterialGenreFilter(e.target.value)}
+              >
+                <option value="all">All genres</option>
+                {genres.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name}
+                  </option>
                 ))}
-                {materials.length === 0 && (
+              </select>
+            </div>
+
+            {/* Body */}
+            <div className="section-body">
+              <table>
+                <thead>
                   <tr>
-                    <td colSpan={4} className="empty">No materials yet</td>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Genre</th>
+                    <th>Actions</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody>
+                  {visibleMaterials.map((m) => (
+                    <tr key={m.id}>
+                      <td data-label="Title">{m.title}</td>
+                      <td data-label="Author">{m.author}</td>
+                      <td data-label="Genre">
+                        {genres.find((g) => g.id === m.genreId)?.name}
+                      </td>
+                      <td data-label="Actions">
+                        <div className="action-group">
+                          <button
+                            onClick={async () => {
+                              setEditingMaterial(m);
+                              setEditMaterialTitle(m.title);
+                              setEditMaterialAuthor(m.author);
+                              setEditMaterialGenreId(m.genreId);
+
+                              // fetch full content
+                              const res = await api.get(`/material/${m.id}`);
+                              setEditMaterialContent(res.data.content);
+                            }}
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            className="danger"
+                            onClick={async () => {
+                              if (!confirm("Delete this material?")) return;
+
+                              await api.delete(`/admin/materials/${m.id}`);
+                              const res = await api.get("/materials");
+                              setMaterials(res.data);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+
+                  {visibleMaterials.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="empty">
+                        No materials for this genre
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </>
         )}
       </section>
@@ -596,58 +675,59 @@ export default function AdminDashboard() {
         {selfHelpOpen && (
           <>
             <button onClick={() => setShowAddSelfHelp(true)}>+ Add Self-Help</button>
-
-            <table>
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Author</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selfHelps.map((s) => (
-                  <tr key={s.id}>
-                    <td>{s.title}</td>
-                    <td>{s.author}</td>
-                    <td>
-                      <div className="action-group">
-                        <button
-                          onClick={async () => {
-                            setEditingSelfHelp(s);
-                            setEditSelfHelpTitle(s.title);
-                            setEditSelfHelpAuthor(s.author);
-
-                            // fetch full content if needed
-                            const res = await api.get(`/material/${s.id}`);
-                            setEditSelfHelpContent(res.data.content);
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="danger"
-                          onClick={async () => {
-                            if (!confirm("Delete this self-help guide?")) return;
-
-                            await api.delete(`/admin/self-help/${s.id}`);
-                            const res = await api.get("/self-help");
-                            setSelfHelps(res.data);
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {selfHelps.length === 0 && (
+            <div className="section-body">
+              <table>
+                <thead>
                   <tr>
-                    <td colSpan={3} className="empty">No self-help guides yet</td>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Actions</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {selfHelps.map((s) => (
+                    <tr key={s.id}>
+                      <td data-label="title">{s.title}</td>
+                      <td data-label="author">{s.author}</td>
+                      <td data-label="actions">
+                        <div className="action-group">
+                          <button
+                            onClick={async () => {
+                              setEditingSelfHelp(s);
+                              setEditSelfHelpTitle(s.title);
+                              setEditSelfHelpAuthor(s.author);
+
+                              // fetch full content if needed
+                              const res = await api.get(`/material/${s.id}`);
+                              setEditSelfHelpContent(res.data.content);
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="danger"
+                            onClick={async () => {
+                              if (!confirm("Delete this self-help guide?")) return;
+
+                              await api.delete(`/admin/self-help/${s.id}`);
+                              const res = await api.get("/self-help");
+                              setSelfHelps(res.data);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {selfHelps.length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="empty">No self-help guides yet</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </>
         )}
       </section>
@@ -658,90 +738,93 @@ export default function AdminDashboard() {
         <button onClick={() => setShowAddAdmin(true)}>
           + Add Admin Email
         </button>
-
-        <table>
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {adminEmails.length === 0 ? (
+        <div className="section-body">
+          <table>
+            <thead>
               <tr>
-                <td colSpan={3} className="empty">
-                  No admin emails added
-                </td>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
               </tr>
-            ) : (
-              adminEmails.map((a) => (
-                <tr key={a.id}>
-                  <td>{a.email}</td>
-                  <td>Admin</td>
-                  <td>
-                    <button
-                      className="secondary"
-                      onClick={() => deleteAdminEmail(a.id)}
-                      disabled={a.email === user.email}
-                      title={
-                        a.email === user.email
-                          ? "You cannot remove yourself"
-                          : "Remove admin"
-                      }
-                    >
-                      Delete
-                    </button>
+            </thead>
+
+            <tbody>
+              {adminEmails.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="empty">
+                    No admin emails added
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                adminEmails.map((a) => (
+                  <tr key={a.id}>
+                    <td  data-label="mail">{a.email}</td>
+                    <td  data-label="role">Admin</td>
+                    <td>
+                      <button
+                        className="secondary"
+                        onClick={() => deleteAdminEmail(a.id)}
+                        disabled={a.email === user.email}
+                        title={
+                          a.email === user.email
+                            ? "You cannot remove yourself"
+                            : "Remove admin"
+                        }
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </section>
+
       <section>
         <h2>Users</h2>
-
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>First Login</th>
-              <th>Last Login</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {users.length === 0 ? (
+        <div className="section-body">
+          <table>
+            <thead>
               <tr>
-                <td colSpan={5} className="empty">
-                  No users yet
-                </td>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>First Login</th>
+                <th>Last Login</th>
               </tr>
-            ) : (
-              users.map((u) => (
-                <tr key={u.id}>
-                  <td>{u.name || "—"}</td>
-                  <td>{u.email}</td>
-                  <td>{u.role}</td>
-                  <td>
-                    {u.created_at
-                      ? new Date(u.created_at).toLocaleString()
-                      : "—"}
-                  </td>
-                  <td>
-                    {u.last_login
-                      ? new Date(u.last_login).toLocaleString()
-                      : "—"}
+            </thead>
+
+            <tbody>
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="empty">
+                    No users yet
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                users.map((u) => (
+                  <tr key={u.id}>
+                    <td  data-label="Name">{u.name || "—"}</td>
+                    <td  data-label="Email">{u.email}</td>
+                    <td  data-label="Role">{u.role}</td>
+                    <td data-label="First Login">
+                      {u.created_at
+                        ? new Date(u.created_at).toLocaleString()
+                        : "—"}
+                    </td>
+                    <td data-label="Last Login">
+                      {u.last_login
+                        ? new Date(u.last_login).toLocaleString()
+                        : "—"}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       {/* ================= ADD GENRE MODAL ================= */}

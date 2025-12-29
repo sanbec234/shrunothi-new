@@ -209,6 +209,13 @@ textarea {
   resize: vertical;
 }
 
+.section-body {
+  max-height: 55vh;
+  overflow-y: auto;
+  margin-top: 12px;
+  padding-right: 4px; /* prevents scrollbar overlap */
+}
+
 /* =====================
    Modal
 ===================== */
@@ -296,4 +303,214 @@ td .action-group {
   display: flex;
   align-items: center;
   gap: 0.5rem; /* scalable spacing */
+}
+/* SEARCH FUNCTION */
+.section-header-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 👈 THIS */
+  gap: 10px;
+}
+
+.section-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.section-header-left span:first-child {
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.section-header-left span.open {
+  transform: rotate(90deg);
+}
+
+/* ---- Controls row ---- */
+.section-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-controls select {
+  min-width: 180px;
+}
+
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* 👈 THIS */
+  gap: 12px;
+}
+
+.section-header-left {
+  display: flex;
+}
+
+.section-header-right {
+  display: flex;
+}
+
+.section-header-right input {
+  width: 180px;
+}
+
+/* =====================
+   Mobile Admin Dashboard
+===================== */
+@media (max-width: 640px) {
+
+  .section-body {
+    max-height: 45vh;
+  }
+  /* ---- Page padding ---- */
+  .admin {
+    padding: 16px 14px 60px;
+  }
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  section {
+    padding: 14px 14px 16px;
+    margin-bottom: 18px;
+    border-radius: 12px;
+  }
+
+  /* ---- Section headers ---- */
+  .section-header {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  /* ---- Buttons ---- */
+  button {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  td .action-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  td .action-group button {
+    width: 100%;
+  }
+
+  /* =====================
+     TABLE → CARD LAYOUT
+  ===================== */
+
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+    width: 100%;
+  }
+
+  thead {
+    display: none;
+  }
+
+  table {
+    border: none;
+    margin-top: 12px;
+  }
+
+  tbody tr {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  tbody tr:last-child {
+    margin-bottom: 0;
+  }
+
+  td {
+    padding: 6px 0;
+    border: none;
+    font-size: 14px;
+  }
+
+  td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+
+  /* =====================
+     MODALS
+  ===================== */
+
+  .modal {
+    width: 100%;
+    max-width: calc(100vw - 24px);
+    padding: 20px 16px 18px;
+    border-radius: 14px;
+  }
+
+  .modal h3 {
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
+
+  .modal-close {
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 15px;
+    padding: 12px;
+  }
+
+  textarea {
+    min-height: 140px;
+  }
+
+  /* ---- Success banner ---- */
+  .success-banner {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+  
+  .section-controls {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between; /* 👈 this */
+    gap: 12px;
+  }
+
+  .section-controls button,
+  .section-controls select {
+    width: 50%;
+  }
+}
+
+.section-header span {
+    font-size: 16px;
+    transition: transform 0.2s ease;
 }
