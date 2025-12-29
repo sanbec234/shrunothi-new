@@ -399,7 +399,8 @@ export default function AdminDashboard() {
 
   return (
     <div className="admin">
-      <h2>Shrunothi Admin Dashboard</h2>
+      <img src="./logo.png" alt="shrunothi logo" className="admin-dash-logo"/>
+      <h2>Admin Dashboard</h2>
 
       {/* ================= GENRES ================= */}
       <section>

@@ -1,0 +1,87 @@
+/* mobileHeader.css */
+
+.mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.mobile-logo img {
+  height: 3.5rem;
+}
+
+.mobile-user {
+  position: relative;
+}
+
+.mobile-user-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 6px 8px;
+
+  /* 🔑 prevent blue highlight */
+  outline: none;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* remove focus ring */
+.mobile-user-btn:focus {
+  outline: none;
+}
+
+/* remove active blue background */
+.mobile-user-btn:active {
+  background: transparent !important;
+}
+
+.mobile-user-menu {
+  position: absolute;
+  right: 0;
+  top: 36px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  overflow: hidden;
+}
+
+.mobile-user-menu button {
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mobile-user-menu button:hover {
+  background: #f3f4f6;
+}
+
+.mobile-user-menu button {
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+
+  /* 👇 FIX */
+  color: #111;
+
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mobile-user-menu button:hover {
+  background: #f3f4f6;
+}

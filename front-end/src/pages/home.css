@@ -235,7 +235,7 @@
 }
 
 .mobile-logo {
-  height: 2.75rem;
+  height: rem;
   width: auto;
 }
 
@@ -265,14 +265,24 @@
 
 .chip {
   flex: 0 0 auto;
-  white-space: nowrap;
-  padding: 0.5rem 0.9rem;
+
+  min-width: 5.5rem;     /* 👈 ensures multiple visible */
+  max-width: 8.5rem;     /* 👈 prevents oversized pills */
+
+  padding: 0.5rem 0.75rem;
   border-radius: 999px;
   border: 1px solid #d0d7e2;
   background: #ffffff;
-  font-size: 0.85rem;
+
+  font-size: 0.8rem;
   font-weight: 500;
   color: #334155;
+
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
   cursor: pointer;
 }
 
@@ -293,6 +303,14 @@
 .desktop-only {
   display: block;
 }
+
+.loader {
+  padding: 24px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
 
 /* =========================
    Mobile overrides
@@ -334,11 +352,28 @@
     padding: 1rem;
     border-radius: 0.875rem;
   }
+
+   .doc-card {
+    aspect-ratio: auto;        /* 🔥 remove forced tall ratio */
+    padding: 0.6rem 0.65rem;   /* tighter padding */
+    gap: 0.35rem;
+    min-height: unset;
+  }
+
+  .doc-title {
+    font-size: 0.85rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .doc-author {
+    font-size: 0.75rem;
+  }
+
+  .doc-preview {
+    font-size: 0.8rem;
+    line-height: 1.35;
+
+    -webkit-line-clamp: 2;     /* 🔥 fewer lines */
+  }
 }
 
-.loader {
-  padding: 24px;
-  text-align: center;
-  color: #6b7280;
-  font-size: 14px;
-}

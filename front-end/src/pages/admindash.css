@@ -80,7 +80,7 @@ section {
 }
 
 .section-header span {
-  font-size: 12px;
+  font-size: 16px;
   transition: transform 0.2s ease;
 }
 
@@ -214,6 +214,11 @@ textarea {
   overflow-y: auto;
   margin-top: 12px;
   padding-right: 4px; /* prevents scrollbar overlap */
+}
+
+.admin-dash-logo {
+  height: 100px;
+  /* margin-bottom: 0.05rem; */
 }
 
 /* =====================
