@@ -14,7 +14,7 @@ def genre_material(genre_id):
     for d in docs:
         materials.append({
             "id": str(d["_id"]),
-            "filename": d["title"],   # frontend expects `filename`
+            "title": d["title"],   # frontend expects `title`
             "author": d.get("author", "Unknown")
         })
 

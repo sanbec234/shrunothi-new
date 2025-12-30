@@ -14,7 +14,7 @@ def corpus_self_help():
         content = d.get("content", "")
         results.append({
             "id": str(d["_id"]),
-            "filename": d.get("title", ""),
+            "title": d.get("title", ""),
             "author": d.get("author", "Unknown"),
             "preview": content[:300]
         })

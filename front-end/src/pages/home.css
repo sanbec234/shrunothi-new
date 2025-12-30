@@ -58,10 +58,6 @@
 }
 
 /* =========================
-   Podcast cards (embed unchanged)
-========================= */
-
-/* =========================
    Podcast cards — FIXED
 ========================= */
 
@@ -92,11 +88,6 @@
   flex-shrink: 0;
 }
 
-.podcast-title {
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
 /* =========================
    Document cards (desktop)
 ========================= */
@@ -118,17 +109,38 @@
   cursor: pointer;
 }
 
+
+
+/* =========================
+   Modal text placeholders
+========================= */
+
+/* ---- Title: fixed 2-line block ---- */
 .doc-title {
-  font-size: clamp(0.9rem, 1.1vw, 1rem);
+  font-size: 0.9rem;
   font-weight: 600;
-  margin-bottom: 0.25rem;
+  line-height: 1.3;
+
+  min-height: calc(1.3em * 2); /* reserve 2 lines */
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
+/* ---- Author: fixed 1-line block ---- */
 .doc-author {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
-}
 
+  min-height: 1.2em; /* reserve 1 line */
+  margin-bottom: 0.75rem;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .doc-preview {
   font-size: 0.85rem;
   line-height: 1.45;
@@ -140,10 +152,10 @@
   overflow: hidden;
 }
 
-.doc-card > * {
+/* .doc-card > * {
   flex-grow: 0;
   flex-shrink: 0;
-}
+} */
 
 /* =========================
    Empty states
@@ -311,6 +323,43 @@
   font-size: 14px;
 }
 
+/* =========================
+   Podcast title placeholder
+========================= */
+
+.podcast-meta {
+  height: 56px;                /* fixed placeholder height */
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+}
+
+.podcast-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.3;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;       /* max 2 lines */
+  overflow: hidden;
+}
+
+/* =========================
+   Spotify iframe (locked)
+========================= */
+
+.spotify-frame {
+  display: block;
+  width: 100%;
+  height: 152px;               /* Spotify native height */
+  max-height: 152px;
+
+  border: none;
+  border-radius: 0.75rem;
+
+  flex-shrink: 0;
+}
 
 /* =========================
    Mobile overrides
@@ -361,9 +410,11 @@
   }
 
   .doc-title {
-    font-size: 0.85rem;
-    margin-bottom: 0.15rem;
-  }
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
 
   .doc-author {
     font-size: 0.75rem;

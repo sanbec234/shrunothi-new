@@ -18,7 +18,7 @@ type Podcast = {
 
 type TextDoc = {
   id: string;
-  filename: string;
+  title: string;
   author: string;
 };
 
@@ -235,7 +235,9 @@ export default function Home(): JSX.Element {
 
       <main className="main-area">
         {/* -------- Podcasts -------- */}
-        <HorizontalRow title="Podcasts">
+        <HorizontalRow
+          title={`Podcasts${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
+        >
           {!selectedGenre ? (
             <div className="row-empty">Click a genre to view podcasts</div>
           ) : podcasts === null ? (
@@ -245,8 +247,14 @@ export default function Home(): JSX.Element {
           ) : (
             podcasts.map((p, i) => (
               <div key={i} className="podcast-card">
-                {p.title && <div className="podcast-title">{p.title}</div>}
+                <div className="podcast-meta">
+                  <div className="podcast-title">
+                    {p.title || " "}
+                  </div>
+                </div>
+
                 <iframe
+                  className="spotify-frame"
                   src={p.embed_url}
                   title={p.title || `podcast-${i}`}
                   allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
@@ -258,7 +266,9 @@ export default function Home(): JSX.Element {
         </HorizontalRow>
 
         {/* -------- Material -------- */}
-        <HorizontalRow title="Material">
+        <HorizontalRow
+          title={`Material${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
+        >
           {materialDocs.length === 0 ? (
             <div className="row-empty">No material found</div>
           ) : (
@@ -280,7 +290,9 @@ export default function Home(): JSX.Element {
         </HorizontalRow>
 
         {/* -------- Self Help -------- */}
-        <HorizontalRow title="Self Help">
+        <HorizontalRow
+          title={`Self Help${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
+        >
           {selfHelpDocs.length === 0 ? (
             <div className="row-empty">No self-help material</div>
           ) : (

@@ -42,7 +42,7 @@ export default function DocModal({ doc, onClose }: Props) {
           ×
         </button>
 
-        <h2 className="modal-title">{doc.filename}</h2>
+        <h2 className="modal-title">{doc.title}</h2>
         <p className="modal-author">By {doc.author}</p>
 
         <div className="modal-body">

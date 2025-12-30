@@ -1,5 +1,5 @@
 export type TextDoc = {
   id: string;
-  filename: string;
+  title: string;
   author: string;
 };
