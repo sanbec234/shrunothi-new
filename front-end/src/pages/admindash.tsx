@@ -183,6 +183,41 @@ export default function AdminDashboard() {
     loadUsers();
   }, []);
 
+  useEffect(() => {
+    let idleTimer: ReturnType<typeof setTimeout>;
+
+    const IDLE_LIMIT = 2 * 60 * 1000; // 2 minutes
+
+    const logout = () => {
+      localStorage.removeItem("authUser");
+      window.location.href = "/";
+    };
+
+    const resetTimer = () => {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(logout, IDLE_LIMIT);
+    };
+
+    // Events that count as activity
+    const events = [
+      "mousemove",
+      "mousedown",
+      "keydown",
+      "scroll",
+      "touchstart"
+    ];
+
+    events.forEach((e) => window.addEventListener(e, resetTimer));
+
+    // start timer immediately
+    resetTimer();
+
+    return () => {
+      clearTimeout(idleTimer);
+      events.forEach((e) => window.removeEventListener(e, resetTimer));
+    };
+  }, []);
+
   /* ================= HELPERS ================= */
 
   function resetGenreWizard() {
@@ -401,7 +436,21 @@ export default function AdminDashboard() {
     <div className="admin">
       <img src="./logo.png" alt="shrunothi logo" className="admin-dash-logo"/>
       <h2>Admin Dashboard</h2>
+      <div className="admin-user-logout">
+        <div className="admin-welcome">
+          Welcome{user?.name ? `, ${user.name}` : ""}
+        </div>
 
+        <button
+          className="admin-logout"
+          onClick={() => {
+            localStorage.removeItem("authUser");
+            window.location.href = "/";
+          }}
+        >
+          Logout
+        </button>
+      </div>
       {/* ================= GENRES ================= */}
       <section>
         <div className="section-header open" onClick={() => setGenresOpen(!genresOpen)}>

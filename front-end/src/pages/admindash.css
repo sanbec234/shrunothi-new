@@ -365,6 +365,46 @@ td .action-group {
   width: 180px;
 }
 
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.admin-user-logout{
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-welcome {
+  font-size: 15px;
+  font-weight: 500;
+  flex: 1;
+  color: var(--text-muted);
+}
+
+.admin-logout {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  flex: 1;
+}
+
+.admin-logout:hover {
+  background: var(--bg-soft);
+}
+
+.admin-user-logout {
+  display: flex;
+  align-items: center;
+}
+
 /* =====================
    Mobile Admin Dashboard
 ===================== */
@@ -513,9 +553,32 @@ td .action-group {
   .section-controls select {
     width: 50%;
   }
-}
 
-.section-header span {
+   .admin-topbar {
+    gap: 10px;
+  }
+
+  .admin-welcome {
+    flex: 1;                 /* 👈 takes half */
+    font-size: 14px;
+    color: #6b7280;
+  }
+
+/* Right side */
+  .admin-logout {
+    flex: 1;                 /* 👈 takes half */
+    text-align: center;
+
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    font-size: 14px;
+  }
+
+  .section-header span {
     font-size: 16px;
     transition: transform 0.2s ease;
+  }
 }
+
