@@ -1,6 +1,6 @@
 /* ---------- Layout ---------- */
 
-.left-menu {
+/* .left-menu {
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -8,6 +8,35 @@
   background: #ffffff;
   border-right: 1px solid #e5e7eb;
   color: #E3865C;
+} */
+
+.logo-img {
+  height: clamp(11rem, 6vw, 4.25rem);
+  width: auto;
+}
+
+.left-menu {
+  /* background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border-right: none;
+
+  margin: 12px;
+  border-radius: 18px;
+
+  box-shadow: var(--shadow-float); */
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+
+  border-radius: 22px;
+  margin: 14px;
+
+  box-shadow:
+    0 20px 50px rgba(15, 23, 42, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  overflow: hidden;
 }
 
 .genre-list {
@@ -15,9 +44,23 @@
   overflow-y: auto;
 }
 
+.genre-list button {
+  border-radius: 10px;
+  transition: background 0.15s ease;
+}
+
+.genre-list button:hover {
+  background: var(--brand-blue-soft);
+}
+
+.genre-list button.active {
+  background: var(--brand-blue);
+  color: #fff;
+}
+
 /* ---------- User box (bottom) ---------- */
 
-.user-box {
+/* .user-box {
   margin-top: auto;
   padding: 14px 12px;
   border-top: 1px solid #e5e7eb;
@@ -25,7 +68,7 @@
   align-items: center;
   gap: 10px;
   background: #fafafa;
-}
+} */
 
 /* Avatar */
 
@@ -60,7 +103,7 @@
 
 /* Logout */
 
-.logout-btn {
+/* .logout-btn {
   align-self: flex-start;
   background: transparent;
   border: none;
@@ -73,18 +116,68 @@
 
 .logout-btn:hover {
   text-decoration: underline;
+} */
+
+.user-box,
+.leftmenu-user {
+  background: linear-gradient(
+    180deg,
+    #FFFFFF 0%,
+    #FAFAFA 100%
+  );
 }
+
+.logout-btn {
+  color: var(--brand-copper);
+}
+
+/* ---------- Left menu user (minimal, floating) ---------- */
 
 .leftmenu-user {
   margin-top: auto;
-  padding: 12px 14px;
+  padding: 14px 16px 18px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid #e5e7eb;
-  background: #fafafa;
+
+  /* remove box feel */
+  background: transparent;
+  border-top: none;
 }
 
+/* Username */
+.leftmenu-user .username {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Logout */
+.leftmenu-user .logout-btn {
+  background: none;
+  border: none;
+  padding: 0;
+
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--brand-copper);
+  cursor: pointer;
+
+  opacity: 0.85;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.leftmenu-user .logout-btn:hover {
+  opacity: 1;
+  transform: translateY(-0.5px);
+  text-decoration: underline;
+}
 /* Username */
 
 .username {
@@ -95,19 +188,4 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-/* Logout */
-
-.logout-btn {
-  background: transparent;
-  border: none;
-  padding: 0;
-  font-size: 13px;
-  color: #d32f2f;
-  cursor: pointer;
-}
-
-.logout-btn:hover {
-  text-decoration: underline;
 }

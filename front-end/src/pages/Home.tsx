@@ -209,21 +209,13 @@ export default function Home(): JSX.Element {
   ========================= */
   return (
     <div className="home-root">
-        {/* Mobile: genre chips */}
-      {/* Mobile header + chips */}
+
+      {/* ---------- Mobile header ONLY ---------- */}
       <div className="mobile-only mobile-top">
         <MobileHeader user={user} />
-
-        <div className="mobile-chips">
-          <GenreChips
-            genres={genres}
-            selected={selectedGenre}
-            onSelect={(g) => setSelectedGenre(g)}
-          />
-        </div>
       </div>
 
-      {/* Desktop: left menu */}
+      {/* ---------- Desktop sidebar ---------- */}
       <div className="desktop-only">
         <LeftMenu
           genres={genres}
@@ -233,7 +225,20 @@ export default function Home(): JSX.Element {
         />
       </div>
 
+      {/* ---------- Main content ---------- */}
       <main className="main-area">
+
+        {/* Mobile genre chips — PART OF CONTENT */}
+        <div className="mobile-only">
+          <div className="genre-chips-wrapper">
+            <GenreChips
+              genres={genres}
+              selected={selectedGenre}
+              onSelect={(g) => setSelectedGenre(g)}
+            />
+          </div>
+        </div>
+
         {/* -------- Podcasts -------- */}
         <HorizontalRow
           title={`Podcasts${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
@@ -305,6 +310,7 @@ export default function Home(): JSX.Element {
             ))
           )}
         </HorizontalRow>
+
       </main>
 
       {activeDoc && (

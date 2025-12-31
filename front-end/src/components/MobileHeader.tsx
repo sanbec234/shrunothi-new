@@ -16,14 +16,10 @@ export default function MobileHeader({ user }: { user?: User | null }) {
     window.location.href = "/";
   }
 
-  // 👇 close popup when clicking outside
+  // Close menu on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (
-        open &&
-        userRef.current &&
-        !userRef.current.contains(e.target as Node)
-      ) {
+      if (open && userRef.current && !userRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }
@@ -43,8 +39,9 @@ export default function MobileHeader({ user }: { user?: User | null }) {
           <button
             className="mobile-user-btn"
             onClick={() => setOpen((v) => !v)}
+            title={user.name}
           >
-            Welcome, {user.name.split(" ")[0]}
+            Welcome, {user.name.split(" ")[0] || "User"}
           </button>
 
           {open && (
