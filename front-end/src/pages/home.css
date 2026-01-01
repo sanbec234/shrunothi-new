@@ -245,11 +245,6 @@
   overflow: hidden;
 }
 
-/* .doc-card > * {
-  flex-grow: 0;
-  flex-shrink: 0;
-} */
-
 /* =========================
    Empty states
 ========================= */
@@ -267,19 +262,48 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6);
+   background:
+    linear-gradient(
+      135deg,
+      rgba(83, 148, 207, 0.18),   /* brand blue */
+      rgba(220, 132, 101, 0.16)   /* copper */
+    );
+
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   z-index: 1000;
 }
 
 .modal-panel {
-  background: #ffffff;
   width: min(90vw, 48rem);
   max-height: 85vh;
   border-radius: 1rem;
   padding: clamp(1rem, 3vw, 1.5rem);
+  background:
+    linear-gradient(
+    135deg,
+    rgba(83, 148, 207, 0.15),   /* tiny bump */
+    rgba(220, 132, 101, 0.15)
+  ),
+  rgba(255, 255, 255, 0.7);   /* neutral glass base */
+
+  backdrop-filter: blur(22px) saturate(200%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+
+  border-radius: 22px;
+
+  /* subtle edge definition */
+  border: 1px solid rgba(255,255,255,0.55);
+
+  box-shadow:
+    0 40px 90px rgba(15, 23, 42, 0.35),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+
   display: flex;
   flex-direction: column;
   position: relative;
@@ -288,11 +312,13 @@
 .modal-title {
   font-size: 1.15rem;
   font-weight: 600;
+  color: #0f172a;
 }
 
 .modal-author {
+  margin-top: 0.25rem;
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: #475569;
 }
 
 .modal-body {
@@ -303,16 +329,10 @@
 .modal-body pre {
   white-space: pre-wrap;
   word-break: break-word;
-  font-family: ui-serif, Georgia, serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
   font-size: 0.9rem;
   line-height: 1.6;
 }
-
-/* =========================
-   Branding
-========================= */
-
-
 
 /* =========================
    Mobile header + chips
@@ -328,15 +348,6 @@
   padding-top: 1rem;
 }
 
-.mobile-header {
-  height: 3.5rem;
-  padding: 0 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-}
-
 .mobile-logo {
   height: rem;
   width: auto;
@@ -348,20 +359,6 @@
   color: var(--text-muted);
 }
 
-/* Genre chips — scrolling preserved */
-
-.genre-chips {
-  display: flex;
-  gap: 0.5rem;
-  overflow-x: auto;
-  padding: 0.75rem 1rem;
-  background: #f7f9fc;
-  border-bottom: 1px solid #e5e7eb;
-
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
 .genre-chips::-webkit-scrollbar {
   display: none;
 }
@@ -369,17 +366,58 @@
 .genre-chips-wrapper {
    margin-bottom: 16px;
 }
+/* =========================
+   Genre Chips (Floating Glass)
+========================= */
+
+.genre-chips {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+
+  padding: 0.75rem 1rem;
+
+  /* no background bar */
+  background: transparent;
+  border-bottom: none;
+
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  background: transparent;     /* already done, reinforce */
+
+  position: relative;
+  z-index: 30;
+
+  margin-bottom: -0.75rem; 
+}
+
+.genre-chips::-webkit-scrollbar {
+  display: none;
+}
+
+/* =========================
+   Chip base
+========================= */
 
 .chip {
   flex: 0 0 auto;
 
-  min-width: 5.5rem;     
-  max-width: 8.5rem;     
+  min-width: 5.5rem;
+  max-width: 8.5rem;
 
-  padding: 0.5rem 0.75rem;
+  padding: 0.55rem 0.9rem;
   border-radius: 999px;
-  border: 1px solid var(--border-soft);
-  background: #ffffff;
+
+  /* Glass token */
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(255, 255, 255, 0.5);
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
 
   font-size: 0.8rem;
   font-weight: 500;
@@ -391,12 +429,39 @@
   text-overflow: ellipsis;
 
   cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
 }
 
+/* Lift on hover / tap */
+
+.chip:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+/* =========================
+   Active Chip (Brand Glass)
+========================= */
+
 .chip.active {
-  background: #2563eb;
+  background: linear-gradient(
+    135deg,
+    rgba(83, 156, 207, 0.9),   /* brand blue */
+    rgba(220, 132, 101, 0.85) /* brand copper */
+  );
+
   color: #ffffff;
-  border-color: #2563eb;
+  border-color: transparent;
+
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 /* =========================
@@ -454,6 +519,50 @@
   border-radius: 0.75rem;
 
   flex-shrink: 0;
+}
+
+.modal-close,
+.modal-close button[aria-label="Close"] {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+  border: none;
+
+  background:
+    rgba(255,255,255,0.75);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  box-shadow:
+    0 6px 14px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+
+  cursor: pointer;
+
+  font-size: 16px;
+  line-height: 1;
+
+  /* optical correction */
+  padding: 0;
+}
+
+.modal-close svg,
+.modal-close span {
+  transform: translateY(-0.5px); /* 👈 visual centering */
+}
+
+.modal-panel .close-btn:hover {
+  background: rgba(255,255,255,0.9);
 }
 
 /* =========================

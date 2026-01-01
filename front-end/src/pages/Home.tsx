@@ -1,3 +1,307 @@
+// import { useEffect, useState, type JSX } from "react";
+// import { api } from "../api/client";
+// import LeftMenu from "../components/LeftMenu";
+// import HorizontalRow from "../components/HorizontalRow";
+// import TextDocCard from "../components/TextDocCard";
+// import type { Genre } from "../types/index";
+// import DocModal from "../components/DocModal";
+// import "../pages/home.css";
+// import LoginPopup from "../components/GoogleAuthPopup";
+// import GenreChips from "../components/GenreChips";
+// import MobileHeader from "../components/MobileHeader";
+// import WelcomeGate from "../components/WelcomeGate";
+
+// /* ---- types ---- */
+// type Podcast = {
+//   embed_url: string;
+//   title?: string;
+// };
+
+// type TextDoc = {
+//   id: string;
+//   title: string;
+//   author: string;
+// };
+
+// export default function Home(): JSX.Element {
+//   const user = JSON.parse(localStorage.getItem("authUser") || "null");
+
+//   /* ---- sidebar ---- */
+//   const [genres, setGenres] = useState<Genre[]>([]);
+//   const [selectedGenre, setSelectedGenre] = useState<Genre | null>(null);
+
+//   /* ---- rows ---- */
+//   const [podcasts, setPodcasts] = useState<Podcast[] | null>(null);
+//   const [materialDocs, setMaterialDocs] = useState<TextDoc[]>([]);
+//   const [selfHelpDocs, setSelfHelpDocs] = useState<TextDoc[]>([]);
+//   const [activeDoc, setActiveDoc] = useState<TextDoc | null>(null);
+
+//   const [showLogin, setShowLogin] = useState(false);
+//   const [pendingDoc, setPendingDoc] = useState<TextDoc | null>(null);
+
+//   const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
+//   const isLoggedIn = Boolean(authUser);
+
+//   /* ---- welcome gate ---- */
+//   const [showWelcome, setShowWelcome] = useState(false);
+
+//   useEffect(() => {
+//     const seen = sessionStorage.getItem("welcome_seen");
+//     if (!seen && !user) {
+//       setShowWelcome(true);
+//     }
+//   }, [user]);
+
+//   function handleSkipWelcome() {
+//     sessionStorage.setItem("welcome_seen", "true");
+//     setShowWelcome(false);
+//   }
+
+//   function handleWelcomeGoogle() {
+//     sessionStorage.setItem("welcome_seen", "true");
+//     setShowWelcome(false);
+//     setShowLogin(true);
+//   }
+
+//   /* =========================
+//      Load genres
+//   ========================= */
+//   useEffect(() => {
+//     let mounted = true;
+
+//     async function loadGenres() {
+//       try {
+//         const res = await api.get<Genre[]>("/genres");
+//         if (!mounted) return;
+
+//         const list = res.data || [];
+//         setGenres(list);
+
+//         if (list.length > 0 && !selectedGenre) {
+//           setSelectedGenre(list[0]);
+//         }
+//       } catch (err) {
+//         console.error("Failed to load genres", err);
+//       }
+//     }
+
+//     loadGenres();
+//     return () => {
+//       mounted = false;
+//     };
+//   }, []);
+
+//   /* =========================
+//      Load podcasts
+//   ========================= */
+//   useEffect(() => {
+//     let mounted = true;
+
+//     if (!selectedGenre) {
+//       setPodcasts(null);
+//       return;
+//     }
+
+//     async function loadPodcasts() {
+//       try {
+//         const res = await api.get<{ podcasts: Podcast[] }>(
+//           `/genres/${selectedGenre.id}/podcasts`
+//         );
+//         if (!mounted) return;
+//         setPodcasts(res.data.podcasts || []);
+//       } catch {
+//         setPodcasts([]);
+//       }
+//     }
+
+//     loadPodcasts();
+//     return () => {
+//       mounted = false;
+//     };
+//   }, [selectedGenre]);
+
+//   /* =========================
+//      Load material
+//   ========================= */
+//   useEffect(() => {
+//     let mounted = true;
+
+//     if (!selectedGenre) {
+//       setMaterialDocs([]);
+//       return;
+//     }
+
+//     async function loadMaterial() {
+//       try {
+//         const res = await api.get<TextDoc[]>(
+//           `/genres/${selectedGenre.id}/material`
+//         );
+//         if (!mounted) return;
+//         setMaterialDocs(res.data || []);
+//       } catch {
+//         setMaterialDocs([]);
+//       }
+//     }
+
+//     loadMaterial();
+//     return () => {
+//       mounted = false;
+//     };
+//   }, [selectedGenre]);
+
+//   /* =========================
+//      Load self-help
+//   ========================= */
+//   useEffect(() => {
+//     let mounted = true;
+
+//     async function loadSelfHelp() {
+//       try {
+//         const res = await api.get<TextDoc[]>("/corpus/self-help");
+//         if (!mounted) return;
+//         setSelfHelpDocs(res.data || []);
+//       } catch {
+//         /* silent */
+//       }
+//     }
+
+//     loadSelfHelp();
+//     return () => {
+//       mounted = false;
+//     };
+//   }, []);
+
+//   /* =========================
+//      Render
+//   ========================= */
+//   return (
+//     <div className="home-root">
+
+//       {/* ===== Welcome Gate ===== */}
+//       {showWelcome && (
+//         <WelcomeGate
+//           onSkip={() => {
+//             sessionStorage.setItem("welcome_seen", "true");
+//             setShowWelcome(false);
+//           }}
+//           onAuthSuccess={() => {
+//             sessionStorage.setItem("welcome_seen", "true");
+//             setShowWelcome(false);
+//             window.location.reload(); // optional, only if needed
+//           }}
+//         />
+//       )}
+
+//       {/* ---------- Mobile header ---------- */}
+//       <div className="mobile-only mobile-top">
+//         <MobileHeader user={user} />
+//       </div>
+
+//       {/* ---------- Desktop sidebar ---------- */}
+//       <div className="desktop-only">
+//         <LeftMenu
+//           genres={genres}
+//           selected={selectedGenre}
+//           onSelect={(g) => setSelectedGenre(g)}
+//           user={user}
+//         />
+//       </div>
+
+//       {/* ---------- Main content ---------- */}
+//       <main className="main-area">
+
+//         {/* Mobile genre chips */}
+//         <div className="mobile-only">
+//           <div className="genre-chips-wrapper">
+//             <GenreChips
+//               genres={genres}
+//               selected={selectedGenre}
+//               onSelect={(g) => setSelectedGenre(g)}
+//             />
+//           </div>
+//         </div>
+
+//         <HorizontalRow title={`Podcasts${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}>
+//           {!selectedGenre ? (
+//             <div className="row-empty">Click a genre to view podcasts</div>
+//           ) : podcasts === null ? (
+//             <div className="row-empty">Loading podcasts…</div>
+//           ) : podcasts.length === 0 ? (
+//             <div className="row-empty">No podcasts found</div>
+//           ) : (
+//             podcasts.map((p, i) => (
+//               <div key={i} className="podcast-card">
+//                 <iframe
+//                   className="spotify-frame"
+//                   src={p.embed_url}
+//                   title={p.title || `podcast-${i}`}
+//                   loading="lazy"
+//                 />
+//               </div>
+//             ))
+//           )}
+//         </HorizontalRow>
+
+//         <HorizontalRow title={`Material${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}>
+//           {materialDocs.length === 0 ? (
+//             <div className="row-empty">No material found</div>
+//           ) : (
+//             materialDocs.map((doc) => (
+//               <TextDocCard
+//                 key={doc.id}
+//                 doc={doc}
+//                 onClick={() => {
+//                   if (!isLoggedIn) {
+//                     setPendingDoc(doc);
+//                     setShowLogin(true);
+//                     return;
+//                   }
+//                   setActiveDoc(doc);
+//                 }}
+//               />
+//             ))
+//           )}
+//         </HorizontalRow>
+
+//         <HorizontalRow title={`Self Help${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}>
+//           {selfHelpDocs.length === 0 ? (
+//             <div className="row-empty">No self-help material</div>
+//           ) : (
+//             selfHelpDocs.map((doc) => (
+//               <TextDocCard
+//                 key={doc.id}
+//                 doc={doc}
+//                 onClick={() => setActiveDoc(doc)}
+//               />
+//             ))
+//           )}
+//         </HorizontalRow>
+
+//       </main>
+
+//       {activeDoc && (
+//         <DocModal doc={activeDoc} onClose={() => setActiveDoc(null)} />
+//       )}
+
+//       {showLogin && (
+//         <LoginPopup
+//           onSuccess={() => {
+//             setShowLogin(false);
+//             if (pendingDoc) {
+//               setActiveDoc(pendingDoc);
+//               setPendingDoc(null);
+//             }
+//           }}
+//           onClose={() => {
+//             setShowLogin(false);
+//             setPendingDoc(null);
+//           }}
+//         />
+//       )}
+//     </div>
+//   );
+// }
+
 import { useEffect, useState, type JSX } from "react";
 import { api } from "../api/client";
 import LeftMenu from "../components/LeftMenu";
@@ -9,6 +313,7 @@ import "../pages/home.css";
 import LoginPopup from "../components/GoogleAuthPopup";
 import GenreChips from "../components/GenreChips";
 import MobileHeader from "../components/MobileHeader";
+import WelcomeGate from "../components/WelcomeGate";
 
 /* ---- types ---- */
 type Podcast = {
@@ -41,58 +346,15 @@ export default function Home(): JSX.Element {
   const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
   const isLoggedIn = Boolean(authUser);
 
-  
-
-  /* =========================
-     Disable screenshots / focus
-  ========================= */
-  useEffect(() => {
-    const blockKeys = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-
-      if (
-        key === "printscreen" ||
-        (e.ctrlKey && key === "p") ||
-        (e.metaKey && key === "p") ||
-        (e.ctrlKey && e.shiftKey && key === "i") ||
-        (e.metaKey && e.altKey && key === "i")
-      ) {
-        e.preventDefault();
-        alert("Screenshots and printing are disabled.");
-      }
-    };
-
-    window.addEventListener("keydown", blockKeys);
-    return () => window.removeEventListener("keydown", blockKeys);
-  }, []);
+  /* ---- welcome gate ---- */
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-
-      const isScreenshot =
-        key === "printscreen" ||
-        (e.ctrlKey && key === "p") ||
-        (e.metaKey && key === "p") ||
-        (e.ctrlKey && e.shiftKey && key === "i") ||
-        (e.metaKey && e.altKey && key === "i");
-
-      if (isScreenshot) {
-        e.preventDefault();
-
-        document.documentElement.classList.add("blurred");
-
-        setTimeout(() => {
-          document.documentElement.classList.remove("blurred");
-        }, 2000); // brief deterrent, not punishment
-
-        alert("Screenshots are disabled.");
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+    const seen = sessionStorage.getItem("welcome_seen");
+    if (!seen && !user) {
+      setShowWelcome(true);
+    }
+  }, [user]);
 
   /* =========================
      Load genres
@@ -108,8 +370,8 @@ export default function Home(): JSX.Element {
         const list = res.data || [];
         setGenres(list);
 
-        if (list.length > 0 && !selectedGenre) {
-          setSelectedGenre(list[0]);
+        if (list.length > 0) {
+          setSelectedGenre((prev) => prev ?? list[0]);
         }
       } catch (err) {
         console.error("Failed to load genres", err);
@@ -123,7 +385,7 @@ export default function Home(): JSX.Element {
   }, []);
 
   /* =========================
-     Load podcasts by genre
+     Load podcasts
   ========================= */
   useEffect(() => {
     let mounted = true;
@@ -133,15 +395,16 @@ export default function Home(): JSX.Element {
       return;
     }
 
+    const genreId = selectedGenre.id;
+
     async function loadPodcasts() {
       try {
         const res = await api.get<{ podcasts: Podcast[] }>(
-          `/genres/${selectedGenre!.id}/podcasts`
+          `/genres/${genreId}/podcasts`
         );
         if (!mounted) return;
         setPodcasts(res.data.podcasts || []);
-      } catch (err) {
-        console.error("Failed to load podcasts", err);
+      } catch {
         setPodcasts([]);
       }
     }
@@ -153,7 +416,7 @@ export default function Home(): JSX.Element {
   }, [selectedGenre]);
 
   /* =========================
-     Load material by genre
+     Load material
   ========================= */
   useEffect(() => {
     let mounted = true;
@@ -163,15 +426,16 @@ export default function Home(): JSX.Element {
       return;
     }
 
+    const genreId = selectedGenre.id;
+
     async function loadMaterial() {
       try {
         const res = await api.get<TextDoc[]>(
-          `/genres/${selectedGenre!.id}/material`
+          `/genres/${genreId}/material`
         );
         if (!mounted) return;
         setMaterialDocs(res.data || []);
-      } catch (err) {
-        console.error("Failed to load material", err);
+      } catch {
         setMaterialDocs([]);
       }
     }
@@ -193,8 +457,8 @@ export default function Home(): JSX.Element {
         const res = await api.get<TextDoc[]>("/corpus/self-help");
         if (!mounted) return;
         setSelfHelpDocs(res.data || []);
-      } catch (err) {
-        console.error("Failed to load self-help corpus", err);
+      } catch {
+        /* silent */
       }
     }
 
@@ -210,7 +474,22 @@ export default function Home(): JSX.Element {
   return (
     <div className="home-root">
 
-      {/* ---------- Mobile header ONLY ---------- */}
+      {/* ===== Welcome Gate ===== */}
+      {showWelcome && (
+        <WelcomeGate
+          onClose={() => {
+            sessionStorage.setItem("welcome_seen", "true");
+            setShowWelcome(false);
+          }}
+          onSuccess={() => {
+            sessionStorage.setItem("welcome_seen", "true");
+            setShowWelcome(false);
+            window.location.reload(); // optional
+          }}
+        />
+      )}
+
+      {/* ---------- Mobile header ---------- */}
       <div className="mobile-only mobile-top">
         <MobileHeader user={user} />
       </div>
@@ -220,7 +499,7 @@ export default function Home(): JSX.Element {
         <LeftMenu
           genres={genres}
           selected={selectedGenre}
-          onSelect={(g) => setSelectedGenre(g)}
+          onSelect={setSelectedGenre}
           user={user}
         />
       </div>
@@ -228,18 +507,17 @@ export default function Home(): JSX.Element {
       {/* ---------- Main content ---------- */}
       <main className="main-area">
 
-        {/* Mobile genre chips — PART OF CONTENT */}
+        {/* Mobile genre chips */}
         <div className="mobile-only">
           <div className="genre-chips-wrapper">
             <GenreChips
               genres={genres}
               selected={selectedGenre}
-              onSelect={(g) => setSelectedGenre(g)}
+              onSelect={setSelectedGenre}
             />
           </div>
         </div>
 
-        {/* -------- Podcasts -------- */}
         <HorizontalRow
           title={`Podcasts${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
         >
@@ -252,17 +530,10 @@ export default function Home(): JSX.Element {
           ) : (
             podcasts.map((p, i) => (
               <div key={i} className="podcast-card">
-                <div className="podcast-meta">
-                  <div className="podcast-title">
-                    {p.title || " "}
-                  </div>
-                </div>
-
                 <iframe
                   className="spotify-frame"
                   src={p.embed_url}
                   title={p.title || `podcast-${i}`}
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                   loading="lazy"
                 />
               </div>
@@ -270,7 +541,6 @@ export default function Home(): JSX.Element {
           )}
         </HorizontalRow>
 
-        {/* -------- Material -------- */}
         <HorizontalRow
           title={`Material${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
         >
@@ -294,7 +564,6 @@ export default function Home(): JSX.Element {
           )}
         </HorizontalRow>
 
-        {/* -------- Self Help -------- */}
         <HorizontalRow
           title={`Self Help${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
         >
@@ -305,7 +574,14 @@ export default function Home(): JSX.Element {
               <TextDocCard
                 key={doc.id}
                 doc={doc}
-                onClick={() => setActiveDoc(doc)}
+                onClick={() => {
+                  if (!isLoggedIn) {
+                    setPendingDoc(doc);
+                    setShowLogin(true);
+                    return;
+                  }
+                  setActiveDoc(doc);
+                }}
               />
             ))
           )}
