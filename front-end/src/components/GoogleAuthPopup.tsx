@@ -15,44 +15,16 @@ const overlayStyle: React.CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
 
-  background: "rgba(15, 23, 42, 0.45)", // ⬅️ was 0.35
+  background: "rgba(15, 23, 42, 0.45)",
   backdropFilter: "blur(0.9rem)"
 };
-
-// const popupStyle: React.CSSProperties = {
-//   position: "relative",
-
-//   width: "22rem",
-//   maxWidth: "90vw",
-//   padding: "2rem 1.75rem 1.75rem",
-
-//   textAlign: "center",
-
-//   background: `
-//     linear-gradient(
-//       135deg,
-//       rgba(83, 148, 207, 0.32),
-//       rgba(220, 132, 101, 0.26)
-//     )
-//   `,
-//   backdropFilter: "blur(1.2rem) saturate(150%)",
-//   WebkitBackdropFilter: "blur(1.2rem) saturate(150%)",
-
-//   borderRadius: "1.25rem",
-//   border: "1px solid rgba(255,255,255,0.45)",
-
-//   boxShadow: `
-//     0 1.4rem 3.2rem rgba(15, 23, 42, 0.35),
-//     inset 0 0.0625rem 0 rgba(255,255,255,0.45)
-//   `
-// };
 
 const popupStyle: React.CSSProperties = {
   position: "relative",
 
   width: "22rem",
   maxWidth: "90vw",
-  padding: "2.2rem 1.9rem 1.9rem",
+  padding: "2.4rem 1.9rem 2rem",
 
   textAlign: "center",
 
@@ -88,7 +60,7 @@ const closeStyle: React.CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
 
-  background: "rgba(255,255,255,2)", // ⬅️ stronger
+  background: "rgba(255,255,255,0.95)",
   backdropFilter: "blur(0.6rem)",
   border: "1px solid rgba(255,255,255,0.7)",
   borderRadius: "50%",
@@ -113,35 +85,43 @@ export default function GoogleAuthPopup({ onSuccess, onClose }: Props) {
           ✕
         </button>
 
+        {/* ===== Brand Logo ===== */}
+        <img
+          src="/logo.png"
+          alt="Shrunothi"
+          className="brand-logo-popup"
+          style={{
+            height: "10rem",
+            marginBottom: "0.5rem",
+            filter: "drop-shadow(0 0.4rem 0.9rem rgba(0,0,0,0.18))"
+          }}
+        />
+
         <h3
           style={{
-            marginBottom: "1rem",
+            marginBottom: "0.8rem",
             fontSize: "1.15rem",
             fontWeight: 600,
             color: "#0f172a"
           }}
         >
-          Sign in with Google
+          Sign in to continue
         </h3>
 
         <p
           style={{
             fontSize: "0.85rem",
             color: "#334155",
-            marginBottom: "1.4rem",
-            lineHeight: 1.4
+            marginBottom: "1.5rem",
+            lineHeight: 1.45
           }}
         >
-          Continue to access curated podcasts, materials, and self-help content.
+          Access curated podcasts, materials, and self-help content — organized
+          by purpose, not noise.
         </p>
 
-        {/* Google button stays REAL */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center"
-          }}
-        >
+        {/* ===== Real Google Button ===== */}
+        <div style={{ display: "flex", justifyContent: "center" }}>
           <GoogleLogin
             onSuccess={async (res) => {
               try {
@@ -151,7 +131,6 @@ export default function GoogleAuthPopup({ onSuccess, onClose }: Props) {
 
                 const user = response.data;
                 localStorage.setItem("authUser", JSON.stringify(user));
-
                 onSuccess?.();
               } catch (err) {
                 console.error("Login error", err);

@@ -9,7 +9,7 @@
   height: 5rem;
   margin: 0 0.75rem;
   padding: 0.9rem 1rem;        /* flexible height */
-
+  z-index: 300 !important;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -33,10 +33,7 @@
 }
 
 /* Wrapper above header (no shelf) */
-.mobile-top {
-  background: transparent;
-  border: none;
-}
+
 
 /* =========================
    Logo
@@ -46,6 +43,7 @@
   display: flex;
   align-items: center;
   margin-top: 0.5rem;
+  flex: 1;                /* ⬅️ logo can shrink */
 }
 
 .mobile-logo img {
@@ -68,7 +66,10 @@
   position: relative;
   display: flex;
   align-items: center;
+
   max-width: 50%;
+  min-width: 9rem;        /* ⬅️ KEY FIX */
+  flex-shrink: 0;         /* ⬅️ DO NOT ALLOW COLLAPSE */
 }
 
 /* Button (username) */

@@ -38,6 +38,13 @@ export default function DocModal({ doc, onClose }: Props) {
         className="modal-panel"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* ✨ Brand logo */}
+        <img
+          src="/logo.png"
+          alt="Shrunothi"
+          className="modal-logo"
+        />
+
         <button className="modal-close" onClick={onClose}>
           ×
         </button>
