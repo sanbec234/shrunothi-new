@@ -537,18 +537,19 @@ export default function AdminDashboard() {
               <button onClick={() => setShowAddPodcast(true)}>
                 + Add Podcast
               </button>
-
-              <select
-                value={podcastGenreFilter}
-                onChange={(e) => setPodcastGenreFilter(e.target.value)}
-              >
-                <option value="all">All genres</option>
-                {genres.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {g.name}
-                  </option>
-                ))}
-              </select>
+              <div className="form-field">
+                <select
+                  value={podcastGenreFilter}
+                  onChange={(e) => setPodcastGenreFilter(e.target.value)}
+                >
+                  <option value="all">All genres</option>
+                  {genres.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Body */}
@@ -634,18 +635,19 @@ export default function AdminDashboard() {
               <button onClick={() => setShowAddMaterial(true)}>
                 + Add Material
               </button>
-
-              <select
-                value={materialGenreFilter}
-                onChange={(e) => setMaterialGenreFilter(e.target.value)}
-              >
-                <option value="all">All genres</option>
-                {genres.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {g.name}
-                  </option>
-                ))}
-              </select>
+              <div className="form-field">
+                <select
+                  value={materialGenreFilter}
+                  onChange={(e) => setMaterialGenreFilter(e.target.value)}
+                >
+                  <option value="all">All genres</option>
+                  {genres.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Body */}

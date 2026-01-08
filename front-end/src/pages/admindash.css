@@ -33,9 +33,15 @@
 html,body {
   margin: 0;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #ffffff;
   color: var(--text-main);
   height: 100% !important;
+  background:
+    linear-gradient(
+      180deg,
+      #eef3f9 0%,
+      #edf1f6 45%,
+      #eef0f3 100%
+    );
 }
 
 /* =====================
@@ -46,6 +52,13 @@ html,body {
   margin: 0 auto;
   padding: 32px 28px 80px;
   min-height: 100vh !important;
+  background:
+    linear-gradient(
+      180deg,
+      #eef3f9 0%,
+      #edf1f6 45%,
+      #eef0f3 100%
+    );
 }
 
 h2 {
@@ -186,7 +199,7 @@ tbody tr:last-child td {
 input,
 textarea,
 select {
-  width: 100%;
+  /* width: 100%; */
   padding: 11px 12px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-light);
@@ -195,6 +208,20 @@ select {
   outline: none;
   background: #fff;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-field input,
+.form-field textarea,
+.form-field select {
+  width: 100%;
+}
+
+.admin-user-logout select,
+.admin-user-logout button,
+.section-controls select,
+.section-controls button {
+  width: auto;
+  min-width: 140px;
 }
 
 input:focus,
@@ -377,6 +404,7 @@ td .action-group {
   align-items: center;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  min-width: 2rem;
 }
 
 .admin-welcome {
@@ -394,6 +422,7 @@ td .action-group {
   border-radius: var(--radius-sm);
   font-size: 13px;
   flex: 1;
+  min-width: 2rem;
 }
 
 .admin-logout:hover {

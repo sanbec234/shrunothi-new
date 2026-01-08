@@ -1,20 +1,9 @@
-/* =========================
-   Root layout
-========================= */
 .home-root {
-  display: grid;
-  grid-template-columns: minmax(14rem, 18rem) 1fr;
-  width: 100vw;
-  height: 100vh;
-  overflow-x: hidden;
-  overflow-y: visible;
-  min-height: 100svh;   
-  width: 100vw;
   position: relative;
-  isolation: isolate;
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
+  min-height: 100svh;
+  width: 100vw;
 
+  overflow-x: hidden;
 
   background:
     radial-gradient(
@@ -51,10 +40,10 @@
 ========================= */
 
 .main-area {
-  width: 100%;
-  /* height: 100%; */
+  margin-left: clamp(14rem, 18vw, 18rem);
   padding: clamp(1rem, 3vw, 2.25rem);
-  overflow-y: visible;
+
+  min-height: 100vh;
 }
 
 /* =========================
@@ -106,12 +95,6 @@
 
   opacity: 0.45;
 }
-/* 
-.row-title {
-  font-size: clamp(1rem, 1.2vw, 1.125rem);
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-} */
 
 .row-title {
   position: relative;
@@ -341,30 +324,18 @@
    Mobile header + chips
 ========================= */
 
-/* .mobile-top {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: rgba(255,255,255,0.96);
-  backdrop-filter: blur(8px);
-  width: 100%;
-  padding-top: 1rem;
-  background: transparent;
-  border: none;
-} */
-
 .mobile-top {
   padding-top: 1rem;
   position: sticky;
   top: env(safe-area-inset-top);
   left: 0;
   right: 0;
-  padding-right: 1rem;
+  /* padding-right: 1rem; */
   display: flex;
   justify-content: center;
 
-  background: transparent;
-  pointer-events: none; /* important */
+  /* background: transparent;
+  pointer-events: none;  */
   z-index: 300;
 }
 
@@ -613,9 +584,8 @@
   }
 
   .main-area {
+    margin-left: 0;        /* 🔥 THIS FIXES THE GAP */
     padding: 0.4rem 0.75rem;
-    overflow-y: visible;
-    padding-top: 0.5rem; /* header height + spacing */
   }
 
   .row-section {

@@ -2,9 +2,20 @@
 .logo-img {
   height: clamp(11rem, 6vw, 4.25rem);
   width: auto;
+  flex-shrink: 0;
 }
 
 .left-menu {
+  position: fixed;
+  top: env(safe-area-inset-top);
+  left: 0;
+
+  width: clamp(14rem, 18vw, 18rem);
+  height: calc(100vh - env(safe-area-inset-top));
+
+  display: flex;
+  flex-direction: column;
+
   background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
@@ -17,7 +28,8 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
 
   border: 1px solid rgba(255, 255, 255, 0.4);
-  overflow: hidden;
+
+  z-index: 200;
 }
 
 .genre-list {
@@ -140,4 +152,107 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* =========================
+   Left menu (SCOPED)
+========================= */
+
+.left-menu {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;              /* ⬅ only the menu is fixed */
+  background: var(--panel-bg);
+  border-right: 1px solid var(--border-soft);
+  padding: 22px;
+}
+
+/* Logo */
+.left-menu .logo {
+  margin-bottom: 18px;
+  font-size: 18px;
+  font-weight: 700;
+  padding-right: 1rem !important;
+
+}
+
+/* Genre list scrolls, not page */
+.left-menu .genre-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Buttons */
+.left-menu .genre-btn {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.left-menu .genre-btn:hover {
+  background: #f3f4f6;
+}
+
+.left-menu .genre-btn.selected {
+  background: linear-gradient(
+    135deg,
+    rgba(83, 156, 207, 0.9),   /* brand blue */
+    rgba(220, 132, 101, 0.85) /* brand copper */
+  );
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* =========================
+   User footer (bottom)
+========================= */
+
+.left-menu .user-box {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.left-menu .user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.left-menu .logout-btn {
+  background: transparent;
+  border: none;
+  color: #dc2626;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.left-menu .logout-btn:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   Responsive (menu only)
+========================= */
+
+@media (max-width: 900px) {
+  .left-menu {
+    padding: 12px;
+  }
 }
