@@ -2,9 +2,14 @@ from flask import Blueprint, request, jsonify
 from db.client import get_db
 from db.models.self_help import create_self_help
 from bson import ObjectId
+from datetime import datetime
 
 bp = Blueprint("admin_self_help", __name__)
 
+# -------------------------------
+# ADD SELF-HELP
+# POST /admin/self-help
+# -------------------------------
 @bp.route("/admin/self-help", methods=["POST"])
 def add_self_help():
     data = request.get_json() or {}
@@ -21,11 +26,13 @@ def add_self_help():
         "title": data["title"]
     }), 201
 
-@bp.route("/admin/self-help/<self_help_id>", methods=["PATCH", "OPTIONS"])
-def update_self_help(self_help_id):
-    if request.method == "OPTIONS":
-        return "", 200
 
+# -------------------------------
+# UPDATE SELF-HELP
+# PUT or PATCH /admin/self-help/<id>
+# -------------------------------
+@bp.route("/admin/self-help/<self_help_id>", methods=["PUT", "PATCH"])
+def update_self_help(self_help_id):
     db = get_db()
 
     try:
@@ -35,17 +42,19 @@ def update_self_help(self_help_id):
 
     data = request.get_json() or {}
 
-    update = {
-        k: v for k, v in data.items()
-        if k in ["title", "author", "content"] and v
-    }
-
-    if not update:
-        return jsonify({ "error": "Nothing to update" }), 400
+    # Required fields
+    for field in ["title", "author", "content"]:
+        if not data.get(field):
+            return jsonify({ "error": f"{field} is required" }), 400
 
     result = db.self_help.update_one(
         { "_id": oid },
-        { "$set": update }
+        { "$set": {
+            "title": data["title"],
+            "author": data["author"],
+            "content": data["content"],
+            "updated_at": datetime.utcnow()
+        }}
     )
 
     if result.matched_count == 0:
@@ -53,6 +62,11 @@ def update_self_help(self_help_id):
 
     return jsonify({ "status": "updated" }), 200
 
+
+# -------------------------------
+# DELETE SELF-HELP
+# DELETE /admin/self-help/<id>
+# -------------------------------
 @bp.route("/admin/self-help/<self_help_id>", methods=["DELETE", "OPTIONS"])
 def delete_self_help(self_help_id):
     if request.method == "OPTIONS":

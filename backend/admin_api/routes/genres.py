@@ -5,6 +5,10 @@ from bson import ObjectId
 
 bp = Blueprint("admin_genres", __name__)
 
+# -------------------------------
+# ADD GENRE
+# POST /admin/genres
+# -------------------------------
 @bp.route("/admin/genres", methods=["POST"])
 def add_genre():
     data = request.get_json() or {}
@@ -21,11 +25,13 @@ def add_genre():
         "name": name
     }), 201
 
-@bp.route("/admin/genres/<genre_id>", methods=["PATCH", "OPTIONS"])
-def update_genre(genre_id):
-    if request.method == "OPTIONS":
-        return "", 200
 
+# -------------------------------
+# UPDATE GENRE
+# PUT or PATCH /admin/genres/<id>
+# -------------------------------
+@bp.route("/admin/genres/<genre_id>", methods=["PUT", "PATCH"])
+def update_genre(genre_id):
     db = get_db()
 
     try:
@@ -49,31 +55,11 @@ def update_genre(genre_id):
 
     return jsonify({ "status": "updated", "name": name }), 200
 
-# @bp.route("/admin/genres/<genre_id>", methods=["DELETE", "OPTIONS"])
-# def delete_genre(genre_id):
-#     if request.method == "OPTIONS":
-#         return "", 200
 
-#     db = get_db()
-
-#     try:
-#         oid = ObjectId(genre_id)
-#     except Exception:
-#         return jsonify({ "error": "Invalid genre id" }), 400
-
-#     if db.podcasts.count_documents({ "genreId": oid }) > 0:
-#         return jsonify({ "error": "Genre has podcasts" }), 400
-
-#     if db.materials.count_documents({ "genreId": oid }) > 0:
-#         return jsonify({ "error": "Genre has materials" }), 400
-
-#     result = db.genres.delete_one({ "_id": oid })
-
-#     if result.deleted_count == 0:
-#         return jsonify({ "error": "Genre not found" }), 404
-
-#     return jsonify({ "status": "deleted" }), 200
-
+# -------------------------------
+# DELETE GENRE
+# DELETE /admin/genres/<id>
+# -------------------------------
 @bp.route("/admin/genres/<genre_id>", methods=["DELETE", "OPTIONS"])
 def delete_genre(genre_id):
     if request.method == "OPTIONS":
@@ -86,16 +72,16 @@ def delete_genre(genre_id):
     except Exception:
         return jsonify({ "error": "Invalid genre id" }), 400
 
-    # 🔒 Block delete if podcasts exist (ObjectId OR legacy string)
+    # 🔒 Block delete if podcasts exist
     if db.podcasts.count_documents({
         "$or": [
             { "genreId": oid },
-            { "genreId": genre_id }
+            { "genreId": genre_id }  # legacy string
         ]
     }) > 0:
         return jsonify({ "error": "Genre has podcasts" }), 400
 
-    # 🔒 Block delete if materials exist (ObjectId OR legacy string)
+    # 🔒 Block delete if materials exist
     if db.materials.count_documents({
         "$or": [
             { "genreId": oid },

@@ -2,9 +2,14 @@ from flask import Blueprint, request, jsonify
 from db.client import get_db
 from db.models.material import create_material
 from bson import ObjectId
+from datetime import datetime
 
 bp = Blueprint("admin_materials", __name__)
 
+# -------------------------------
+# ADD MATERIAL
+# POST /admin/materials
+# -------------------------------
 @bp.route("/admin/materials", methods=["POST"])
 def add_material():
     data = request.get_json() or {}
@@ -21,11 +26,13 @@ def add_material():
         "title": data["title"]
     }), 201
 
-@bp.route("/admin/materials/<material_id>", methods=["PATCH", "OPTIONS"])
-def update_material(material_id):
-    if request.method == "OPTIONS":
-        return "", 200
 
+# -------------------------------
+# UPDATE MATERIAL
+# PUT or PATCH /admin/materials/<id>
+# -------------------------------
+@bp.route("/admin/materials/<material_id>", methods=["PUT", "PATCH"])
+def update_material(material_id):
     db = get_db()
 
     try:
@@ -35,25 +42,41 @@ def update_material(material_id):
 
     data = request.get_json() or {}
 
-    update = {
-        k: v for k, v in data.items()
-        if k in ["title", "author", "content", "genreId"]
-    }
+    # Validate required fields
+    for field in ["title", "author", "content", "genreId"]:
+        if not data.get(field):
+            return jsonify({ "error": f"{field} is required" }), 400
 
-    if "genreId" in update:
-        if update["genreId"]:
-            update["genreId"] = ObjectId(update["genreId"])
-        else:
-            update.pop("genreId")
+    # Validate genre exists
+    try:
+        genre_oid = ObjectId(data["genreId"])
+    except Exception:
+        return jsonify({ "error": "Invalid genreId" }), 400
 
+    if not db.genres.find_one({ "_id": genre_oid }):
+        return jsonify({ "error": "Genre not found" }), 400
 
-    db.materials.update_one(
+    result = db.materials.update_one(
         { "_id": oid },
-        { "$set": update }
+        { "$set": {
+            "title": data["title"],
+            "author": data["author"],
+            "content": data["content"],
+            "genreId": data["genreId"],  # keep STRING for consistency
+            "updated_at": datetime.utcnow()
+        }}
     )
+
+    if result.matched_count == 0:
+        return jsonify({ "error": "Material not found" }), 404
 
     return jsonify({ "status": "updated" }), 200
 
+
+# -------------------------------
+# DELETE MATERIAL
+# DELETE /admin/materials/<id>
+# -------------------------------
 @bp.route("/admin/materials/<material_id>", methods=["DELETE", "OPTIONS"])
 def delete_material(material_id):
     if request.method == "OPTIONS":
