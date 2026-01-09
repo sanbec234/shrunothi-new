@@ -275,6 +275,26 @@ textarea {
   animation: modalIn 0.18s ease-out;
 }
 
+.modal-editor {
+  width: 640px;              /* wider than normal modal */
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-editor textarea {
+  min-height: 240px;         /* key fix: see what you’re writing */
+}
+
+.modal-editor .modal-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modal-editor .modal-footer {
+  margin-top: 12px;
+}
+
 @keyframes modalIn {
   from {
     transform: translateY(10px) scale(0.97);
@@ -439,6 +459,26 @@ td .action-group {
 ===================== */
 @media (max-width: 640px) {
 
+   .modal-editor {
+    width: 100%;
+    max-width: 100%;
+    height: 90vh;          /* 👈 key: use the screen */
+    max-height: 90vh;
+    padding: 16px;
+    border-radius: 16px 16px 0 0; /* bottom-sheet feel */
+  }
+
+  .modal-editor textarea {
+    min-height: 40vh;      /* 👈 real writing space */
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .modal-editor select,
+  .modal-editor input {
+    font-size: 15px;
+  }
+
   .section-body {
     max-height: 45vh;
   }
@@ -530,6 +570,8 @@ td .action-group {
     color: var(--text-muted);
     margin-bottom: 2px;
   }
+
+  
 
   /* =====================
      MODALS

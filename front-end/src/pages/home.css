@@ -572,6 +572,65 @@
   );
 }
 
+/* TipTap rendered content */
+.tiptap-content {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #111827;
+}
+
+/* Paragraphs */
+.tiptap-content p {
+  margin-bottom: 1em;
+}
+
+/* Headings */
+.tiptap-content h1 {
+  font-size: 1.6rem;
+  margin: 1.2em 0 0.6em;
+}
+
+.tiptap-content h2 {
+  font-size: 1.35rem;
+  margin: 1.1em 0 0.5em;
+}
+
+.tiptap-content h3 {
+  font-size: 1.15rem;
+  margin: 1em 0 0.4em;
+}
+
+/* Lists */
+.tiptap-content ul,
+.tiptap-content ol {
+  padding-left: 1.2rem;
+  margin-bottom: 1em;
+}
+
+.tiptap-content li {
+  margin-bottom: 0.35em;
+}
+
+/* Inline formatting */
+.tiptap-content strong {
+  font-weight: 600;
+}
+
+.tiptap-content em {
+  font-style: italic;
+}
+
+.tiptap-content u {
+  text-decoration: underline;
+}
+
+/* Highlight */
+.tiptap-content mark {
+  background: #fde68a;
+  padding: 0 0.15em;
+  border-radius: 3px;
+}
+
 /* =========================
    Mobile overrides
 ========================= */

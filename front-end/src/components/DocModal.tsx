@@ -52,9 +52,10 @@ export default function DocModal({ doc, onClose }: Props) {
         <h2 className="modal-title">{doc.title}</h2>
         <p className="modal-author">By {doc.author}</p>
 
-        <div className="modal-body">
-          <pre>{content}</pre>
-        </div>
+        <div
+          className="modal-body tiptap-content"
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
       </div>
     </div>
   );

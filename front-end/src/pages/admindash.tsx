@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./admindash.css";
 import { api } from "../api/client";
-
+import RichEditor from "../components/RichEditor";
 /* ---------- Types ---------- */
 
 type Genre = { id: string; name: string };
@@ -1092,11 +1092,15 @@ export default function AdminDashboard() {
       {/* ================= ADD MATERIAL MODAL ================= */}
       {showAddMaterial && (
         <div className="modal-overlay">
-          <div className="modal">
+          <div className="modal modal-editor">
             <button className="modal-close" onClick={() => setShowAddMaterial(false)}>✕</button>
             <input placeholder="Title" value={newMaterialTitle} onChange={(e) => setNewMaterialTitle(e.target.value)} />
             <input placeholder="Author" value={newMaterialAuthor} onChange={(e) => setNewMaterialAuthor(e.target.value)} />
-            <textarea placeholder="Content" value={newMaterialContent} onChange={(e) => setNewMaterialContent(e.target.value)} />
+            {/* <textarea placeholder="Content" value={newMaterialContent} onChange={(e) => setNewMaterialContent(e.target.value)} /> */}
+            <RichEditor
+              value={newMaterialContent}
+              onChange={setNewMaterialContent}
+            />
             <select value={materialGenreId} onChange={(e) => setMaterialGenreId(e.target.value)}>
               <option value="">Select genre</option>
               {genres.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
@@ -1108,7 +1112,7 @@ export default function AdminDashboard() {
       {/* ================= EDIT MATERIAL MODAL ================= */}
       {editingMaterial && (
         <div className="modal-overlay">
-          <div className="modal">
+          <div className="modal modal-editor">
             <button
               className="modal-close"
               onClick={() => setEditingMaterial(null)}
@@ -1136,12 +1140,15 @@ export default function AdminDashboard() {
               placeholder="Author"
             />
 
-            <textarea
+            {/* <textarea
               value={editMaterialContent}
               onChange={(e) => setEditMaterialContent(e.target.value)}
               placeholder="Content"
+            /> */}
+            <RichEditor
+              value={editMaterialContent}
+              onChange={setEditMaterialContent}
             />
-
             <select
               value={editMaterialGenreId}
               onChange={(e) => setEditMaterialGenreId(e.target.value)}
@@ -1195,11 +1202,15 @@ export default function AdminDashboard() {
       {/* ================= ADD SELF-HELP MODAL ================= */}
       {showAddSelfHelp && (
         <div className="modal-overlay">
-          <div className="modal">
+          <div className="modal modal-editor">
             <button className="modal-close" onClick={() => setShowAddSelfHelp(false)}>✕</button>
             <input placeholder="Title" value={newSelfHelpTitle} onChange={(e) => setNewSelfHelpTitle(e.target.value)} />
             <input placeholder="Author" value={newSelfHelpAuthor} onChange={(e) => setNewSelfHelpAuthor(e.target.value)} />
-            <textarea placeholder="Content" value={newSelfHelpContent} onChange={(e) => setNewSelfHelpContent(e.target.value)} />
+            {/* <textarea placeholder="Content" value={newSelfHelpContent} onChange={(e) => setNewSelfHelpContent(e.target.value)} /> */}
+            <RichEditor
+              value={newSelfHelpContent}
+              onChange={setNewSelfHelpContent}
+            />
             <button onClick={addSelfHelp}>Add Self-Help</button>
           </div>
         </div>
@@ -1208,7 +1219,7 @@ export default function AdminDashboard() {
       {/* ================= EDIT SELF-HELP MODAL ================= */}
       {editingSelfHelp && (
         <div className="modal-overlay">
-          <div className="modal">
+          <div className="modal modal-editor">
             <button
               className="modal-close"
               onClick={() => setEditingSelfHelp(null)}
@@ -1230,11 +1241,16 @@ export default function AdminDashboard() {
               onChange={(e) => setEditSelfHelpAuthor(e.target.value)}
             />
 
-            <textarea
+            {/* <textarea
               placeholder="Content"
               value={editSelfHelpContent}
               onChange={(e) => setEditSelfHelpContent(e.target.value)}
               rows={10}
+            /> */}
+            
+            <RichEditor
+              value={editSelfHelpContent}
+              onChange={setEditSelfHelpContent}
             />
 
             <button
