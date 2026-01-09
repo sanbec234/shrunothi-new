@@ -68,7 +68,7 @@ export default function AdminDashboard() {
   const [genreName, setGenreName] = useState("");
 
   const [podcastTitle, setPodcastTitle] = useState("");
-  const [podcastAuthor, setPodcastAuthor] = useState("");
+  // const [podcastAuthor, setPodcastAuthor] = useState("");
   const [spotifyUrl, setSpotifyUrl] = useState("");
 
   const [materialTitle, setMaterialTitle] = useState("");
@@ -79,7 +79,7 @@ export default function AdminDashboard() {
 
   const [showAddPodcast, setShowAddPodcast] = useState(false);
   const [newPodcastTitle, setNewPodcastTitle] = useState("");
-  const [newPodcastAuthor, setNewPodcastAuthor] = useState("");
+  // const [newPodcastAuthor, setNewPodcastAuthor] = useState("");
   const [newSpotifyUrl, setNewSpotifyUrl] = useState("");
   const [podcastGenreId, setPodcastGenreId] = useState("");
 
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
   /* ================= EDIT PODCAST ================= */
   const [editingPodcast, setEditingPodcast] = useState<Podcast | null>(null);
   const [editPodcastTitle, setEditPodcastTitle] = useState("");
-  const [editPodcastAuthor, setEditPodcastAuthor] = useState("");
+  // const [editPodcastAuthor, setEditPodcastAuthor] = useState("");
   const [editSpotifyUrl, setEditSpotifyUrl] = useState("");
   const [editPodcastGenreId, setEditPodcastGenreId] = useState("");
 
@@ -186,7 +186,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     let idleTimer: ReturnType<typeof setTimeout>;
 
-    const IDLE_LIMIT = 2 * 60 * 1000; // 2 minutes
+    const IDLE_LIMIT = 5 * 60 * 1000; // 5 minutes
 
     const logout = () => {
       localStorage.removeItem("authUser");
@@ -224,7 +224,7 @@ export default function AdminDashboard() {
     setStep(1);
     setGenreName("");
     setPodcastTitle("");
-    setPodcastAuthor("");
+    // setPodcastAuthor("");
     setSpotifyUrl("");
     setMaterialTitle("");
     setMaterialAuthor("");
@@ -264,10 +264,10 @@ export default function AdminDashboard() {
       const genreId = genreRes.data.id;
 
       // 2️⃣ Create podcast (only if filled)
-      if (podcastTitle && podcastAuthor && spotifyUrl) {
+      if (podcastTitle && spotifyUrl) {
         await api.post("/admin/podcasts", {
           title: podcastTitle,
-          author: podcastAuthor,
+          // author: podcastAuthor,
           spotifyUrl,
           genreId
         });
@@ -305,7 +305,7 @@ export default function AdminDashboard() {
 
 
   async function addPodcast() {
-    if (!newPodcastTitle || !newPodcastAuthor || !newSpotifyUrl || !podcastGenreId) {
+    if (!newPodcastTitle || !newSpotifyUrl || !podcastGenreId) {
       alert("All fields required");
       return;
     }
@@ -313,7 +313,7 @@ export default function AdminDashboard() {
     try {
       await api.post("/admin/podcasts", {
         title: newPodcastTitle,
-        author: newPodcastAuthor,
+        // author: newPodcastAuthor,
         spotifyUrl: newSpotifyUrl,
         genreId: podcastGenreId
       });
@@ -324,7 +324,7 @@ export default function AdminDashboard() {
 
       setShowAddPodcast(false);
       setNewPodcastTitle("");
-      setNewPodcastAuthor("");
+      // setNewPodcastAuthor("");
       setNewSpotifyUrl("");
       setPodcastGenreId("");
 
@@ -578,7 +578,7 @@ export default function AdminDashboard() {
                             onClick={() => {
                               setEditingPodcast(p);
                               setEditPodcastTitle(p.title);
-                              setEditPodcastAuthor(p.author);
+                              // setEditPodcastAuthor(p.author);
                               setEditSpotifyUrl(p.spotifyUrl);
                               setEditPodcastGenreId(p.genreId);
                             }}
@@ -882,7 +882,7 @@ export default function AdminDashboard() {
       {/* ================= ADD GENRE MODAL ================= */}
       {showAddGenre && (
         <div className="modal-overlay">
-          <div className="modal">
+          <div className="modal podcast-modal">
             <button className="modal-close" onClick={closeGenreModal}>✕</button>
 
             <div className="step">Step {step} of 3</div>
@@ -905,11 +905,11 @@ export default function AdminDashboard() {
                   value={podcastTitle}
                   onChange={(e) => setPodcastTitle(e.target.value)}
                 />
-                <input
+                {/* <input
                   placeholder="Podcast author"
                   value={podcastAuthor}
                   onChange={(e) => setPodcastAuthor(e.target.value)}
-                />
+                /> */}
                 <input
                   placeholder="Spotify URL"
                   value={spotifyUrl}
@@ -931,10 +931,9 @@ export default function AdminDashboard() {
                   value={materialAuthor}
                   onChange={(e) => setMaterialAuthor(e.target.value)}
                 />
-                <textarea
-                  placeholder="Material content"
-                  value={materialContent}
-                  onChange={(e) => setMaterialContent(e.target.value)}
+                <RichEditor
+                  value={newMaterialContent}
+                  onChange={setNewMaterialContent}
                 />
                 <button onClick={createGenreBundle}>Create Genre</button>
               </>
@@ -985,10 +984,10 @@ export default function AdminDashboard() {
       {/* ================= ADD PODCAST MODAL ================= */}
       {showAddPodcast && (
         <div className="modal-overlay">
-          <div className="modal">
+          <div className="modal podcast-modal">
             <button className="modal-close" onClick={() => setShowAddPodcast(false)}>✕</button>
             <input placeholder="Title" value={newPodcastTitle} onChange={(e) => setNewPodcastTitle(e.target.value)} />
-            <input placeholder="Author" value={newPodcastAuthor} onChange={(e) => setNewPodcastAuthor(e.target.value)} />
+            {/* <input placeholder="Author" value={newPodcastAuthor} onChange={(e) => setNewPodcastAuthor(e.target.value)} /> */}
             <input placeholder="Spotify URL" value={newSpotifyUrl} onChange={(e) => setNewSpotifyUrl(e.target.value)} />
             <select value={podcastGenreId} onChange={(e) => setPodcastGenreId(e.target.value)}>
               <option value="">Select genre</option>
@@ -1002,7 +1001,7 @@ export default function AdminDashboard() {
       {/* ================= EDIT PODCAST MODAL ================= */}
       {editingPodcast && (
         <div className="modal-overlay">
-          <div className="modal">
+          <div className="modal podcast-modal">
             <button
               className="modal-close"
               onClick={() => setEditingPodcast(null)}
@@ -1025,11 +1024,11 @@ export default function AdminDashboard() {
               placeholder="Title"
             />
 
-            <input
+            {/* <input
               value={editPodcastAuthor}
               onChange={(e) => setEditPodcastAuthor(e.target.value)}
               placeholder="Author"
-            />
+            /> */}
 
             <input
               value={editSpotifyUrl}
@@ -1053,7 +1052,7 @@ export default function AdminDashboard() {
               onClick={async () => {
                 await api.put(`/admin/podcasts/${editingPodcast.id}`, {
                   title: editPodcastTitle,
-                  author: editPodcastAuthor,
+                  // author: editPodcastAuthor,
                   spotifyUrl: editSpotifyUrl,
                   genreId: editPodcastGenreId
                 });
@@ -1065,7 +1064,7 @@ export default function AdminDashboard() {
                       ? {
                         ...p,
                         title: editPodcastTitle,
-                        author: editPodcastAuthor,
+                        // author: editPodcastAuthor,
                         spotifyUrl: editSpotifyUrl,
                         genreId: editPodcastGenreId
                       }
@@ -1247,7 +1246,7 @@ export default function AdminDashboard() {
               onChange={(e) => setEditSelfHelpContent(e.target.value)}
               rows={10}
             /> */}
-            
+
             <RichEditor
               value={editSelfHelpContent}
               onChange={setEditSelfHelpContent}

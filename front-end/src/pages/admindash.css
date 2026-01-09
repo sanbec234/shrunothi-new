@@ -332,6 +332,22 @@ textarea {
   color: var(--text-main);
 }
 
+.modal.podcast-modal {
+  width: 36rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.podcast-modal .form-grid {
+  /* display: grid; */
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.podcast-modal .form-grid-full {
+  grid-column: 1 / -1;
+}
+
 /* =====================
    Success banner
 ===================== */
