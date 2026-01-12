@@ -32,6 +32,15 @@ export default function DocModal({ doc, onClose }: Props) {
     };
   }, [doc.id]);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div
@@ -39,19 +48,26 @@ export default function DocModal({ doc, onClose }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* ✨ Brand logo */}
-        <img
-          src="/logo.png"
-          alt="Shrunothi"
-          className="modal-logo"
-        />
+        <div className="modal-header">
+          <img
+            src="/logo.png"
+            alt="Shrunothi"
+            className="modal-logo-inline"
+          />
+
+          <div className="modal-meta">
+            <h2 className="modal-title">{doc.title}</h2>
+            <p className="modal-author">By {doc.author}</p>
+          </div>
+        </div>
 
         <button className="modal-close" onClick={onClose}>
           ×
         </button>
 
-        <h2 className="modal-title">{doc.title}</h2>
-        <p className="modal-author">By {doc.author}</p>
-
+        {/* <h2 className="modal-title">{doc.title}</h2>
+        <p className="modal-author">By {doc.author}</p> */}
+        <div className="scroll-hint">Scroll to read more ↓</div>
         <div
           className="modal-body tiptap-content"
           dangerouslySetInnerHTML={{ __html: content }}

@@ -278,7 +278,7 @@
   ),
   rgba(255, 255, 255, 0.7);   /* neutral glass base */
 
-  backdrop-filter: blur(22px) saturate(200%);
+  backdrop-filter: blur(22px) saturate(300%);
   -webkit-backdrop-filter: blur(22px) saturate(160%);
 
   border-radius: 22px;
@@ -310,6 +310,8 @@
 .modal-body {
   flex: 1;
   overflow-y: auto;
+  padding-right: 0.25rem;
+  position: relative;
 }
 
 .modal-body pre {
@@ -318,6 +320,46 @@
   font-family: system-ui, -apple-system, BlinkMacSystemFont;
   font-size: 0.9rem;
   line-height: 1.6;
+}
+
+.modal-body::after {
+  content: "";
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+
+  pointer-events: none;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.85)
+  );
+}
+
+.modal-body {
+  scrollbar-width: thin;                 /* Firefox */
+  scrollbar-color: #94a3b8 transparent;
+}
+
+/* Chrome / Safari */
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.45);
+  border-radius: 6px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 116, 139, 0.7);
 }
 
 /* =========================
@@ -572,6 +614,44 @@
   );
 }
 
+/* =========================
+   Modal header (document style)
+========================= */
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Small, side logo */
+.modal-logo-inline {
+  height: 1.8rem;
+  width: auto;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+/* Title + author block */
+.modal-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.modal-author {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
 /* TipTap rendered content */
 .tiptap-content {
   font-size: 0.95rem;
@@ -713,4 +793,3 @@
     -webkit-line-clamp: 2;     /* 🔥 fewer lines */
   }
 }
-

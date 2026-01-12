@@ -55,3 +55,7 @@ button {
   font-family: inherit;
   cursor: pointer;
 }
+
+body.modal-open {
+  overflow: hidden !important;
+}

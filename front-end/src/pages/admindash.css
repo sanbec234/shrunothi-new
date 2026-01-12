@@ -47,6 +47,11 @@ html,body {
 /* =====================
    Layout
 ===================== */
+
+body.modal-open {
+  overflow: hidden !important;
+}
+
 .admin {
   max-width: 1200px;
   margin: 0 auto;

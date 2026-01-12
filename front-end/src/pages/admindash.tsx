@@ -127,6 +127,19 @@ export default function AdminDashboard() {
   const [podcastGenreFilter, setPodcastGenreFilter] = useState<string>("all");
   const [materialGenreFilter, setMaterialGenreFilter] = useState<string>("all");
 
+  /* ================= MODAL STATE ================= */
+
+  const isAnyModalOpen =
+    showAddGenre ||
+    showAddPodcast ||
+    showAddMaterial ||
+    showAddSelfHelp ||
+    showAddAdmin ||
+    editingGenre ||
+    editingPodcast ||
+    editingMaterial ||
+    editingSelfHelp;
+
   useEffect(() => {
     async function loadGenres() {
       const res = await api.get("/genres");
@@ -217,6 +230,42 @@ export default function AdminDashboard() {
       events.forEach((e) => window.removeEventListener(e, resetTimer));
     };
   }, []);
+
+  useEffect(() => {
+    if (isAnyModalOpen) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
+
+    return () => {
+      document.body.classList.remove("modal-open");
+    };
+  }, [isAnyModalOpen]);
+
+  useEffect(() => {
+    if (!isAnyModalOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowAddGenre(false);
+        setShowAddPodcast(false);
+        setShowAddMaterial(false);
+        setShowAddSelfHelp(false);
+        setShowAddAdmin(false);
+
+        setEditingGenre(null);
+        setEditingPodcast(null);
+        setEditingMaterial(null);
+        setEditingSelfHelp(null);
+
+        setSuccessMessage("");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isAnyModalOpen]);
 
   /* ================= HELPERS ================= */
 
@@ -578,7 +627,6 @@ export default function AdminDashboard() {
                             onClick={() => {
                               setEditingPodcast(p);
                               setEditPodcastTitle(p.title);
-                              // setEditPodcastAuthor(p.author);
                               setEditSpotifyUrl(p.spotifyUrl);
                               setEditPodcastGenreId(p.genreId);
                             }}
@@ -881,7 +929,7 @@ export default function AdminDashboard() {
 
       {/* ================= ADD GENRE MODAL ================= */}
       {showAddGenre && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" onClick={() => setShowAddGenre(false)}>
           <div className="modal podcast-modal">
             <button className="modal-close" onClick={closeGenreModal}>✕</button>
 
@@ -944,7 +992,7 @@ export default function AdminDashboard() {
 
       {/* ================= EDIT GENRE MODAL ================= */}
       {editingGenre && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" onClick={() => setEditingGenre(null)}>
           <div className="modal">
             <button
               className="modal-close"
@@ -983,7 +1031,7 @@ export default function AdminDashboard() {
 
       {/* ================= ADD PODCAST MODAL ================= */}
       {showAddPodcast && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" onClick={() => setShowAddPodcast(false)}>
           <div className="modal podcast-modal">
             <button className="modal-close" onClick={() => setShowAddPodcast(false)}>✕</button>
             <input placeholder="Title" value={newPodcastTitle} onChange={(e) => setNewPodcastTitle(e.target.value)} />
@@ -1000,7 +1048,7 @@ export default function AdminDashboard() {
 
       {/* ================= EDIT PODCAST MODAL ================= */}
       {editingPodcast && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" onClick={() => setEditingPodcast(null)}>
           <div className="modal podcast-modal">
             <button
               className="modal-close"
@@ -1090,7 +1138,7 @@ export default function AdminDashboard() {
 
       {/* ================= ADD MATERIAL MODAL ================= */}
       {showAddMaterial && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" onClick={() => setShowAddMaterial(false)}>
           <div className="modal modal-editor">
             <button className="modal-close" onClick={() => setShowAddMaterial(false)}>✕</button>
             <input placeholder="Title" value={newMaterialTitle} onChange={(e) => setNewMaterialTitle(e.target.value)} />
@@ -1110,7 +1158,7 @@ export default function AdminDashboard() {
       )}
       {/* ================= EDIT MATERIAL MODAL ================= */}
       {editingMaterial && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" onClick={() => setEditingMaterial(null)}>
           <div className="modal modal-editor">
             <button
               className="modal-close"
@@ -1200,7 +1248,7 @@ export default function AdminDashboard() {
 
       {/* ================= ADD SELF-HELP MODAL ================= */}
       {showAddSelfHelp && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" onClick={() => setShowAddSelfHelp(false)}>
           <div className="modal modal-editor">
             <button className="modal-close" onClick={() => setShowAddSelfHelp(false)}>✕</button>
             <input placeholder="Title" value={newSelfHelpTitle} onChange={(e) => setNewSelfHelpTitle(e.target.value)} />
@@ -1217,7 +1265,7 @@ export default function AdminDashboard() {
 
       {/* ================= EDIT SELF-HELP MODAL ================= */}
       {editingSelfHelp && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" onClick={() => setEditingSelfHelp(null)}>
           <div className="modal modal-editor">
             <button
               className="modal-close"
@@ -1274,7 +1322,7 @@ export default function AdminDashboard() {
       )}
 
       {showAddAdmin && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" onClick={() => setShowAddAdmin(false)}>
           <div className="modal">
             <button
               className="modal-close"
