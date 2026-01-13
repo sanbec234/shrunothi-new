@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "./admindash.css";
 import { api } from "../api/client";
 import RichEditor from "../components/RichEditor";
+// import AdminAnnouncements from "../components/AdminAnnouncements";
 /* ---------- Types ---------- */
 
 type Genre = { id: string; name: string };
@@ -881,7 +882,7 @@ export default function AdminDashboard() {
           </table>
         </div>
       </section>
-
+      {/* ================= USERS ================= */}
       <section>
         <h2>Users</h2>
         <div className="section-body">
@@ -930,7 +931,7 @@ export default function AdminDashboard() {
       {/* ================= ADD GENRE MODAL ================= */}
       {showAddGenre && (
         <div className="modal-overlay" onClick={() => setShowAddGenre(false)}>
-          <div className="modal podcast-modal">
+          <div className="modal podcast-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={closeGenreModal}>✕</button>
 
             <div className="step">Step {step} of 3</div>
@@ -1032,7 +1033,7 @@ export default function AdminDashboard() {
       {/* ================= ADD PODCAST MODAL ================= */}
       {showAddPodcast && (
         <div className="modal-overlay" onClick={() => setShowAddPodcast(false)}>
-          <div className="modal podcast-modal">
+          <div className="modal podcast-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setShowAddPodcast(false)}>✕</button>
             <input placeholder="Title" value={newPodcastTitle} onChange={(e) => setNewPodcastTitle(e.target.value)} />
             {/* <input placeholder="Author" value={newPodcastAuthor} onChange={(e) => setNewPodcastAuthor(e.target.value)} /> */}
@@ -1049,7 +1050,7 @@ export default function AdminDashboard() {
       {/* ================= EDIT PODCAST MODAL ================= */}
       {editingPodcast && (
         <div className="modal-overlay" onClick={() => setEditingPodcast(null)}>
-          <div className="modal podcast-modal">
+          <div className="modal podcast-modal" onClick={(e) => e.stopPropagation()}>
             <button
               className="modal-close"
               onClick={() => setEditingPodcast(null)}
@@ -1139,7 +1140,7 @@ export default function AdminDashboard() {
       {/* ================= ADD MATERIAL MODAL ================= */}
       {showAddMaterial && (
         <div className="modal-overlay" onClick={() => setShowAddMaterial(false)}>
-          <div className="modal modal-editor">
+          <div className="modal modal-editor" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setShowAddMaterial(false)}>✕</button>
             <input placeholder="Title" value={newMaterialTitle} onChange={(e) => setNewMaterialTitle(e.target.value)} />
             <input placeholder="Author" value={newMaterialAuthor} onChange={(e) => setNewMaterialAuthor(e.target.value)} />
@@ -1159,7 +1160,7 @@ export default function AdminDashboard() {
       {/* ================= EDIT MATERIAL MODAL ================= */}
       {editingMaterial && (
         <div className="modal-overlay" onClick={() => setEditingMaterial(null)}>
-          <div className="modal modal-editor">
+          <div className="modal modal-editor" onClick={(e) => e.stopPropagation()}>
             <button
               className="modal-close"
               onClick={() => setEditingMaterial(null)}
@@ -1249,7 +1250,7 @@ export default function AdminDashboard() {
       {/* ================= ADD SELF-HELP MODAL ================= */}
       {showAddSelfHelp && (
         <div className="modal-overlay" onClick={() => setShowAddSelfHelp(false)}>
-          <div className="modal modal-editor">
+          <div className="modal modal-editor" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setShowAddSelfHelp(false)}>✕</button>
             <input placeholder="Title" value={newSelfHelpTitle} onChange={(e) => setNewSelfHelpTitle(e.target.value)} />
             <input placeholder="Author" value={newSelfHelpAuthor} onChange={(e) => setNewSelfHelpAuthor(e.target.value)} />
@@ -1266,7 +1267,7 @@ export default function AdminDashboard() {
       {/* ================= EDIT SELF-HELP MODAL ================= */}
       {editingSelfHelp && (
         <div className="modal-overlay" onClick={() => setEditingSelfHelp(null)}>
-          <div className="modal modal-editor">
+          <div className="modal modal-editor" onClick={(e) => e.stopPropagation()}>
             <button
               className="modal-close"
               onClick={() => setEditingSelfHelp(null)}
@@ -1287,13 +1288,6 @@ export default function AdminDashboard() {
               value={editSelfHelpAuthor}
               onChange={(e) => setEditSelfHelpAuthor(e.target.value)}
             />
-
-            {/* <textarea
-              placeholder="Content"
-              value={editSelfHelpContent}
-              onChange={(e) => setEditSelfHelpContent(e.target.value)}
-              rows={10}
-            /> */}
 
             <RichEditor
               value={editSelfHelpContent}
@@ -1323,7 +1317,7 @@ export default function AdminDashboard() {
 
       {showAddAdmin && (
         <div className="modal-overlay" onClick={() => setShowAddAdmin(false)}>
-          <div className="modal">
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <button
               className="modal-close"
               onClick={() => setShowAddAdmin(false)}
