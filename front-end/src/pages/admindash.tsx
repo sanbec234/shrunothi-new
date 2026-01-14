@@ -882,6 +882,10 @@ export default function AdminDashboard() {
           </table>
         </div>
       </section>
+      {/* ================= ANNOUNCEMENTS ================= */}
+      {/* <section>
+        <AdminAnnouncements />
+      </section> */}
       {/* ================= USERS ================= */}
       <section>
         <h2>Users</h2>
@@ -994,7 +998,7 @@ export default function AdminDashboard() {
       {/* ================= EDIT GENRE MODAL ================= */}
       {editingGenre && (
         <div className="modal-overlay" onClick={() => setEditingGenre(null)}>
-          <div className="modal">
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <button
               className="modal-close"
               onClick={() => setEditingGenre(null)}
@@ -1072,12 +1076,6 @@ export default function AdminDashboard() {
               onChange={(e) => setEditPodcastTitle(e.target.value)}
               placeholder="Title"
             />
-
-            {/* <input
-              value={editPodcastAuthor}
-              onChange={(e) => setEditPodcastAuthor(e.target.value)}
-              placeholder="Author"
-            /> */}
 
             <input
               value={editSpotifyUrl}
@@ -1187,12 +1185,7 @@ export default function AdminDashboard() {
               onChange={(e) => setEditMaterialAuthor(e.target.value)}
               placeholder="Author"
             />
-
-            {/* <textarea
-              value={editMaterialContent}
-              onChange={(e) => setEditMaterialContent(e.target.value)}
-              placeholder="Content"
-            /> */}
+            
             <RichEditor
               value={editMaterialContent}
               onChange={setEditMaterialContent}
