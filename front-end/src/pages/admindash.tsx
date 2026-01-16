@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "./admindash.css";
 import { api } from "../api/client";
 import RichEditor from "../components/RichEditor";
-// import AdminAnnouncements from "../components/AdminAnnouncements";
+import AdminAnnouncements from "../components/AdminAnnouncements";
 /* ---------- Types ---------- */
 
 type Genre = { id: string; name: string };
@@ -883,9 +883,9 @@ export default function AdminDashboard() {
         </div>
       </section>
       {/* ================= ANNOUNCEMENTS ================= */}
-      {/* <section>
+      <section>
         <AdminAnnouncements />
-      </section> */}
+      </section>
       {/* ================= USERS ================= */}
       <section>
         <h2>Users</h2>

@@ -9,6 +9,7 @@ import "../pages/home.css";
 import LoginPopup from "../components/GoogleAuthPopup";
 import GenreChips from "../components/GenreChips";
 import MobileHeader from "../components/MobileHeader";
+import AnnouncementPopup from "../components/AnnouncementPopup";
 
 /* ---- types ---- */
 type Podcast = {
@@ -20,6 +21,12 @@ type TextDoc = {
   id: string;
   title: string;
   author: string;
+};
+
+type Announcement = {
+  id: string;
+  title: string;
+  imageUrl: string;
 };
 
 export default function Home(): JSX.Element {
@@ -40,6 +47,9 @@ export default function Home(): JSX.Element {
 
   const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
   const isLoggedIn = Boolean(authUser);
+
+  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  const [showAnnouncement, setShowAnnouncement] = useState(false);
 
   /* =========================
      Load genres
@@ -167,6 +177,34 @@ export default function Home(): JSX.Element {
     };
   }, [activeDoc, showLogin]);
 
+  useEffect(() => {
+  // TEMP: simulate announcement on first load
+    setShowAnnouncement(true);
+  }, []);
+
+  useEffect(() => {
+  async function loadAnnouncement() {
+    // prevent repeat in same session
+    if (sessionStorage.getItem("announcement_seen")) return;
+
+    try {
+      const res = await api.get<Announcement | null>(
+        "/announcements/active"
+      );
+
+      if (res.data) {
+        setAnnouncement(res.data);
+        setShowAnnouncement(true);
+        sessionStorage.setItem("announcement_seen", "true");
+      }
+    } catch (err) {
+      console.error("Failed to load announcement", err);
+    }
+  }
+
+  loadAnnouncement();
+}, []);
+
   /* =========================
      Render
   ========================= */
@@ -248,7 +286,7 @@ export default function Home(): JSX.Element {
         </HorizontalRow>
 
         <HorizontalRow
-          title={`Self Help${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
+          title={`Self Help`}
         >
           {selfHelpDocs.length === 0 ? (
             <div className="row-empty">No self-help material</div>
@@ -289,6 +327,13 @@ export default function Home(): JSX.Element {
             setShowLogin(false);
             setPendingDoc(null);
           }}
+        />
+      )}
+      {announcement && showAnnouncement && (
+        <AnnouncementPopup
+          imageUrl={announcement.imageUrl}
+          title={announcement.title}
+          onClose={() => setShowAnnouncement(false)}
         />
       )}
     </div>
