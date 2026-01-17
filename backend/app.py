@@ -1,7 +1,31 @@
+from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+BASE_DIR = Path(__file__).resolve().parent
+ENV_PATH = BASE_DIR / ".env"
+
+print("📁 BASE_DIR =", BASE_DIR)
+print("📄 ENV_PATH =", ENV_PATH)
+print("📄 ENV EXISTS =", ENV_PATH.exists())
+
+load_dotenv(dotenv_path=ENV_PATH, override=True)
+
+print("AWS_BUCKET_NAME =", os.getenv("AWS_BUCKET_NAME"))
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 
+app = Flask(__name__)
+
+CORS(
+    app,
+    resources={r"/admin/*": {"origins": ["http://localhost:5173"]}},
+    supports_credentials=True,
+)
+
 from db.client import get_db
+# app.py (VERY TOP of the file)
 
 # ---------- Admin routes ----------
 from admin_api.routes.genres import bp as admin_genres
@@ -10,6 +34,11 @@ from admin_api.routes.materials import bp as admin_materials
 from admin_api.routes.self_help import bp as admin_self_help
 from admin_api.routes.admin_emails import bp as admin_emails_bp
 from admin_api.routes.users import bp as admin_users
+from admin_api.routes.admin_announcements import bp as admin_announcements_bp
+from admin_api.routes.admin_uploads import bp as admin_uploads_bp
+from admin_api.routes.admin_editor_uploads import bp as admin_editor_uploads_bp
+from admin_api.routes.admin_editor_images import bp as admin_editor_images_bp
+
 
 # ---------- Public routes ----------
 from public_api.routes.genres import bp as public_genres
@@ -34,6 +63,8 @@ def create_app():
         resources={r"/*": {"origins": "*"}}
     )
 
+    app.db = get_db()
+
     # ---------- Register admin APIs ----------
     app.register_blueprint(admin_genres)        # /admin/genres
     app.register_blueprint(admin_podcasts)      # /admin/podcasts
@@ -41,6 +72,10 @@ def create_app():
     app.register_blueprint(admin_self_help)     # /admin/self-help
     app.register_blueprint(admin_emails_bp)     # /admin/admin-emails
     app.register_blueprint(admin_users)         # /admin/users
+    app.register_blueprint(admin_announcements_bp)
+    app.register_blueprint(admin_uploads_bp)  # /admin/uploads
+    app.register_blueprint(admin_editor_uploads_bp)
+    app.register_blueprint(admin_editor_images_bp)
 
     # ---------- Register public APIs ----------
     app.register_blueprint(public_genres)       # /genres
@@ -50,7 +85,8 @@ def create_app():
     app.register_blueprint(genre_podcasts_bp)   # /genres/<id>/podcasts
     app.register_blueprint(public_self_help)    # /self-help
     app.register_blueprint(corpus_self_help_bp) # /corpus/self-help
-
+    # app.register_blueprint(admin_assets_bp)
+    
     # ---------- Auth ----------
     app.register_blueprint(auth_bp)              # /auth/google
 

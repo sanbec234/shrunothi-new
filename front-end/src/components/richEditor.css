@@ -1,141 +1,161 @@
 .rich-editor {
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
   overflow: hidden;
-  background: #ffffff;
-  display: flex;
-  flex-direction: column;
+  background: #fff;
 }
 
-/* Toolbar */
 .rich-toolbar {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 8px;
-  border-bottom: 1px solid var(--border-light);
-  background: #f9fafb;
-  flex-wrap: nowrap;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  gap: 8px;
+  padding: 12px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  flex-wrap: wrap;
 }
 
-/* Buttons */
-.rich-toolbar button {
-  height: 32px;
-  min-width: 32px;
-  padding: 0 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border-light);
-  background: #ffffff;
-  font-size: 13px;
-  font-weight: 600;
-  color: #111827;
+.toolbar-select {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 14px;
+}
+
+.rich-toolbar button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.2s;
 }
 
 .rich-toolbar button:hover {
-  background: #eef2ff;
-  border-color: #c7d2fe;
+  background: #e8e8e8;
 }
 
-.rich-toolbar button:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+.rich-toolbar button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-
-/* Selects (heading, font, size) */
-.toolbar-select {
-  height: 32px;
-  /* padding: 0 8px; */
-  border-radius: 6px;
-  border: 1px solid var(--border-light);
-  background: #ffffff;
-  font-size: 13px;
-  color: #111827;
-  cursor: pointer;
+.rich-toolbar button.is-active {
+  background: #007bff;
+  color: #fff;
+  border-color: #0056b3;
 }
 
-.rich-toolbar select,input {
-  margin-bottom: 0;
-  min-width: 2rem;
+.rich-toolbar button.image-button {
+  font-size: 18px;
+  padding: 4px 10px;
 }
 
-/* Color input */
 .rich-toolbar input[type="color"] {
+  width: 40px;
   height: 32px;
-  width: 32px;
-  padding: 0;
-  border-radius: 6px;
-  border: 1px solid var(--border-light);
+  border: 1px solid #ccc;
+  border-radius: 4px;
   cursor: pointer;
 }
 
-/* Editor content */
-.rich-editor .ProseMirror {
-  padding: 14px;
+/* Editor content area */
+.ProseMirror {
+  padding: 16px;
+  min-height: 300px;
   outline: none;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.6;
-  color: #111827;
-  min-height: 260px;
-  max-height: 420px;
-  overflow-y: auto;
+}
+
+.ProseMirror:focus {
+  outline: none;
+}
+
+/* Image styles in editor */
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 12px 0;
+  cursor: pointer;
+}
+
+.ProseMirror img.ProseMirror-selectednode {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Headings */
+.ProseMirror h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 16px 0 8px;
+}
+
+.ProseMirror h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 14px 0 8px;
+}
+
+.ProseMirror h3 {
+  font-size: 1.25em;
+  font-weight: bold;
+  margin: 12px 0 8px;
+}
+
+/* Lists */
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 24px;
+  margin: 8px 0;
+}
+
+.ProseMirror li {
+  margin: 4px 0;
+}
+
+/* Code blocks */
+.ProseMirror pre {
+  background: #f5f5f5;
+  border-radius: 4px;
   padding: 12px;
-  outline: none;
-  line-height: 1.6;
+  overflow-x: auto;
+  margin: 12px 0;
 }
 
-/* Headings inside editor */
-.rich-editor .ProseMirror h1 {
-  font-size: 1.6rem;
-  margin: 0.5em 0;
+.ProseMirror code {
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: monospace;
 }
 
-.rich-editor .ProseMirror h2 {
-  font-size: 1.35rem;
-  margin: 0.5em 0;
+/* Blockquotes */
+.ProseMirror blockquote {
+  border-left: 4px solid #ddd;
+  padding-left: 16px;
+  margin: 12px 0;
+  color: #666;
+  font-style: italic;
 }
 
-.rich-editor .ProseMirror h3 {
-  font-size: 1.15rem;
-  margin: 0.5em 0;
+/* Highlight */
+.ProseMirror mark {
+  background-color: #fff3cd;
+  padding: 2px 4px;
+  border-radius: 2px;
 }
 
-/* ===== Fix select dropdown visibility ===== */
-
-.rich-toolbar select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
-  background-color: #ffffff;
-  color: #111827;
-
-  padding: 0 2rem 0 0.75rem; /* space for arrow */
-  height: 32px;
-
-  border-radius: 6px;
-  border: 1px solid var(--border-light);
-
-  font-size: 13px;
-  font-weight: 500;
-
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.6rem center;
-  background-size: 12px;
-}
-
-.rich-toolbar select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+/* Placeholder */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+  float: left;
 }
