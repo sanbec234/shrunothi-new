@@ -1,9 +1,31 @@
 /* ---------- Layout ---------- */
-.logo-img {
+/* .logo-img {
   height: clamp(14rem, 6vw, 4.25rem);
   width: auto;
   flex-shrink: 0;
   margin-right: 1rem;
+} */
+/* ---------- Logo (isolated, centered) ---------- */
+
+.left-menu .logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* padding: 20px 12px 24px; */
+  margin-bottom: 16px;
+
+  /* visually separates logo from menu */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.left-menu .logo-img {
+  height: clamp(14rem, 6vw, 4.25rem);          /* stable, no clamp */
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+
+  display: block;
 }
 
 .left-menu {
@@ -169,13 +191,13 @@
 }
 
 /* Logo */
-.left-menu .logo {
+/* .left-menu .logo {
   margin-bottom: 18px;
   font-size: 18px;
   font-weight: 700;
   padding-right: 1rem !important;
 
-}
+} */
 
 /* Genre list scrolls, not page */
 .left-menu .genre-list {

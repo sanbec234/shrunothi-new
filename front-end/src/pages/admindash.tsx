@@ -1139,10 +1139,10 @@ export default function AdminDashboard() {
       {showAddMaterial && (
         <div className="modal-overlay" onClick={() => setShowAddMaterial(false)}>
           <div className="modal modal-editor" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-body">
             <button className="modal-close" onClick={() => setShowAddMaterial(false)}>✕</button>
             <input placeholder="Title" value={newMaterialTitle} onChange={(e) => setNewMaterialTitle(e.target.value)} />
             <input placeholder="Author" value={newMaterialAuthor} onChange={(e) => setNewMaterialAuthor(e.target.value)} />
-            {/* <textarea placeholder="Content" value={newMaterialContent} onChange={(e) => setNewMaterialContent(e.target.value)} /> */}
             <RichEditor
               value={newMaterialContent}
               onChange={setNewMaterialContent}
@@ -1152,6 +1152,7 @@ export default function AdminDashboard() {
               {genres.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
             </select>
             <button onClick={addMaterial}>Add Material</button>
+            </div>
           </div>
         </div>
       )}
@@ -1159,83 +1160,85 @@ export default function AdminDashboard() {
       {editingMaterial && (
         <div className="modal-overlay" onClick={() => setEditingMaterial(null)}>
           <div className="modal modal-editor" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="modal-close"
-              onClick={() => setEditingMaterial(null)}
-            >
-              ✕
-            </button>
+            <div className="modal-body">
+              <button
+                className="modal-close"
+                onClick={() => setEditingMaterial(null)}
+              >
+                ✕
+              </button>
 
-            {successMessage && (
-              <div className="success-banner">
-                {successMessage}
-              </div>
-            )}
+              {successMessage && (
+                <div className="success-banner">
+                  {successMessage}
+                </div>
+              )}
 
-            <h3>Edit Material</h3>
+              <h3>Edit Material</h3>
 
-            <input
-              value={editMaterialTitle}
-              onChange={(e) => setEditMaterialTitle(e.target.value)}
-              placeholder="Title"
-            />
+              <input
+                value={editMaterialTitle}
+                onChange={(e) => setEditMaterialTitle(e.target.value)}
+                placeholder="Title"
+              />
 
-            <input
-              value={editMaterialAuthor}
-              onChange={(e) => setEditMaterialAuthor(e.target.value)}
-              placeholder="Author"
-            />
-            
-            <RichEditor
-              value={editMaterialContent}
-              onChange={setEditMaterialContent}
-            />
-            <select
-              value={editMaterialGenreId}
-              onChange={(e) => setEditMaterialGenreId(e.target.value)}
-            >
-              <option value="">Select genre</option>
-              {genres.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.name}
-                </option>
-              ))}
-            </select>
+              <input
+                value={editMaterialAuthor}
+                onChange={(e) => setEditMaterialAuthor(e.target.value)}
+                placeholder="Author"
+              />
+              
+              <RichEditor
+                value={editMaterialContent}
+                onChange={setEditMaterialContent}
+              />
+              <select
+                value={editMaterialGenreId}
+                onChange={(e) => setEditMaterialGenreId(e.target.value)}
+              >
+                <option value="">Select genre</option>
+                {genres.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name}
+                  </option>
+                ))}
+              </select>
 
-            <button
-              onClick={async () => {
-                await api.put(`/admin/materials/${editingMaterial.id}`, {
-                  title: editMaterialTitle,
-                  author: editMaterialAuthor,
-                  content: editMaterialContent,
-                  genreId: editMaterialGenreId
-                });
+              <button
+                onClick={async () => {
+                  await api.put(`/admin/materials/${editingMaterial.id}`, {
+                    title: editMaterialTitle,
+                    author: editMaterialAuthor,
+                    content: editMaterialContent,
+                    genreId: editMaterialGenreId
+                  });
 
-                // ✅ optimistic UI update
-                setMaterials((prev) =>
-                  prev.map((m) =>
-                    m.id === editingMaterial.id
-                      ? {
-                        ...m,
-                        title: editMaterialTitle,
-                        author: editMaterialAuthor,
-                        content: editMaterialContent,
-                        genreId: editMaterialGenreId
-                      }
-                      : m
-                  )
-                );
+                  // ✅ optimistic UI update
+                  setMaterials((prev) =>
+                    prev.map((m) =>
+                      m.id === editingMaterial.id
+                        ? {
+                          ...m,
+                          title: editMaterialTitle,
+                          author: editMaterialAuthor,
+                          content: editMaterialContent,
+                          genreId: editMaterialGenreId
+                        }
+                        : m
+                    )
+                  );
 
-                setSuccessMessage("Material updated successfully");
+                  setSuccessMessage("Material updated successfully");
 
-                setTimeout(() => {
-                  setEditingMaterial(null);
-                  setSuccessMessage("");
-                }, 800);
-              }}
-            >
-              Save
-            </button>
+                  setTimeout(() => {
+                    setEditingMaterial(null);
+                    setSuccessMessage("");
+                  }, 800);
+                }}
+              >
+                Save
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1244,15 +1247,17 @@ export default function AdminDashboard() {
       {showAddSelfHelp && (
         <div className="modal-overlay" onClick={() => setShowAddSelfHelp(false)}>
           <div className="modal modal-editor" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowAddSelfHelp(false)}>✕</button>
-            <input placeholder="Title" value={newSelfHelpTitle} onChange={(e) => setNewSelfHelpTitle(e.target.value)} />
-            <input placeholder="Author" value={newSelfHelpAuthor} onChange={(e) => setNewSelfHelpAuthor(e.target.value)} />
-            {/* <textarea placeholder="Content" value={newSelfHelpContent} onChange={(e) => setNewSelfHelpContent(e.target.value)} /> */}
-            <RichEditor
-              value={newSelfHelpContent}
-              onChange={setNewSelfHelpContent}
-            />
-            <button onClick={addSelfHelp}>Add Self-Help</button>
+            <div className="modal-body">
+              <button className="modal-close" onClick={() => setShowAddSelfHelp(false)}>✕</button>
+              <input placeholder="Title" value={newSelfHelpTitle} onChange={(e) => setNewSelfHelpTitle(e.target.value)} />
+              <input placeholder="Author" value={newSelfHelpAuthor} onChange={(e) => setNewSelfHelpAuthor(e.target.value)} />
+              {/* <textarea placeholder="Content" value={newSelfHelpContent} onChange={(e) => setNewSelfHelpContent(e.target.value)} /> */}
+              <RichEditor
+                value={newSelfHelpContent}
+                onChange={setNewSelfHelpContent}
+              />
+              <button onClick={addSelfHelp}>Add Self-Help</button>
+            </div>
           </div>
         </div>
       )}
@@ -1261,49 +1266,51 @@ export default function AdminDashboard() {
       {editingSelfHelp && (
         <div className="modal-overlay" onClick={() => setEditingSelfHelp(null)}>
           <div className="modal modal-editor" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="modal-close"
-              onClick={() => setEditingSelfHelp(null)}
-            >
-              ✕
-            </button>
+            <div className="modal-body">
+              <button
+                className="modal-close"
+                onClick={() => setEditingSelfHelp(null)}
+              >
+                ✕
+              </button>
 
-            <h3>Edit Self-Help</h3>
+              <h3>Edit Self-Help</h3>
 
-            <input
-              placeholder="Title"
-              value={editSelfHelpTitle}
-              onChange={(e) => setEditSelfHelpTitle(e.target.value)}
-            />
+              <input
+                placeholder="Title"
+                value={editSelfHelpTitle}
+                onChange={(e) => setEditSelfHelpTitle(e.target.value)}
+              />
 
-            <input
-              placeholder="Author"
-              value={editSelfHelpAuthor}
-              onChange={(e) => setEditSelfHelpAuthor(e.target.value)}
-            />
+              <input
+                placeholder="Author"
+                value={editSelfHelpAuthor}
+                onChange={(e) => setEditSelfHelpAuthor(e.target.value)}
+              />
 
-            <RichEditor
-              value={editSelfHelpContent}
-              onChange={setEditSelfHelpContent}
-            />
+              <RichEditor
+                value={editSelfHelpContent}
+                onChange={setEditSelfHelpContent}
+              />
 
-            <button
-              onClick={async () => {
-                await api.put(`/admin/self-help/${editingSelfHelp.id}`, {
-                  title: editSelfHelpTitle,
-                  author: editSelfHelpAuthor,
-                  content: editSelfHelpContent
-                });
+              <button
+                onClick={async () => {
+                  await api.put(`/admin/self-help/${editingSelfHelp.id}`, {
+                    title: editSelfHelpTitle,
+                    author: editSelfHelpAuthor,
+                    content: editSelfHelpContent
+                  });
 
-                // 🔁 Refresh self-help list (no reload)
-                const res = await api.get("/self-help");
-                setSelfHelps(res.data);
+                  // 🔁 Refresh self-help list (no reload)
+                  const res = await api.get("/self-help");
+                  setSelfHelps(res.data);
 
-                setEditingSelfHelp(null);
-              }}
-            >
-              Save
-            </button>
+                  setEditingSelfHelp(null);
+                }}
+              >
+                Save
+              </button>
+            </div>
           </div>
         </div>
       )}
