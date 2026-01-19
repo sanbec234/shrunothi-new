@@ -9,7 +9,9 @@ import "../pages/home.css";
 import LoginPopup from "../components/GoogleAuthPopup";
 import GenreChips from "../components/GenreChips";
 import MobileHeader from "../components/MobileHeader";
-import AnnouncementPopup from "../components/AnnouncementPopup";
+import { useDailyAnnouncements } from "../hooks/useDailyAnnouncements";
+import AnnouncementCarousel from "../components/AnnouncementCarousel";
+
 
 /* ---- types ---- */
 type Podcast = {
@@ -21,12 +23,6 @@ type TextDoc = {
   id: string;
   title: string;
   author: string;
-};
-
-type Announcement = {
-  id: string;
-  title: string;
-  imageUrl: string;
 };
 
 export default function Home(): JSX.Element {
@@ -48,8 +44,8 @@ export default function Home(): JSX.Element {
   const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
   const isLoggedIn = Boolean(authUser);
 
-  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
-  const [showAnnouncement, setShowAnnouncement] = useState(false);
+  const { announcements, shouldShow, loading, onClose } = useDailyAnnouncements();
+
 
   /* =========================
      Load genres
@@ -177,165 +173,271 @@ export default function Home(): JSX.Element {
     };
   }, [activeDoc, showLogin]);
 
-  useEffect(() => {
-  // TEMP: simulate announcement on first load
-    setShowAnnouncement(true);
-  }, []);
-
-  useEffect(() => {
-  async function loadAnnouncement() {
-    // prevent repeat in same session
-    if (sessionStorage.getItem("announcement_seen")) return;
-
-    try {
-      const res = await api.get<Announcement | null>(
-        "/announcements/active"
-      );
-
-      if (res.data) {
-        setAnnouncement(res.data);
-        setShowAnnouncement(true);
-        sessionStorage.setItem("announcement_seen", "true");
-      }
-    } catch (err) {
-      console.error("Failed to load announcement", err);
-    }
-  }
-
-  loadAnnouncement();
-}, []);
-
   /* =========================
      Render
   ========================= */
-  return (
-    <div className="home-root">
-      {/* ---------- Mobile header ---------- */}
-      <div className="mobile-only mobile-top">
-        <MobileHeader user={user} />
-      </div>
+//   return (
+//     <div className="home-root">
+//       {/* ---------- Mobile header ---------- */}
+//       <div className="mobile-only mobile-top">
+//         <MobileHeader user={user} />
+//       </div>
 
-      {/* ---------- Desktop sidebar ---------- */}
-      <div className="desktop-only">
-        <LeftMenu
-          genres={genres}
-          selected={selectedGenre}
-          onSelect={setSelectedGenre}
-          user={user}
-        />
-      </div>
+//       {/* ---------- Desktop sidebar ---------- */}
+//       <div className="desktop-only">
+//         <LeftMenu
+//           genres={genres}
+//           selected={selectedGenre}
+//           onSelect={setSelectedGenre}
+//           user={user}
+//         />
+//       </div>
 
-      {/* ---------- Main content ---------- */}
-      <main className="main-area">
+//       {/* ---------- Main content ---------- */}
+//       <main className="main-area">
 
-        {/* Mobile genre chips */}
-        <div className="mobile-only">
-          <div className="genre-chips-wrapper">
-            <GenreChips
-              genres={genres}
-              selected={selectedGenre}
-              onSelect={setSelectedGenre}
-            />
-          </div>
+//         {/* Mobile genre chips */}
+//         <div className="mobile-only">
+//           <div className="genre-chips-wrapper">
+//             <GenreChips
+//               genres={genres}
+//               selected={selectedGenre}
+//               onSelect={setSelectedGenre}
+//             />
+//           </div>
+//         </div>
+
+//         <HorizontalRow
+//           title={`Podcasts${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
+//         >
+//           {!selectedGenre ? (
+//             <div className="row-empty">Click a genre to view podcasts</div>
+//           ) : podcasts === null ? (
+//             <div className="row-empty">Loading podcasts…</div>
+//           ) : podcasts.length === 0 ? (
+//             <div className="row-empty">No podcasts found</div>
+//           ) : (
+//             podcasts.map((p, i) => (
+//               <div key={i} className="podcast-card">
+//                 <iframe
+//                   className="spotify-frame"
+//                   src={p.embed_url}
+//                   title={p.title || `podcast-${i}`}
+//                   loading="lazy"
+//                 />
+//               </div>
+//             ))
+//           )}
+//         </HorizontalRow>
+
+//         <HorizontalRow
+//           title={`Material${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
+//         >
+//           {materialDocs.length === 0 ? (
+//             <div className="row-empty">No material found</div>
+//           ) : (
+//             materialDocs.map((doc) => (
+//               <TextDocCard
+//                 key={doc.id}
+//                 doc={doc}
+//                 onClick={() => {
+//                   if (!isLoggedIn) {
+//                     setPendingDoc(doc);
+//                     setShowLogin(true);
+//                     return;
+//                   }
+//                   setActiveDoc(doc);
+//                 }}
+//               />
+//             ))
+//           )}
+//         </HorizontalRow>
+
+//         <HorizontalRow
+//           title={`Self Help`}
+//         >
+//           {selfHelpDocs.length === 0 ? (
+//             <div className="row-empty">No self-help material</div>
+//           ) : (
+//             selfHelpDocs.map((doc) => (
+//               <TextDocCard
+//                 key={doc.id}
+//                 doc={doc}
+//                 onClick={() => {
+//                   if (!isLoggedIn) {
+//                     setPendingDoc(doc);
+//                     setShowLogin(true);
+//                     return;
+//                   }
+//                   setActiveDoc(doc);
+//                 }}
+//               />
+//             ))
+//           )}
+//         </HorizontalRow>
+
+//       </main>
+
+//       {activeDoc && (
+//         <DocModal doc={activeDoc} onClose={() => setActiveDoc(null)} />
+//       )}
+
+//       {showLogin && (
+//         <LoginPopup
+//           onSuccess={() => {
+//             setShowLogin(false);
+//             if (pendingDoc) {
+//               setActiveDoc(pendingDoc);
+//               setPendingDoc(null);
+//             }
+//           }}
+//           onClose={() => {
+//             setShowLogin(false);
+//             setPendingDoc(null);
+//           }}
+//         />
+//       )}
+//       {announcement && showAnnouncement && (
+//         <AnnouncementPopup
+//           imageUrl={announcement.imageUrl}
+//           title={announcement.title}
+//           onClose={() => setShowAnnouncement(false)}
+//         />
+//       )}
+//     </div>
+//   );
+// }
+
+
+   return (
+      <div className="home-root">
+        {/* ========== ANNOUNCEMENT CAROUSEL (NEW) ========== */}
+        {!loading && shouldShow && announcements.length > 0 && (
+          <AnnouncementCarousel
+            announcements={announcements}
+            onClose={onClose}
+          />
+        )}
+
+        {/* ---------- Mobile header ---------- */}
+        <div className="mobile-only mobile-top">
+          <MobileHeader user={user} />
         </div>
 
-        <HorizontalRow
-          title={`Podcasts${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
-        >
-          {!selectedGenre ? (
-            <div className="row-empty">Click a genre to view podcasts</div>
-          ) : podcasts === null ? (
-            <div className="row-empty">Loading podcasts…</div>
-          ) : podcasts.length === 0 ? (
-            <div className="row-empty">No podcasts found</div>
-          ) : (
-            podcasts.map((p, i) => (
-              <div key={i} className="podcast-card">
-                <iframe
-                  className="spotify-frame"
-                  src={p.embed_url}
-                  title={p.title || `podcast-${i}`}
-                  loading="lazy"
+        {/* ---------- Desktop sidebar ---------- */}
+        <div className="desktop-only">
+          <LeftMenu
+            genres={genres}
+            selected={selectedGenre}
+            onSelect={setSelectedGenre}
+            user={user}
+          />
+        </div>
+
+        {/* ---------- Main content ---------- */}
+        <main className="main-area">
+
+          {/* Mobile genre chips */}
+          <div className="mobile-only">
+            <div className="genre-chips-wrapper">
+              <GenreChips
+                genres={genres}
+                selected={selectedGenre}
+                onSelect={setSelectedGenre}
+              />
+            </div>
+          </div>
+
+          <HorizontalRow
+            title={`Podcasts${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
+          >
+            {!selectedGenre ? (
+              <div className="row-empty">Click a genre to view podcasts</div>
+            ) : podcasts === null ? (
+              <div className="row-empty">Loading podcasts…</div>
+            ) : podcasts.length === 0 ? (
+              <div className="row-empty">No podcasts found</div>
+            ) : (
+              podcasts.map((p, i) => (
+                <div key={i} className="podcast-card">
+                  <iframe
+                    className="spotify-frame"
+                    src={p.embed_url}
+                    title={p.title || `podcast-${i}`}
+                    loading="lazy"
+                  />
+                </div>
+              ))
+            )}
+          </HorizontalRow>
+
+          <HorizontalRow
+            title={`Material${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
+          >
+            {materialDocs.length === 0 ? (
+              <div className="row-empty">No material found</div>
+            ) : (
+              materialDocs.map((doc) => (
+                <TextDocCard
+                  key={doc.id}
+                  doc={doc}
+                  onClick={() => {
+                    if (!isLoggedIn) {
+                      setPendingDoc(doc);
+                      setShowLogin(true);
+                      return;
+                    }
+                    setActiveDoc(doc);
+                  }}
                 />
-              </div>
-            ))
-          )}
-        </HorizontalRow>
+              ))
+            )}
+          </HorizontalRow>
 
-        <HorizontalRow
-          title={`Material${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
-        >
-          {materialDocs.length === 0 ? (
-            <div className="row-empty">No material found</div>
-          ) : (
-            materialDocs.map((doc) => (
-              <TextDocCard
-                key={doc.id}
-                doc={doc}
-                onClick={() => {
-                  if (!isLoggedIn) {
-                    setPendingDoc(doc);
-                    setShowLogin(true);
-                    return;
-                  }
-                  setActiveDoc(doc);
-                }}
-              />
-            ))
-          )}
-        </HorizontalRow>
+          <HorizontalRow
+            title={`Self Help`}
+          >
+            {selfHelpDocs.length === 0 ? (
+              <div className="row-empty">No self-help material</div>
+            ) : (
+              selfHelpDocs.map((doc) => (
+                <TextDocCard
+                  key={doc.id}
+                  doc={doc}
+                  onClick={() => {
+                    if (!isLoggedIn) {
+                      setPendingDoc(doc);
+                      setShowLogin(true);
+                      return;
+                    }
+                    setActiveDoc(doc);
+                  }}
+                />
+              ))
+            )}
+          </HorizontalRow>
 
-        <HorizontalRow
-          title={`Self Help`}
-        >
-          {selfHelpDocs.length === 0 ? (
-            <div className="row-empty">No self-help material</div>
-          ) : (
-            selfHelpDocs.map((doc) => (
-              <TextDocCard
-                key={doc.id}
-                doc={doc}
-                onClick={() => {
-                  if (!isLoggedIn) {
-                    setPendingDoc(doc);
-                    setShowLogin(true);
-                    return;
-                  }
-                  setActiveDoc(doc);
-                }}
-              />
-            ))
-          )}
-        </HorizontalRow>
+        </main>
 
-      </main>
+        {activeDoc && (
+          <DocModal doc={activeDoc} onClose={() => setActiveDoc(null)} />
+        )}
 
-      {activeDoc && (
-        <DocModal doc={activeDoc} onClose={() => setActiveDoc(null)} />
-      )}
-
-      {showLogin && (
-        <LoginPopup
-          onSuccess={() => {
-            setShowLogin(false);
-            if (pendingDoc) {
-              setActiveDoc(pendingDoc);
+        {showLogin && (
+          <LoginPopup
+            onSuccess={() => {
+              setShowLogin(false);
+              if (pendingDoc) {
+                setActiveDoc(pendingDoc);
+                setPendingDoc(null);
+              }
+            }}
+            onClose={() => {
+              setShowLogin(false);
               setPendingDoc(null);
-            }
-          }}
-          onClose={() => {
-            setShowLogin(false);
-            setPendingDoc(null);
-          }}
-        />
-      )}
-      {announcement && showAnnouncement && (
-        <AnnouncementPopup
-          imageUrl={announcement.imageUrl}
-          title={announcement.title}
-          onClose={() => setShowAnnouncement(false)}
-        />
-      )}
-    </div>
-  );
-}
+            }}
+          />
+        )}
+      </div>
+    );
+  }
