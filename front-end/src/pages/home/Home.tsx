@@ -1,16 +1,16 @@
 import { useEffect, useState, type JSX } from "react";
-import { api } from "../api/client";
-import LeftMenu from "../components/LeftMenu";
-import HorizontalRow from "../components/HorizontalRow";
-import TextDocCard from "../components/TextDocCard";
-import type { Genre } from "../types/index";
-import DocModal from "../components/DocModal";
-import "../pages/home.css";
-import LoginPopup from "../components/GoogleAuthPopup";
-import GenreChips from "../components/GenreChips";
-import MobileHeader from "../components/MobileHeader";
-import { useDailyAnnouncements } from "../hooks/useDailyAnnouncements";
-import AnnouncementCarousel from "../components/AnnouncementCarousel";
+import { api } from "../../api/client";
+import LeftMenu from "../../components/LeftMenu";
+import HorizontalRow from "../../components/HorizontalRow";
+import TextDocCard from "../../components/TextDocCard";
+import type { Genre } from "../../types/index";
+import DocModal from "../../components/DocModal";
+import "./home.css";
+import LoginPopup from "../../components/GoogleAuthPopup";
+import GenreChips from "../../components/GenreChips";
+import MobileHeader from "../../components/MobileHeader";
+import { useDailyAnnouncements } from "../../hooks/useDailyAnnouncements";
+import AnnouncementCarousel from "../../components/AnnouncementCarousel";
 
 
 /* ---- types ---- */
@@ -172,142 +172,6 @@ export default function Home(): JSX.Element {
       document.body.style.overflow = "";
     };
   }, [activeDoc, showLogin]);
-
-  /* =========================
-     Render
-  ========================= */
-//   return (
-//     <div className="home-root">
-//       {/* ---------- Mobile header ---------- */}
-//       <div className="mobile-only mobile-top">
-//         <MobileHeader user={user} />
-//       </div>
-
-//       {/* ---------- Desktop sidebar ---------- */}
-//       <div className="desktop-only">
-//         <LeftMenu
-//           genres={genres}
-//           selected={selectedGenre}
-//           onSelect={setSelectedGenre}
-//           user={user}
-//         />
-//       </div>
-
-//       {/* ---------- Main content ---------- */}
-//       <main className="main-area">
-
-//         {/* Mobile genre chips */}
-//         <div className="mobile-only">
-//           <div className="genre-chips-wrapper">
-//             <GenreChips
-//               genres={genres}
-//               selected={selectedGenre}
-//               onSelect={setSelectedGenre}
-//             />
-//           </div>
-//         </div>
-
-//         <HorizontalRow
-//           title={`Podcasts${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
-//         >
-//           {!selectedGenre ? (
-//             <div className="row-empty">Click a genre to view podcasts</div>
-//           ) : podcasts === null ? (
-//             <div className="row-empty">Loading podcasts…</div>
-//           ) : podcasts.length === 0 ? (
-//             <div className="row-empty">No podcasts found</div>
-//           ) : (
-//             podcasts.map((p, i) => (
-//               <div key={i} className="podcast-card">
-//                 <iframe
-//                   className="spotify-frame"
-//                   src={p.embed_url}
-//                   title={p.title || `podcast-${i}`}
-//                   loading="lazy"
-//                 />
-//               </div>
-//             ))
-//           )}
-//         </HorizontalRow>
-
-//         <HorizontalRow
-//           title={`Material${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
-//         >
-//           {materialDocs.length === 0 ? (
-//             <div className="row-empty">No material found</div>
-//           ) : (
-//             materialDocs.map((doc) => (
-//               <TextDocCard
-//                 key={doc.id}
-//                 doc={doc}
-//                 onClick={() => {
-//                   if (!isLoggedIn) {
-//                     setPendingDoc(doc);
-//                     setShowLogin(true);
-//                     return;
-//                   }
-//                   setActiveDoc(doc);
-//                 }}
-//               />
-//             ))
-//           )}
-//         </HorizontalRow>
-
-//         <HorizontalRow
-//           title={`Self Help`}
-//         >
-//           {selfHelpDocs.length === 0 ? (
-//             <div className="row-empty">No self-help material</div>
-//           ) : (
-//             selfHelpDocs.map((doc) => (
-//               <TextDocCard
-//                 key={doc.id}
-//                 doc={doc}
-//                 onClick={() => {
-//                   if (!isLoggedIn) {
-//                     setPendingDoc(doc);
-//                     setShowLogin(true);
-//                     return;
-//                   }
-//                   setActiveDoc(doc);
-//                 }}
-//               />
-//             ))
-//           )}
-//         </HorizontalRow>
-
-//       </main>
-
-//       {activeDoc && (
-//         <DocModal doc={activeDoc} onClose={() => setActiveDoc(null)} />
-//       )}
-
-//       {showLogin && (
-//         <LoginPopup
-//           onSuccess={() => {
-//             setShowLogin(false);
-//             if (pendingDoc) {
-//               setActiveDoc(pendingDoc);
-//               setPendingDoc(null);
-//             }
-//           }}
-//           onClose={() => {
-//             setShowLogin(false);
-//             setPendingDoc(null);
-//           }}
-//         />
-//       )}
-//       {announcement && showAnnouncement && (
-//         <AnnouncementPopup
-//           imageUrl={announcement.imageUrl}
-//           title={announcement.title}
-//           onClose={() => setShowAnnouncement(false)}
-//         />
-//       )}
-//     </div>
-//   );
-// }
-
 
    return (
       <div className="home-root">

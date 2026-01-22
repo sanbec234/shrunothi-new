@@ -1,6 +1,7 @@
 import { type JSX } from "react";
 import type { Genre } from "../types/index";
 import "../components/leftmenu.css";
+import PrivacyPolicy from "../pages/privacypolicy/PrivacyPolicy";
 
 type User = {
   name: string;
@@ -25,6 +26,10 @@ export default function LeftMenu({
     window.location.href = "/";
   }
 
+  function handlePrivacyPolicy() {
+    window.location.href = "/privacy-policy";
+  }
+
   return (
     <aside className="left-menu">
       {/* -------- Logo -------- */}
@@ -43,6 +48,13 @@ export default function LeftMenu({
             {g.name}
           </button>
         ))}
+      </div>
+
+      <div>
+        <button onClick={handlePrivacyPolicy}
+        className="privacy-policy-btn">
+          Privacy Policy
+        </button>
       </div>
 
       {/* -------- User footer -------- */}

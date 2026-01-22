@@ -1,10 +1,3 @@
-/* ---------- Layout ---------- */
-/* .logo-img {
-  height: clamp(14rem, 6vw, 4.25rem);
-  width: auto;
-  flex-shrink: 0;
-  margin-right: 1rem;
-} */
 /* ---------- Logo (isolated, centered) ---------- */
 
 .left-menu .logo {
@@ -118,6 +111,27 @@
   color: var(--brand-copper);
 }
 
+.privacy-policy-btn {
+  background: none;
+  border: none;
+  padding: 1rem;
+
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--brand-blue);
+  cursor: pointer;
+
+  opacity: 0.85;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.privacy-policy-btn:hover {
+  opacity: 1;
+  transform: translateY(-0.5px);
+  text-decoration: underline;
+  background: transparent;
+}
+
 /* ---------- Left menu user (minimal, floating) ---------- */
 
 .leftmenu-user {
@@ -189,15 +203,6 @@
   border-right: 1px solid var(--border-soft);
   padding: 22px;
 }
-
-/* Logo */
-/* .left-menu .logo {
-  margin-bottom: 18px;
-  font-size: 18px;
-  font-weight: 700;
-  padding-right: 1rem !important;
-
-} */
 
 /* Genre list scrolls, not page */
 .left-menu .genre-list {
