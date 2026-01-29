@@ -29,6 +29,10 @@ export default function LeftMenu({
     window.location.href = "/privacy-policy";
   }
 
+  function handleTermsOfService() {
+    window.location.href = "/tos";
+  }
+
   return (
     <aside className="left-menu">
       {/* -------- Logo -------- */}
@@ -53,6 +57,10 @@ export default function LeftMenu({
         <button onClick={handlePrivacyPolicy}
         className="privacy-policy-btn">
           Privacy Policy
+        </button>
+        <button onClick={handleTermsOfService}
+        className="privacy-policy-btn">
+          Terms of Service
         </button>
       </div>
 

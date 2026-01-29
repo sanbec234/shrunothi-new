@@ -1,0 +1,162 @@
+/* =========================
+   Terms Page Root
+========================= */
+
+.terms-root {
+  position: relative;
+  min-height: 100svh;
+  width: 100vw;
+  overflow-x: hidden;
+
+  background:
+    radial-gradient(
+      1200px 800px at 6% 4%,
+      rgba(83, 148, 207, 0.42),
+      rgba(83, 148, 207, 0.22) 45%,
+      rgba(83, 148, 207, 0.08) 65%,
+      transparent 80%
+    ),
+    radial-gradient(
+      1200px 900px at 50% 45%,
+      rgba(180, 200, 215, 0.22),
+      rgba(180, 200, 215, 0.14) 45%,
+      rgba(180, 200, 215, 0.06) 65%,
+      transparent 80%
+    ),
+    radial-gradient(
+      1400px 900px at 92% 94%,
+      rgba(220, 132, 101, 0.55),
+      rgba(220, 132, 101, 0.32) 42%,
+      rgba(220, 132, 101, 0.14) 68%,
+      transparent 82%
+    ),
+    linear-gradient(
+      180deg,
+      #eef3f9 0%,
+      #edf1f6 45%,
+      #eef0f3 100%
+    );
+
+  display: flex;
+  justify-content: center;
+  padding: clamp(1.25rem, 3vw, 3rem);
+}
+
+/* =========================
+   Glass Card
+========================= */
+
+.terms-card {
+  max-width: 48rem;
+  width: 100%;
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+  position: relative;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.72),
+      rgba(245, 247, 251, 0.62)
+    );
+
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+
+  border-radius: 26px;
+
+  box-shadow:
+    0 26px 60px rgba(15, 23, 42, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.terms-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(83, 148, 207, 0.22),
+      rgba(255, 255, 255, 0.12) 40%,
+      rgba(220, 132, 101, 0.22)
+    );
+
+  opacity: 0.45;
+}
+
+/* =========================
+   Typography
+========================= */
+
+.terms-card h1,
+.terms-card h2,
+.terms-card p,
+.terms-card ul,
+.terms-card li {
+  position: relative;
+}
+
+.terms-card h1 {
+  font-size: 1.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.terms-card h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  color: #0f172a;
+}
+
+.terms-card p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #374151;
+  margin-bottom: 0.75rem;
+}
+
+.terms-card p:first-of-type {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 1.5rem;
+}
+
+.terms-card ul {
+  padding-left: 1.2rem;
+  margin-top: 0.5rem;
+}
+
+.terms-card li {
+  margin-bottom: 0.4rem;
+  color: #374151;
+}
+
+.terms-card strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* =========================
+   Mobile
+========================= */
+
+@media (max-width: 640px) {
+  .terms-root {
+    padding: 0.75rem;
+  }
+
+  .terms-card {
+    padding: 1.25rem;
+    border-radius: 20px;
+  }
+
+  .terms-card h1 {
+    font-size: 1.6rem;
+  }
+}

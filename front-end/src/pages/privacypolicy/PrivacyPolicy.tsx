@@ -17,7 +17,8 @@ export default function PrivacyPolicy(): React.JSX.Element {
         <p>
           Welcome to Shrunothi (“we”, “us”, “our”). This Privacy Policy explains
           how we collect, use, and protect your personal information when you
-          use our website https://shrunothi-prod.vercel.app/.
+          use our website www.shrunothi.com (the “website”). By using the website,
+          you agree to the terms of this Privacy Policy.
         </p>
 
         <h2>2. Information We Collect</h2>
