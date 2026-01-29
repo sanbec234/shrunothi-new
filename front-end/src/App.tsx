@@ -6,6 +6,7 @@ import LoginTest from './pages/login/LoginTest';
 import AdminGuard from './guards/AdminGuard';
 import PrivacyPolicy from './pages/privacypolicy/PrivacyPolicy';
 import TermsOfService from './pages/termsofservice/TermsOfService';
+import NotFound from './pages/NotFound';
 
 export default function App(): JSX.Element {
   return (
@@ -16,6 +17,7 @@ export default function App(): JSX.Element {
         <Route path="/login-test" element={<LoginTest />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/tos" element={<TermsOfService />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

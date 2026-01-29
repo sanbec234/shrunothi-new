@@ -122,7 +122,7 @@ export default function GoogleAuthPopup({ onSuccess, onClose }: Props) {
 
         {/* ===== Real Google Button ===== */}
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <GoogleLogin
+          {/* <GoogleLogin
             onSuccess={async (res) => {
               try {
                 const response = await api.post("/auth/google", {
@@ -135,6 +135,24 @@ export default function GoogleAuthPopup({ onSuccess, onClose }: Props) {
               } catch (err) {
                 console.error("Login error", err);
               }
+            }}
+            onError={() => {
+              console.log("Login failed");
+            }}
+          /> */}
+          <GoogleLogin
+            onSuccess={async (res) => {
+              if (!res.credential) return;
+
+              // 🔑 THIS LINE WAS MISSING
+              localStorage.setItem("google_id_token", res.credential);
+
+              const response = await api.post("/auth/google", {
+                token: res.credential,
+              });
+
+              localStorage.setItem("authUser", JSON.stringify(response.data));
+              onSuccess?.();
             }}
             onError={() => {
               console.log("Login failed");

@@ -25,19 +25,33 @@ export default function AdminGuard() {
           <h3>Admin Login</h3>
 
           <GoogleLogin
+            // onSuccess={async (res) => {
+            //   try {
+            //     const response = await api.post("/auth/google", {
+            //       token: res.credential
+            //     });
+
+            //     const user = response.data;
+
+            //     localStorage.setItem("authUser", JSON.stringify(user));
+            //     setAuthUser(user);
+            //   } catch (err) {
+            //     console.error("Login failed", err);
+            //   }
+            // }}
             onSuccess={async (res) => {
-              try {
-                const response = await api.post("/auth/google", {
-                  token: res.credential
-                });
+              if (!res.credential) return;
 
-                const user = response.data;
+              // 🔑 ALSO REQUIRED HERE
+              localStorage.setItem("google_id_token", res.credential);
 
-                localStorage.setItem("authUser", JSON.stringify(user));
-                setAuthUser(user);
-              } catch (err) {
-                console.error("Login failed", err);
-              }
+              const response = await api.post("/auth/google", {
+                token: res.credential,
+              });
+
+              const user = response.data;
+              localStorage.setItem("authUser", JSON.stringify(user));
+              setAuthUser(user);
             }}
             onError={() => console.log("Google login failed")}
           />

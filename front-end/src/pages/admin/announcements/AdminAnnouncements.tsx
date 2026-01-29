@@ -11,6 +11,7 @@ type Announcement = {
 };
 
 export default function AdminAnnouncements() {
+  // console.log("[useAdminAnnouncements] hook initialized");
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
 
   const [file, setFile] = useState<File | null>(null);
@@ -29,13 +30,14 @@ export default function AdminAnnouncements() {
   useEffect(() => {
     async function loadAnnouncements() {
       try {
+        // console.log("[useAdminAnnouncements] useEffect triggered");
         const res = await api.get<Announcement[]>("/admin/announcements");
         setAnnouncements(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Failed to load announcements", err);
       }
     }
-
+    // console.log("[useAdminAnnouncements] loadAnnouncements CALLED");
     loadAnnouncements();
   }, []);
 
