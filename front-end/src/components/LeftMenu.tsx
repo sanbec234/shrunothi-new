@@ -1,7 +1,6 @@
 import { type JSX } from "react";
 import type { Genre } from "../types/index";
 import "../components/leftmenu.css";
-import PrivacyPolicy from "../pages/privacypolicy/PrivacyPolicy";
 
 type User = {
   name: string;

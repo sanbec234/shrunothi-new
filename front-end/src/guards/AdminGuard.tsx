@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
-import AdminDashboard from "../pages/admindash/admindash";
+import AdminDashboard from "../pages/admin/admindash";
 import { api } from "../api/client"; // adjust path if needed
 
 export default function AdminGuard() {

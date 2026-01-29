@@ -1,0 +1,49 @@
+/* =====================
+   Announcements
+===================== */
+.announcement-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.announcement-preview img {
+  max-width: 260px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.announcement-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.announcement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.announcement-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.announcement-row img {
+  width: 120px;
+  border-radius: 8px;
+}
+
+.announcement-meta {
+  flex: 1;
+  font-size: 13px;
+  color: #374151;
+}
