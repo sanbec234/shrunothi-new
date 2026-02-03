@@ -7,7 +7,7 @@ import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
 import Image from "@tiptap/extension-image";
 import { useEffect, useRef, useState } from "react";
-import { api } from "../api/client";
+import { api } from "../../api/client";
 
 import "./richEditor.css";
 

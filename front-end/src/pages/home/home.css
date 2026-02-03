@@ -59,7 +59,7 @@
   overflow: hidden;
   background-clip: padding-box;
   position: relative;
-  margin-right: 1.25rem;
+  /* margin-right: 0rem; */
   background:
     linear-gradient(
       180deg,

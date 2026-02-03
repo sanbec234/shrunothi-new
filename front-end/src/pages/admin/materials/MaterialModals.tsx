@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import RichEditor from "../../../components/RichEditor";
+import RichEditor from "../../../components/RichEditor/RichEditor";
 import type { Genre, Material } from "../admin.types";
 import "./materials.css";
 

@@ -1,16 +1,16 @@
 import { useEffect, useState, type JSX } from "react";
 import { api } from "../../api/client";
-import LeftMenu from "../../components/LeftMenu";
+import LeftMenu from "../../components/LeftMenu/LeftMenu";
 import HorizontalRow from "../../components/HorizontalRow";
 import TextDocCard from "../../components/TextDocCard";
 import type { Genre } from "../../types/index";
-import DocModal from "../../components/DocModal";
+import DocModal from "../../components/DocModal/DocModal";
 import "./home.css";
 import LoginPopup from "../../components/GoogleAuthPopup";
 import GenreChips from "../../components/GenreChips";
-import MobileHeader from "../../components/MobileHeader";
+import MobileHeader from "../../components/MobileHeader/MobileHeader";
 import { useDailyAnnouncements } from "../../hooks/useDailyAnnouncements";
-import AnnouncementCarousel from "../../components/AnnouncementCarousel";
+import AnnouncementCarousel from "../../components/AnnouncementCarousel/AnnouncementCarousel";
 
 
 /* ---- types ---- */
