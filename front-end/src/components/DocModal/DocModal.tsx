@@ -300,7 +300,7 @@ export default function DocModal({ doc, onClose }: Props) {
       stopSpeech();
     } else {
       // START/RESUME
-      console.log("▶️ Playing from paragraph", currentIndexRef.current);
+      console.log("▶ Playing from paragraph", currentIndexRef.current);
       speakParagraph(currentIndexRef.current);
     }
   }, [isPlaying, speakParagraph, stopSpeech]);
