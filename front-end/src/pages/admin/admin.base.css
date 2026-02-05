@@ -35,7 +35,12 @@ body {
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--text-main);
   height: 100% !important;
-  background: linear-gradient(180deg, #eef3f9 0%, #edf1f6 45%, #eef0f3 100%);
+  background: radial-gradient(
+      circle at top,
+      #ffffff 0%,
+      #f4f1ec 45%,
+      #e8e1d8 100%
+    );
 }
 
 /* =====================
@@ -51,7 +56,7 @@ body.modal-open {
   margin: 0 auto;
   padding: 32px 28px 80px;
   min-height: 100vh !important;
-  background: linear-gradient(180deg, #eef3f9 0%, #edf1f6 45%, #eef0f3 100%);
+  background: transparent;
 }
 
 h2 {
@@ -393,17 +398,17 @@ textarea {
    Modal Editor
 ===================== */
 .modal-editor {
-  width: 640px;
+  width: 1120px;
   max-width: 90vw;
-  max-height: 85vh;
+  max-height: 94vh;
   display: flex;
   flex-direction: column;
-  padding: 28px 26px 24px;
+  padding: 24px 24px 20px;
 }
 
 .modal-editor h3 {
   margin-top: 0;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
   flex-shrink: 0;
 }
 
@@ -413,7 +418,7 @@ textarea {
   overflow: visible;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .modal-editor input[type="text"],
@@ -516,13 +521,7 @@ textarea {
   margin: 0;
 }
 
-.scroll-hint {
-  text-align: center;
-  font-size: 13px;
-  color: #9ca3af;
-  margin-bottom: 16px;
-  animation: bounce 2s infinite;
-}
+
 
 @keyframes bounce {
   0%,
@@ -946,11 +945,6 @@ textarea {
 
   .modal-author {
     font-size: 13px;
-  }
-
-  .scroll-hint {
-    font-size: 12px;
-    margin-bottom: 12px;
   }
 
   .modal-body,

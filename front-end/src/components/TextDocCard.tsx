@@ -53,8 +53,10 @@ export default function TextDocCard({ doc, onClick }: Props) {
     <div className="doc-card" onClick={onClick}>
       <div className="doc-title">{doc.title}</div>
       <div className="doc-author">{doc.author}</div>
-
+      
       {preview && <p className="doc-preview">{preview}</p>}
+
+      <button className="ghost ghost--tight">Read guide</button>
     </div>
   );
 }

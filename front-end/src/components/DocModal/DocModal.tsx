@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { api } from "../../api/client";
 import type { TextDoc } from "../../types";
-import "./docmodal.css"
+import "./docmodal.css";
 
 interface Props {
   doc: TextDoc;
@@ -14,43 +14,42 @@ export default function DocModal({ doc, onClose }: Props) {
   const [currentParagraph, setCurrentParagraph] = useState<number>(0);
   const [paragraphs, setParagraphs] = useState<string[]>([]);
   const [totalParagraphs, setTotalParagraphs] = useState<number>(0);
-  const [showMiniPlayer, setShowMiniPlayer] = useState<boolean>(false);
 
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const modalBodyRef = useRef<HTMLDivElement | null>(null);
   const voiceRef = useRef<SpeechSynthesisVoice | null>(null);
   const currentIndexRef = useRef<number>(0);
-  const isPausedRef = useRef<boolean>(false);
+  
+  // Critical refs for state management
+  const isSpeakingRef = useRef<boolean>(false);
+  const playRequestedRef = useRef<boolean>(false);
+  const cancelledByUserRef = useRef<boolean>(false);
 
-  // Extract text paragraphs from HTML - MORE ROBUST
+  // Extract text paragraphs from HTML
   const extractParagraphs = useCallback((html: string): string[] => {
     if (!html || html === "Loading...") {
-      // console.log("❌ No content to extract");
+      console.log("❌ No content to extract");
       return [];
     }
     
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = html;
     
-    // Try multiple strategies to find text content
     let paragraphElements = tempDiv.querySelectorAll("p, h1, h2, h3, h4, h5, h6");
     
-    // Fallback: if no semantic tags, try divs with substantial text
     if (paragraphElements.length === 0) {
-      // console.log("⚠️ No <p> or <h> tags found, trying divs...");
+      console.log("⚠️ No <p> or <h> tags found, trying divs...");
       paragraphElements = tempDiv.querySelectorAll("div");
     }
     
-    // Last resort: split by line breaks
     if (paragraphElements.length === 0) {
-      // console.log("⚠️ No elements found, splitting text by lines...");
+      console.log("⚠️ No elements found, splitting text by lines...");
       const allText = tempDiv.textContent || tempDiv.innerText || "";
       const lines = allText
         .split(/\n+/)
         .map(line => line.trim())
-        .filter(line => line.length > 20); // At least 20 chars
+        .filter(line => line.length > 20);
       
-      // console.log("✅ Extracted", lines.length, "lines from raw text");
+      console.log("✅ Extracted", lines.length, "lines from raw text");
       return lines;
     }
     
@@ -58,15 +57,14 @@ export default function DocModal({ doc, onClose }: Props) {
     
     paragraphElements.forEach((el) => {
       const text = el.textContent?.trim();
-      // Keep paragraphs with at least 10 characters
       if (text && text.length > 10) {
         paras.push(text);
       }
     });
     
-    // console.log("✅ Extracted", paras.length, "paragraphs");
+    console.log("✅ Extracted", paras.length, "paragraphs");
     if (paras.length > 0) {
-      // console.log("📖 First paragraph:", paras[0].substring(0, 50) + "...");
+      console.log("📖 First paragraph:", paras[0].substring(0, 50) + "...");
     }
     
     return paras;
@@ -78,13 +76,13 @@ export default function DocModal({ doc, onClose }: Props) {
 
     async function loadContent() {
       try {
-        // console.log("🔄 Loading content for doc:", doc.id);
+        console.log("🔄 Loading content for doc:", doc.id);
         const res = await api.get<{ content: string }>(`/material/${doc.id}`);
         
         if (!mounted) return;
         
         const htmlContent = res.data.content;
-        // console.log("📥 Received content length:", htmlContent?.length || 0);
+        console.log("📥 Received content length:", htmlContent?.length || 0);
         
         setContent(htmlContent);
         
@@ -92,7 +90,7 @@ export default function DocModal({ doc, onClose }: Props) {
         setParagraphs(paras);
         setTotalParagraphs(paras.length);
         
-        // console.log("✅ Set", paras.length, "paragraphs in state");
+        console.log("✅ Set", paras.length, "paragraphs in state");
       } catch (err) {
         console.error("❌ Failed to load document", err);
         setContent("Failed to load document.");
@@ -116,7 +114,7 @@ export default function DocModal({ doc, onClose }: Props) {
       voiceRef.current = googleVoice || anyEnglishVoice || voices[0];
       
       if (voiceRef.current) {
-        // console.log("🎙️ Selected voice:", voiceRef.current.name);
+        console.log("🎙️ Selected voice:", voiceRef.current.name);
       }
     };
 
@@ -134,7 +132,6 @@ export default function DocModal({ doc, onClose }: Props) {
     allParas.forEach((el, i) => {
       if (i === index) {
         el.classList.add("reading-highlight");
-        // Auto-scroll to current paragraph
         el.scrollIntoView({ behavior: "smooth", block: "center" });
       } else {
         el.classList.remove("reading-highlight");
@@ -142,128 +139,203 @@ export default function DocModal({ doc, onClose }: Props) {
     });
   }, []);
 
-  // Speak a specific paragraph
+  // Completely stop all speech
+  const stopSpeech = useCallback(() => {
+    console.log("🛑 Stopping speech");
+    cancelledByUserRef.current = true;
+    playRequestedRef.current = false;
+    
+    try {
+      speechSynthesis.cancel();
+    } catch (e) {
+      console.error("Cancel error:", e);
+    }
+    
+    // Force UI update
+    setTimeout(() => {
+      isSpeakingRef.current = false;
+      setIsPlaying(false);
+    }, 50);
+  }, []);
+
+  // Speak a specific paragraph - COMPLETELY REWRITTEN
   const speakParagraph = useCallback(
     (index: number) => {
-      // console.log("🎙️ Speaking paragraph", index);
+      console.log(`🎤 speakParagraph called with index: ${index}`);
       
+      // Validate index
       if (index < 0 || index >= paragraphs.length) {
-        // console.log("❌ Invalid paragraph index:", index);
-        setIsPlaying(false);
-        setCurrentParagraph(0);
-        isPausedRef.current = false;
+        console.log("❌ Invalid index");
+        stopSpeech();
         return;
       }
 
-      // Cancel any existing speech first
-      speechSynthesis.cancel();
+      // Check if we're already processing this request
+      if (isSpeakingRef.current) {
+        console.log("⚠️ Already speaking, ignoring request");
+        return;
+      }
+
+      // Mark as requested and in progress
+      playRequestedRef.current = true;
+      cancelledByUserRef.current = false;
+      isSpeakingRef.current = true;
+
+      // Force cancel any existing speech
+      try {
+        speechSynthesis.cancel();
+      } catch (e) {
+        console.error("Cancel error:", e);
+      }
       
-      // Small delay to ensure cancel completes (browser quirk)
+      // Wait for cancel to complete and speech API to be ready
       setTimeout(() => {
-        const utterance = new SpeechSynthesisUtterance(paragraphs[index]);
+        // Check if user cancelled during the timeout
+        if (!playRequestedRef.current || cancelledByUserRef.current) {
+          console.log("❌ Cancelled during timeout");
+          isSpeakingRef.current = false;
+          setIsPlaying(false);
+          return;
+        }
+
+        console.log(`📢 Starting speech for paragraph ${index}`);
+        
+        const text = paragraphs[index];
+        if (!text) {
+          console.log("❌ No text for paragraph", index);
+          isSpeakingRef.current = false;
+          setIsPlaying(false);
+          return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
         if (voiceRef.current) {
           utterance.voice = voiceRef.current;
         }
         utterance.rate = 1.0;
         utterance.pitch = 1.0;
+        utterance.volume = 1.0;
 
         utterance.onstart = () => {
-          // console.log("▶️ Started speaking paragraph", index);
+          console.log(`✅ Speech started for paragraph ${index}`);
           setCurrentParagraph(index);
           currentIndexRef.current = index;
-          isPausedRef.current = false; // Clear paused flag when we start
           highlightParagraph(index);
+          setIsPlaying(true);
+          isSpeakingRef.current = true;
         };
 
         utterance.onend = () => {
-          // console.log("⏹️ Finished paragraph", index);
-          // Only auto-advance if we're not paused
-          if (!isPausedRef.current && index + 1 < paragraphs.length) {
-            speakParagraph(index + 1);
-          } else if (index + 1 >= paragraphs.length) {
-            // console.log("✅ Finished all paragraphs");
+          console.log(`✅ Speech ended for paragraph ${index}`);
+          isSpeakingRef.current = false;
+          
+          // Only auto-advance if still playing and not cancelled
+          if (playRequestedRef.current && !cancelledByUserRef.current && index + 1 < paragraphs.length) {
+            console.log(`➡️ Auto-advancing to paragraph ${index + 1}`);
+            setTimeout(() => {
+              if (playRequestedRef.current && !cancelledByUserRef.current) {
+                speakParagraph(index + 1);
+              }
+            }, 200);
+          } else {
+            // Finished all paragraphs or was stopped
+            console.log("🏁 Playback finished");
             setIsPlaying(false);
-            setCurrentParagraph(0);
-            currentIndexRef.current = 0;
-            isPausedRef.current = false;
-            highlightParagraph(-1); // Clear highlight
+            playRequestedRef.current = false;
+            if (index + 1 >= paragraphs.length) {
+              setCurrentParagraph(0);
+              currentIndexRef.current = 0;
+              highlightParagraph(-1);
+            }
           }
         };
 
         utterance.onerror = (event) => {
-          // console.error("❌ Speech error:", event.error);
-          // Only stop if it's a real error, not an interruption from user action
-          if (event.error !== 'interrupted' && event.error !== 'canceled') {
-            setIsPlaying(false);
+          console.error("❌ Speech error:", event.error);
+          isSpeakingRef.current = false;
+          
+          // Handle different error types
+          if (event.error === 'interrupted' || event.error === 'canceled') {
+            console.log("ℹ️ Speech was interrupted/canceled (user action)");
+            return;
           }
+          
+          // Real error occurred
+          console.error("💥 Real speech error:", event.error);
+          setIsPlaying(false);
+          playRequestedRef.current = false;
+          cancelledByUserRef.current = true;
         };
-
-        utteranceRef.current = utterance;
-        speechSynthesis.speak(utterance);
-        setIsPlaying(true);
-      }, 50); // 50ms delay to avoid race conditions
+        
+        try {
+          console.log("🚀 Calling speechSynthesis.speak()");
+          speechSynthesis.speak(utterance);
+          
+          // Failsafe: Check if speech actually started after a delay
+          setTimeout(() => {
+            if (playRequestedRef.current && !speechSynthesis.speaking && !speechSynthesis.pending) {
+              console.error("⚠️ Speech failed to start, retrying...");
+              isSpeakingRef.current = false;
+              speakParagraph(index);
+            }
+          }, 1000);
+        } catch (e) {
+          console.error("💥 Exception calling speak():", e);
+          isSpeakingRef.current = false;
+          setIsPlaying(false);
+          playRequestedRef.current = false;
+        }
+      }, 200);
     },
-    [paragraphs, highlightParagraph]
+    [paragraphs, highlightParagraph, stopSpeech]
   );
 
-  // Toggle play/pause
+  // Toggle play/pause - SIMPLIFIED
   const togglePlayPause = useCallback(() => {
-    // console.log("🎮 Toggle play/pause. Currently playing:", isPlaying);
-    // console.log("🎮 Speech speaking:", speechSynthesis.speaking);
-    // console.log("🎮 Speech paused:", speechSynthesis.paused);
-    // console.log("🎮 Current paragraph:", currentIndexRef.current);
+    console.log(`🎮 Toggle called. Current state - isPlaying: ${isPlaying}, isSpeaking: ${isSpeakingRef.current}, playRequested: ${playRequestedRef.current}`);
     
-    if (isPlaying) {
-      // User wants to PAUSE
-      // console.log("⏸️ Pausing...");
-      speechSynthesis.cancel(); // Cancel current speech
-      isPausedRef.current = true;
-      setIsPlaying(false);
+    if (isPlaying || isSpeakingRef.current || playRequestedRef.current) {
+      // STOP/PAUSE
+      console.log("⏸️ Pausing");
+      stopSpeech();
     } else {
-      // User wants to PLAY
-      if (isPausedRef.current) {
-        // RESUME from where we paused
-        // console.log("▶️ Resuming from paragraph", currentIndexRef.current);
-        isPausedRef.current = false;
-        speakParagraph(currentIndexRef.current);
-      } else {
-        // START fresh
-        // console.log("▶️ Starting from paragraph", currentIndexRef.current);
-        speakParagraph(currentIndexRef.current);
-      }
+      // START/RESUME
+      console.log("▶️ Playing from paragraph", currentIndexRef.current);
+      speakParagraph(currentIndexRef.current);
     }
-  }, [isPlaying, speakParagraph]);
+  }, [isPlaying, speakParagraph, stopSpeech]);
 
   // Skip to previous paragraph
   const skipBackward = useCallback(() => {
+    console.log("⏮ Skip backward");
+    const wasPlaying = isPlaying;
+    stopSpeech();
+    
     const newIndex = Math.max(0, currentIndexRef.current - 1);
-    // console.log("⏮️ Skip backward to paragraph", newIndex);
-    speakParagraph(newIndex);
-  }, [speakParagraph]);
+    setCurrentParagraph(newIndex);
+    currentIndexRef.current = newIndex;
+    highlightParagraph(newIndex);
+    
+    if (wasPlaying) {
+      setTimeout(() => speakParagraph(newIndex), 300);
+    }
+  }, [isPlaying, speakParagraph, stopSpeech, highlightParagraph]);
 
   // Skip to next paragraph
   const skipForward = useCallback(() => {
+    console.log("⏭ Skip forward");
+    const wasPlaying = isPlaying;
+    stopSpeech();
+    
     const newIndex = Math.min(paragraphs.length - 1, currentIndexRef.current + 1);
-    // console.log("⏭️ Skip forward to paragraph", newIndex);
-    speakParagraph(newIndex);
-  }, [speakParagraph, paragraphs.length]);
-
-  // Seek to specific paragraph via slider
-  const handleSeek = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newIndex = parseInt(e.target.value, 10);
-      // console.log("🔍 Seek to paragraph", newIndex);
-      setCurrentParagraph(newIndex);
-      currentIndexRef.current = newIndex;
-      
-      if (isPlaying) {
-        speakParagraph(newIndex);
-      } else {
-        highlightParagraph(newIndex);
-      }
-    },
-    [isPlaying, speakParagraph, highlightParagraph]
-  );
+    setCurrentParagraph(newIndex);
+    currentIndexRef.current = newIndex;
+    highlightParagraph(newIndex);
+    
+    if (wasPlaying) {
+      setTimeout(() => speakParagraph(newIndex), 300);
+    }
+  }, [isPlaying, speakParagraph, stopSpeech, highlightParagraph, paragraphs.length]);
 
   // Click on paragraph to jump playback
   const handleParagraphClick = useCallback(
@@ -278,34 +350,31 @@ export default function DocModal({ doc, onClose }: Props) {
 
       const clickedIndex = Array.from(allParas).indexOf(target);
       if (clickedIndex !== -1 && clickedIndex < paragraphs.length) {
-        // console.log("👆 Clicked paragraph", clickedIndex);
-        speakParagraph(clickedIndex);
+        console.log("🖱️ Paragraph clicked:", clickedIndex);
+        const wasPlaying = isPlaying;
+        stopSpeech();
+        
+        setTimeout(() => {
+          if (wasPlaying) {
+            speakParagraph(clickedIndex);
+          }
+        }, 300);
       }
     },
-    [isPlaying, speakParagraph, paragraphs.length]
+    [isPlaying, speakParagraph, stopSpeech, paragraphs.length]
   );
-
-  // Show/hide mini player based on scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!modalBodyRef.current) return;
-      const scrollTop = modalBodyRef.current.scrollTop;
-      setShowMiniPlayer(scrollTop > 200);
-    };
-
-    const modalBody = modalBodyRef.current;
-    if (modalBody) {
-      modalBody.addEventListener("scroll", handleScroll);
-      return () => modalBody.removeEventListener("scroll", handleScroll);
-    }
-  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      speechSynthesis.cancel();
-      isPausedRef.current = false;
-      // console.log("🧹 Cleaned up speech synthesis");
+      console.log("🧹 Cleanup on unmount");
+      cancelledByUserRef.current = true;
+      playRequestedRef.current = false;
+      try {
+        speechSynthesis.cancel();
+      } catch (e) {
+        console.error("Cleanup error:", e);
+      }
     };
   }, []);
 
@@ -313,8 +382,7 @@ export default function DocModal({ doc, onClose }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        speechSynthesis.cancel();
-        isPausedRef.current = false;
+        stopSpeech();
         onClose();
       }
       if (e.key === " " && e.target === document.body) {
@@ -325,7 +393,7 @@ export default function DocModal({ doc, onClose }: Props) {
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose, togglePlayPause]);
+  }, [onClose, togglePlayPause, stopSpeech]);
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -343,54 +411,10 @@ export default function DocModal({ doc, onClose }: Props) {
           ×
         </button>
 
-        {/* Read Aloud Controls */}
-        <div className="read-aloud-controls">
-          <button className="control-btn" onClick={skipBackward} disabled={paragraphs.length === 0}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
-            </svg>
-          </button>
-
-          <button className="control-btn-main" onClick={togglePlayPause} disabled={paragraphs.length === 0}>
-            {isPlaying ? (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-              </svg>
-            ) : (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            )}
-          </button>
-
-          <button className="control-btn" onClick={skipForward} disabled={paragraphs.length === 0}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M16 18h2V6h-2zm-11-7l8.5-6v12z" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Debug info - REMOVE THIS AFTER TESTING */}
+        {/* Debug info */}
         {paragraphs.length === 0 && content !== "Loading..." && (
           <div style={{ padding: '10px', background: '#fee', color: '#c00', fontSize: '12px' }}>
             ⚠️ No paragraphs detected. Check console for details.
-          </div>
-        )}
-
-        {/* Seek Bar */}
-        {paragraphs.length > 0 && (
-          <div className="seek-bar-container">
-            <span className="seek-label">
-              Para {currentParagraph + 1} / {totalParagraphs}
-            </span>
-            <input
-              type="range"
-              min="0"
-              max={totalParagraphs - 1}
-              value={currentParagraph}
-              onChange={handleSeek}
-              className="seek-slider"
-            />
           </div>
         )}
 
@@ -404,23 +428,40 @@ export default function DocModal({ doc, onClose }: Props) {
           onClick={handleParagraphClick}
         />
 
-        {/* Floating Mini Player */}
-        {showMiniPlayer && isPlaying && (
+        {/* Permanent Floating Mini Player - NO SEEK BAR */}
+        {paragraphs.length > 0 && (
           <div className="mini-player">
             <div className="mini-player-info">
-              <span className="mini-player-title">🎙️ Reading</span>
+              <span className="mini-player-title">
+                {isPlaying ? "Reading.." : "Read Aloud 🎙️"}
+              </span>
               <span className="mini-player-para">
                 Para {currentParagraph + 1}/{totalParagraphs}
               </span>
             </div>
+            
             <div className="mini-player-controls">
-              <button className="mini-btn" onClick={skipBackward}>
+              <button 
+                className="mini-btn" 
+                onClick={skipBackward} 
+                title="Previous paragraph"
+                disabled={currentParagraph === 0}
+              >
                 ⏮
               </button>
-              <button className="mini-btn" onClick={togglePlayPause}>
-                {isPlaying ? "⏸" : "▶️"}
+              <button 
+                className="mini-btn-main" 
+                onClick={togglePlayPause} 
+                title={isPlaying ? "Pause" : "Play"}
+              >
+                {isPlaying ? "⏸" : "▶"}
               </button>
-              <button className="mini-btn" onClick={skipForward}>
+              <button 
+                className="mini-btn" 
+                onClick={skipForward} 
+                title="Next paragraph"
+                disabled={currentParagraph >= totalParagraphs - 1}
+              >
                 ⏭
               </button>
             </div>
