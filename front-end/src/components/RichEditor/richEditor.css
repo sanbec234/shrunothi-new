@@ -274,28 +274,91 @@
 
 @media (max-width: 640px) {
   .rich-editor {
-    height: 400px;
-    max-height: 400px;
+    height: 100% !important;
+    max-height: 100% !important;
+    min-height: 400px;
+    border-radius: 10px;
   }
 
   .rich-editor .ProseMirror {
-    font-size: 15px;
-    padding: 12px;
+    height: 100% !important;
+    font-size: 16px; /* Prevents iOS zoom */
+    padding: 14px;
+    line-height: 1.7;
   }
 
   .rich-toolbar {
-    gap: 0.4rem;
-    padding: 6px 10px;
+    gap: 4px;
+    padding: 8px 6px;
+    flex-wrap: nowrap; /* Keep in single row */
+    overflow-x: auto; /* Allow horizontal scroll if needed */
+    overflow-y: hidden;
   }
 
+  .rich-toolbar button {
+    height: 3rem;
+    min-width: 32px;
+    font-size: 13px;
+    padding: 0 8px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    width: 2rem;
+  }
+
+  .toolbar-select {
+    height: 3rem;
+    font-size: 13px;
+    padding: 0 1.8rem 0 8px;
+    min-width: 100px;
+    flex-shrink: 0;
+    width: 4rem;
+  }
+
+  .rich-toolbar input[type="color"] {
+    height: 3rem;
+    width: 32px;
+    flex-shrink: 0;
+  }
+
+  .rich-editor .ProseMirror h1 {
+    font-size: 1.5rem;
+  }
+
+  .rich-editor .ProseMirror h2 {
+    font-size: 1.3rem;
+  }
+
+  .rich-editor .ProseMirror h3 {
+    font-size: 1.15rem;
+  }
+
+  .rich-editor .ProseMirror img {
+    border-radius: 6px;
+  }
+}
+
+/* For very small screens */
+@media (max-width: 380px) {
   .rich-toolbar button {
     height: 30px;
     min-width: 30px;
     font-size: 12px;
+    padding: 0 6px;
   }
 
   .toolbar-select {
     height: 30px;
     font-size: 12px;
+    min-width: 90px;
+  }
+
+  .rich-toolbar input[type="color"] {
+    height: 30px;
+    width: 30px;
+  }
+
+  .rich-editor .ProseMirror {
+    padding: 12px;
+    font-size: 15px;
   }
 }
