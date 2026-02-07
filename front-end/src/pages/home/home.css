@@ -40,6 +40,7 @@ a {
   padding: 0 !important;
   margin: 0 !important;
   backdrop-filter: none !important;
+  outline: none !important;
 }
 
 /* Brand */
@@ -50,12 +51,12 @@ a {
 }
 
 .brand__logo {
-  width: 5rem;
-  height: 5rem;
+  width: 9rem;
+  height: 9rem;
   border-radius: 0.75rem;
   object-fit: cover;
-  background: #fff;
-  box-shadow: 0 0.625rem 1.5625rem rgba(0, 0, 0, 0.08);
+  /* background: #fff; */
+  /* box-shadow: 0 0.625rem 1.5625rem rgba(0, 0, 0, 0.08); */
 }
 
 .brand__text {
@@ -88,9 +89,20 @@ a {
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
-  max-width: 12rem;
+  max-width: clamp(12rem, 24vw, 22rem);
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.user-pill:not(:disabled):hover {
+  transform: translateY(-0.0625rem);
+}
+
+.user-pill:disabled {
+  cursor: default;
+  opacity: 0.92;
+  box-shadow: 0 0.625rem 1.875rem rgba(20, 16, 10, 0.08);
 }
 
 /* Header */
@@ -400,14 +412,44 @@ a {
   display: flex;
   gap: clamp(0.75rem, 2vw, 1.25rem);
   overflow-x: auto;
-  overflow-y: visible;
-  padding: 0 clamp(1.5rem, 4vw, 6rem) 1rem;
+  overflow-y: hidden;
+  padding: 0 clamp(1.5rem, 4vw, 6rem) 2.5rem;
+  margin-bottom: -1.25rem;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
 
 .row-scroll::-webkit-scrollbar {
   display: none;
+}
+
+.row-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding: 0 clamp(1.5rem, 4vw, 6rem);
+}
+
+.row-nav-btn {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  border: 0.0625rem solid rgba(0, 0, 0, 0.16);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.row-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.7) !important;
 }
 
 /* Podcast cards */
@@ -493,7 +535,7 @@ a {
   display: flex;
   justify-content: space-between;
   gap: 2rem;
-  border-top: 0.0625rem solid rgba(0, 0, 0, 0.08);
+  border-top: none;
   padding: 2.5rem clamp(1.5rem, 4vw, 6rem) 0;
   flex-wrap: wrap;
 }
@@ -666,7 +708,12 @@ a {
   }
 
   .row-scroll {
-    padding: 0 1.5rem 1rem;
+    padding: 0 1.5rem 2rem;
+    margin-bottom: -1rem;
+  }
+
+  .row-nav {
+    padding: 0 1.5rem;
   }
 
   /* Doc cards */
@@ -720,9 +767,14 @@ a {
   }
   
   .user-pill {
-    max-width: 9rem;
-    font-size: 0.8rem;
-    padding: 0.5rem 0.85rem;
+    max-width: min(13rem, 52vw);
+    font-size: 0.76rem;
+    padding: 0.45rem 0.75rem;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    text-align: center;
+    line-height: 1.2;
   }
   
   .main-area {

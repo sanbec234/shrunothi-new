@@ -1,162 +1,133 @@
-/* =========================
-   Terms Page Root
-========================= */
-
-.terms-root {
-  position: relative;
+.legal-root {
   min-height: 100svh;
-  width: 100vw;
-  overflow-x: hidden;
-
-  background:
-    radial-gradient(
-      1200px 800px at 6% 4%,
-      rgba(83, 148, 207, 0.42),
-      rgba(83, 148, 207, 0.22) 45%,
-      rgba(83, 148, 207, 0.08) 65%,
-      transparent 80%
-    ),
-    radial-gradient(
-      1200px 900px at 50% 45%,
-      rgba(180, 200, 215, 0.22),
-      rgba(180, 200, 215, 0.14) 45%,
-      rgba(180, 200, 215, 0.06) 65%,
-      transparent 80%
-    ),
-    radial-gradient(
-      1400px 900px at 92% 94%,
-      rgba(220, 132, 101, 0.55),
-      rgba(220, 132, 101, 0.32) 42%,
-      rgba(220, 132, 101, 0.14) 68%,
-      transparent 82%
-    ),
-    linear-gradient(
-      180deg,
-      #eef3f9 0%,
-      #edf1f6 45%,
-      #eef0f3 100%
-    );
-
-  display: flex;
-  justify-content: center;
-  padding: clamp(1.25rem, 3vw, 3rem);
-}
-
-/* =========================
-   Glass Card
-========================= */
-
-.terms-card {
-  max-width: 48rem;
   width: 100%;
-  padding: clamp(1.25rem, 3vw, 2.25rem);
-  position: relative;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.72),
-      rgba(245, 247, 251, 0.62)
-    );
-
-  backdrop-filter: blur(20px) saturate(150%);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-
-  border-radius: 26px;
-
-  box-shadow:
-    0 26px 60px rgba(15, 23, 42, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  background: radial-gradient(circle at top, #ffffff 0%, #f4f1ec 45%, #e8e1d8 100%);
+  color: #1f1c19;
 }
 
-.terms-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(83, 148, 207, 0.22),
-      rgba(255, 255, 255, 0.12) 40%,
-      rgba(220, 132, 101, 0.22)
-    );
-
-  opacity: 0.45;
+.legal-header {
+  width: 100%;
+  padding: 2.25rem clamp(1.25rem, 4vw, 6rem) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
-/* =========================
-   Typography
-========================= */
-
-.terms-card h1,
-.terms-card h2,
-.terms-card p,
-.terms-card ul,
-.terms-card li {
-  position: relative;
+.legal-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
 }
 
-.terms-card h1 {
-  font-size: 1.9rem;
+.legal-brand__logo {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  object-fit: cover;
+  background: #fff;
+  box-shadow: 0 0.625rem 1.5625rem rgba(0, 0, 0, 0.08);
+}
+
+.legal-brand__title {
+  font-family: "Fraunces", serif;
+  font-size: 1.15rem;
   font-weight: 600;
-  color: #0f172a;
-  margin-bottom: 0.5rem;
 }
 
-.terms-card h2 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-top: 2rem;
-  margin-bottom: 0.5rem;
-  color: #0f172a;
-}
-
-.terms-card p {
-  font-size: 0.95rem;
-  line-height: 1.7;
-  color: #374151;
-  margin-bottom: 0.75rem;
-}
-
-.terms-card p:first-of-type {
+.legal-pill {
+  background: rgba(255, 255, 255, 0.75);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
   font-size: 0.85rem;
-  color: #64748b;
-  margin-bottom: 1.5rem;
+  color: #6b645d;
+  box-shadow: 0 1.375rem 3.125rem rgba(20, 16, 10, 0.12);
+  max-width: clamp(11rem, 28vw, 22rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.terms-card ul {
-  padding-left: 1.2rem;
-  margin-top: 0.5rem;
+.legal-main {
+  width: 100%;
+  padding: 2rem clamp(1.25rem, 4vw, 6rem) 4rem;
 }
 
-.terms-card li {
-  margin-bottom: 0.4rem;
-  color: #374151;
+.legal-card {
+  width: min(100%, 58rem);
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.72);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.7);
+  border-radius: 1.5rem;
+  box-shadow: 0 1.375rem 3.125rem rgba(20, 16, 10, 0.12);
+  backdrop-filter: blur(0.5rem);
+  padding: clamp(1.5rem, 3vw, 2.5rem);
 }
 
-.terms-card strong {
-  font-weight: 600;
-  color: #111827;
+.legal-card h1 {
+  font-family: "Fraunces", serif;
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
+  margin: 0 0 0.4rem;
+  color: #1f1c19;
 }
 
-/* =========================
-   Mobile
-========================= */
+.legal-card h2 {
+  font-family: "Fraunces", serif;
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
+  margin: 1.6rem 0 0.45rem;
+  color: #1f1c19;
+}
 
-@media (max-width: 640px) {
-  .terms-root {
-    padding: 0.75rem;
+.legal-card p,
+.legal-card li {
+  font-size: 0.98rem;
+  line-height: 1.75;
+  color: #4f4a44;
+  margin: 0.4rem 0;
+}
+
+.legal-card p:first-of-type {
+  font-size: 0.88rem;
+  color: #6b645d;
+  margin-bottom: 1.2rem;
+}
+
+.legal-card ul {
+  margin: 0.45rem 0 0.6rem;
+  padding-left: 1.3rem;
+}
+
+.legal-card strong {
+  color: #1f1c19;
+}
+
+@media (max-width: 37.5rem) {
+  .legal-header {
+    padding: 1.4rem 1rem 0;
   }
 
-  .terms-card {
+  .legal-brand__logo {
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+
+  .legal-brand__title {
+    font-size: 1rem;
+  }
+
+  .legal-pill {
+    max-width: 9.5rem;
+    font-size: 0.78rem;
+    padding: 0.45rem 0.75rem;
+  }
+
+  .legal-main {
+    padding: 1.25rem 1rem 2.25rem;
+  }
+
+  .legal-card {
+    border-radius: 1.1rem;
     padding: 1.25rem;
-    border-radius: 20px;
-  }
-
-  .terms-card h1 {
-    font-size: 1.6rem;
   }
 }

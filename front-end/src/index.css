@@ -85,3 +85,8 @@ a:focus-visible {
   box-shadow: none;
 }
 
+/* Disable default/forced disabled background colors globally */
+button:disabled {
+  background: transparent !important;
+  background-color: transparent !important;
+}

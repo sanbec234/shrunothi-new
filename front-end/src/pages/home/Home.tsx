@@ -46,6 +46,14 @@ const getAccent = (genreId: string) => {
   return accentPalette[index];
 };
 
+const loggedOutGreetings = [
+  "Howdy, curious mind!",
+  "Hey there, explorer!",
+  "Welcome, knowledge seeker!",
+  "Hi, ready to dive in?",
+  "Hello, future achiever!",
+];
+
 export default function Home(): JSX.Element {
   const user = JSON.parse(localStorage.getItem("authUser") || "null");
 
@@ -72,6 +80,7 @@ export default function Home(): JSX.Element {
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const [greetingIndex, setGreetingIndex] = useState(0);
   
   const podcastSectionRef = useRef<HTMLElement | null>(null);
   
@@ -233,8 +242,30 @@ export default function Home(): JSX.Element {
     };
   }, [showUserMenu]);
 
+  useEffect(() => {
+    if (isLoggedIn) {
+      setGreetingIndex(0);
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      setGreetingIndex((prev) => (prev + 1) % loggedOutGreetings.length);
+    }, 3500);
+
+    return () => window.clearInterval(timer);
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (!isLoggedIn && showUserMenu) {
+      setShowUserMenu(false);
+    }
+  }, [isLoggedIn, showUserMenu]);
+
   const activeAccent = selectedGenre ? getAccent(selectedGenre.id) : "#2f7d79";
   const displayName = authUser?.name || user?.name;
+  const pillLabel = displayName
+    ? `Howdy, ${displayName}!`
+    : loggedOutGreetings[greetingIndex];
 
   return (
     <div className="home-root">
@@ -253,12 +284,17 @@ export default function Home(): JSX.Element {
         <div className="user-menu" ref={userMenuRef}>
           <button
             className="user-pill"
-            onClick={() => setShowUserMenu((prev) => !prev)}
+            onClick={() => {
+              if (!isLoggedIn) return;
+              setShowUserMenu((prev) => !prev);
+            }}
+            disabled={!isLoggedIn}
+            aria-disabled={!isLoggedIn}
           >
-            {displayName ? `Welcome, ${displayName}` : "Welcome"}
+            {pillLabel}
           </button>
 
-          {showUserMenu && (
+          {isLoggedIn && showUserMenu && (
             <div className="user-dropdown">
               <button className="user-dropdown__item" onClick={handleLogout}>
                 Logout
