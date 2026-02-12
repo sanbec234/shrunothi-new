@@ -376,7 +376,16 @@ export default function Home(): JSX.Element {
                   className={`genre-card ${
                     selectedGenre?.id === genre.id ? "genre-card--active" : ""
                   }`}
-                  onClick={() => setSelectedGenre(genre)}
+                  // onClick={() => setSelectedGenre(genre)
+                    
+                  // }
+                  onClick={() => {
+                  setSelectedGenre(genre);  
+                  podcastSectionRef.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                }}
                   style={{ borderColor: accent }}
                 >
                   <div
@@ -393,74 +402,77 @@ export default function Home(): JSX.Element {
           </div>
         </section>
 
-        <section className="section" ref={podcastSectionRef}>
-          <div className="section__head">
-            <div>
-              <p className="eyebrow">Podcasts</p>
-              <h2>Listen to shift your state of mind.</h2>
+        <section className="section section--split" ref={podcastSectionRef}>
+          <div className="split-panel">
+            <div className="section__head">
+              <div>
+                <p className="eyebrow">Podcasts</p>
+                <h2></h2>
+              </div>
+              <p className="section__subtitle">
+                Embedded Spotify playlists, ready to play without leaving the library.
+              </p>
             </div>
-            <p className="section__subtitle">
-              Embedded Spotify playlists, ready to play without leaving the library.
-            </p>
+
+            <HorizontalRow
+              title={`Podcasts${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
+            >
+              {!selectedGenre ? (
+                <div className="row-empty">Click a genre to view podcasts</div>
+              ) : podcasts === null ? (
+                <div className="row-empty">Loading podcasts…</div>
+              ) : podcasts.length === 0 ? (
+                <div className="row-empty">No podcasts found</div>
+              ) : (
+                podcasts.map((p, i) => (
+                  <div key={i} className="podcast-card">
+                    <iframe
+                      className="spotify-frame"
+                      src={p.embed_url}
+                      title={p.title || `podcast-${i}`}
+                      loading="lazy"
+                    />
+                  </div>
+                ))
+              )}
+            </HorizontalRow>
           </div>
 
-          <HorizontalRow
-            title={`Podcasts${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
-          >
-            {!selectedGenre ? (
-              <div className="row-empty">Click a genre to view podcasts</div>
-            ) : podcasts === null ? (
-              <div className="row-empty">Loading podcasts…</div>
-            ) : podcasts.length === 0 ? (
-              <div className="row-empty">No podcasts found</div>
-            ) : (
-              podcasts.map((p, i) => (
-                <div key={i} className="podcast-card">
-                  <iframe
-                    className="spotify-frame"
-                    src={p.embed_url}
-                    title={p.title || `podcast-${i}`}
-                    loading="lazy"
+          <div className="split-panel">
+            <div className="section__head">
+              <div>
+                <p className="eyebrow">Materials</p>
+                <h2></h2>
+              </div>
+              <p className="section__subtitle">
+                Thoughtful reading, worksheets, and playbooks tailored to the genre.
+              </p>
+            </div>
+
+            <HorizontalRow
+              title={`Material${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
+            >
+              {materialDocs.length === 0 ? (
+                <div className="row-empty">No material found</div>
+              ) : (
+                materialDocs.map((doc) => (
+                  <TextDocCard
+                    key={doc.id}
+                    doc={doc}
+                    showPreview={false}
+                    onClick={() => {
+                      if (!isLoggedIn) {
+                        setPendingDoc(doc);
+                        setShowLogin(true);
+                        return;
+                      }
+                      setActiveDoc(doc);
+                    }}
                   />
-                </div>
-              ))
-            )}
-          </HorizontalRow>
-        </section>
-
-        <section className="section">
-          <div className="section__head">
-            <div>
-              <p className="eyebrow">Materials</p>
-              <h2>Articles and guides to deepen the practice.</h2>
-            </div>
-            <p className="section__subtitle">
-              Thoughtful reading, worksheets, and playbooks tailored to the genre.
-            </p>
+                ))
+              )}
+            </HorizontalRow>
           </div>
-
-          <HorizontalRow
-            title={`Material${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
-          >
-            {materialDocs.length === 0 ? (
-              <div className="row-empty">No material found</div>
-            ) : (
-              materialDocs.map((doc) => (
-                <TextDocCard
-                  key={doc.id}
-                  doc={doc}
-                  onClick={() => {
-                    if (!isLoggedIn) {
-                      setPendingDoc(doc);
-                      setShowLogin(true);
-                      return;
-                    }
-                    setActiveDoc(doc);
-                  }}
-                />
-              ))
-            )}
-          </HorizontalRow>
         </section>
 
         <section className="section section--alt">

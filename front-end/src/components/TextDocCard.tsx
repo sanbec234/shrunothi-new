@@ -5,6 +5,7 @@ import type { TextDoc } from "../types";
 type Props = {
   doc: TextDoc;
   onClick?: () => void;
+  showPreview?: boolean;
 };
 
 function htmlToText(html: string): string {
@@ -14,7 +15,7 @@ function htmlToText(html: string): string {
   return div.textContent || div.innerText || "";
 }
 
-export default function TextDocCard({ doc, onClick }: Props) {
+export default function TextDocCard({ doc, onClick, showPreview = true }: Props) {
   const [preview, setPreview] = useState<string>("");
 
   useEffect(() => {
@@ -54,7 +55,7 @@ export default function TextDocCard({ doc, onClick }: Props) {
       <div className="doc-title">{doc.title}</div>
       <div className="doc-author">{doc.author}</div>
       
-      {preview && <p className="doc-preview">{preview}</p>}
+      {showPreview && preview && <p className="doc-preview">{preview}</p>}
 
       <button className="ghost ghost--tight">Read guide</button>
     </div>
