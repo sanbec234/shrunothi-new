@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from db.client import get_db
 from db.models.genre import create_genre
 from bson import ObjectId
+from auth.auth_guard import require_admin
 
 bp = Blueprint("admin_genres", __name__)
 
@@ -10,6 +11,7 @@ bp = Blueprint("admin_genres", __name__)
 # POST /admin/genres
 # -------------------------------
 @bp.route("/admin/genres", methods=["POST"])
+@require_admin
 def add_genre():
     data = request.get_json() or {}
     name = data.get("name", "").strip()
@@ -31,6 +33,7 @@ def add_genre():
 # PUT or PATCH /admin/genres/<id>
 # -------------------------------
 @bp.route("/admin/genres/<genre_id>", methods=["PUT", "PATCH"])
+@require_admin
 def update_genre(genre_id):
     db = get_db()
 
@@ -61,6 +64,7 @@ def update_genre(genre_id):
 # DELETE /admin/genres/<id>
 # -------------------------------
 @bp.route("/admin/genres/<genre_id>", methods=["DELETE", "OPTIONS"])
+@require_admin
 def delete_genre(genre_id):
     if request.method == "OPTIONS":
         return "", 200

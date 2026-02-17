@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import RichEditor from "../../../components/RichEditor/RichEditor";
+import AdminRichEditorModal from "../../../components/AdminRichEditorModal/AdminRichEditorModal";
 import type { Genre } from "../admin.types";
 
 interface AddGenreModalProps {
@@ -52,61 +53,57 @@ export function AddGenreModal({ isOpen, onClose, onCreate }: AddGenreModalProps)
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={handleClose}>
-      <div className="modal podcast-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={handleClose}>
-          ✕
-        </button>
+    <AdminRichEditorModal isOpen={isOpen} onClose={handleClose} title="Add Genre">
+      <div className="step">Step {step} of 3</div>
 
-        <div className="step">Step {step} of 3</div>
+      {step === 1 && (
+        <>
+          <input
+            placeholder="Genre name"
+            value={genreName}
+            onChange={(e) => setGenreName(e.target.value)}
+          />
+          <button disabled={!genreName} onClick={() => setStep(2)}>
+            Next
+          </button>
+        </>
+      )}
 
-        {step === 1 && (
-          <>
-            <input
-              placeholder="Genre name"
-              value={genreName}
-              onChange={(e) => setGenreName(e.target.value)}
-            />
-            <button disabled={!genreName} onClick={() => setStep(2)}>
-              Next
-            </button>
-          </>
-        )}
+      {step === 2 && (
+        <>
+          <input
+            placeholder="Podcast title"
+            value={podcastTitle}
+            onChange={(e) => setPodcastTitle(e.target.value)}
+          />
+          <input
+            placeholder="Spotify URL"
+            value={spotifyUrl}
+            onChange={(e) => setSpotifyUrl(e.target.value)}
+          />
+          <button onClick={() => setStep(3)}>Next</button>
+        </>
+      )}
 
-        {step === 2 && (
-          <>
-            <input
-              placeholder="Podcast title"
-              value={podcastTitle}
-              onChange={(e) => setPodcastTitle(e.target.value)}
-            />
-            <input
-              placeholder="Spotify URL"
-              value={spotifyUrl}
-              onChange={(e) => setSpotifyUrl(e.target.value)}
-            />
-            <button onClick={() => setStep(3)}>Next</button>
-          </>
-        )}
-
-        {step === 3 && (
-          <>
-            <input
-              placeholder="Material title"
-              value={materialTitle}
-              onChange={(e) => setMaterialTitle(e.target.value)}
-            />
-            <input
-              placeholder="Material author"
-              value={materialAuthor}
-              onChange={(e) => setMaterialAuthor(e.target.value)}
-            />
+      {step === 3 && (
+        <>
+          <input
+            placeholder="Material title"
+            value={materialTitle}
+            onChange={(e) => setMaterialTitle(e.target.value)}
+          />
+          <input
+            placeholder="Material author"
+            value={materialAuthor}
+            onChange={(e) => setMaterialAuthor(e.target.value)}
+          />
+          <div className="editor-window-editor">
             <RichEditor value={materialContent} onChange={setMaterialContent} />
-            <button onClick={handleCreate}>Create Genre</button>
-          </>
-        )}
-      </div>
-    </div>
+          </div>
+          <button onClick={handleCreate}>Create Genre</button>
+        </>
+      )}
+    </AdminRichEditorModal>
   );
 }
 

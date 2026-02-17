@@ -425,9 +425,38 @@ a {
 
 .row-nav {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 0.6rem;
   padding: 0 clamp(1.5rem, 4vw, 6rem);
+}
+
+.row-scroll-hint {
+  margin: 0 auto 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+  animation: row-scroll-hint-nudge 1.8s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes row-scroll-hint-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.66;
+  }
+  50% {
+    transform: translateX(0.35rem);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row-scroll-hint {
+    animation: none;
+  }
 }
 
 .row-nav-btn {
@@ -714,6 +743,13 @@ a {
 
   .row-nav {
     padding: 0 1.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .row-scroll-hint {
+    width: 100%;
+    margin: 0;
   }
 
   /* Doc cards */
@@ -817,7 +853,7 @@ a {
 .home-root {
   background:
     radial-gradient(
-      1200px 800px at 6% 4%,
+      1200px 800px at 94% 4%,
       rgba(83, 148, 207, 0.42),
       rgba(83, 148, 207, 0.22) 45%,
       rgba(83, 148, 207, 0.08) 65%,
@@ -831,7 +867,7 @@ a {
       transparent 80%
     ),
     radial-gradient(
-      1400px 900px at 92% 94%,
+      1400px 900px at 8% 94%,
       rgba(220, 132, 101, 0.55),
       rgba(220, 132, 101, 0.32) 42%,
       rgba(220, 132, 101, 0.14) 68%,

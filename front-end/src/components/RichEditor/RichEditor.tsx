@@ -16,8 +16,13 @@ type Props = {
   onChange: (html: string) => void;
 };
 
+const normalizeHtml = (input: string | null | undefined): string => {
+  return (input || "").trim();
+};
+
 export default function RichEditor({ value, onChange }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const scrollHostRef = useRef<HTMLDivElement>(null);
   const [uploading, setUploading] = useState(false);
 
   const editor = useEditor({
@@ -35,31 +40,61 @@ export default function RichEditor({ value, onChange }: Props) {
         allowBase64: false,
       }),
     ],
+    editorProps: {
+      attributes: {
+        class: "rich-editor-prose",
+      },
+    },
     content: value || "",
     onUpdate({ editor }) {
       onChange(editor.getHTML());
     },
   });
 
-  // Keep editor in sync when switching items
   useEffect(() => {
     if (!editor) return;
 
-    if (editor.getHTML() !== (value || "")) {
+    const nextValue = normalizeHtml(value);
+    const currentValue = normalizeHtml(editor.getHTML());
+
+    if (currentValue !== nextValue) {
       editor.commands.setContent(value || "", { emitUpdate: false });
     }
   }, [value, editor]);
 
-  /**
-   * Upload image to S3 and insert into editor
-   */
+  useEffect(() => {
+    const host = scrollHostRef.current;
+    if (!host) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      const prose = host.querySelector(".rich-editor-prose") as HTMLElement | null;
+      if (!prose || event.deltaY === 0) return;
+
+      const maxScrollTop = prose.scrollHeight - prose.clientHeight;
+      if (maxScrollTop <= 0) return;
+
+      const previous = prose.scrollTop;
+      const next = Math.max(0, Math.min(maxScrollTop, previous + event.deltaY));
+
+      if (next !== previous) {
+        prose.scrollTop = next;
+        event.preventDefault();
+      }
+    };
+
+    host.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      host.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
+
   async function handleImageUpload(file: File) {
     if (!editor) return;
 
     try {
       setUploading(true);
 
-      // 1️⃣ Get presigned URL from backend
       const presignRes = await api.post("/admin/editor/upload-image", {
         filename: file.name,
         contentType: file.type || "image/jpeg",
@@ -67,7 +102,6 @@ export default function RichEditor({ value, onChange }: Props) {
 
       const { uploadUrl, fileUrl } = presignRes.data;
 
-      // 2️⃣ Upload to S3
       await fetch(uploadUrl, {
         method: "PUT",
         headers: {
@@ -76,16 +110,13 @@ export default function RichEditor({ value, onChange }: Props) {
         body: file,
       });
 
-      // 3️⃣ Save metadata to MongoDB
       await api.post("/admin/editor/images", {
         imageUrl: fileUrl,
         filename: file.name,
         contentType: file.type,
       });
 
-      // 4️⃣ Insert image into editor
       editor.chain().focus().setImage({ src: fileUrl }).run();
-
     } catch (err) {
       console.error("Image upload failed:", err);
       alert("Failed to upload image");
@@ -94,43 +125,43 @@ export default function RichEditor({ value, onChange }: Props) {
     }
   }
 
-  /**
-   * Trigger file input click
-   */
   function openFilePicker() {
     fileInputRef.current?.click();
   }
 
-  /**
-   * Handle file selection
-   */
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       alert("Please select an image file");
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       alert("Image must be smaller than 5MB");
       return;
     }
 
     handleImageUpload(file);
-
-    // Reset input
     e.target.value = "";
   }
 
   if (!editor) return null;
 
+  const headingValue = editor.isActive("heading", { level: 1 })
+    ? "1"
+    : editor.isActive("heading", { level: 2 })
+    ? "2"
+    : editor.isActive("heading", { level: 3 })
+    ? "3"
+    : "0";
+
+  const fontValue =
+    (editor.getAttributes("textStyle").fontFamily as string | undefined) || "";
+
   return (
     <div className="rich-editor">
-      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"
@@ -140,20 +171,20 @@ export default function RichEditor({ value, onChange }: Props) {
       />
 
       <div className="rich-toolbar">
-        {/* Paragraph / Headings */}
         <select
           className="toolbar-select"
+          value={headingValue}
           onChange={(e) => {
             const level = Number(e.target.value);
             if (level === 0) {
               editor.chain().focus().setParagraph().run();
-            } else {
-              editor
-                .chain()
-                .focus()
-                .toggleHeading({ level: level as 1 | 2 | 3 })
-                .run();
+              return;
             }
+            editor
+              .chain()
+              .focus()
+              .toggleHeading({ level: level as 1 | 2 | 3 })
+              .run();
           }}
         >
           <option value="0">Paragraph</option>
@@ -162,9 +193,9 @@ export default function RichEditor({ value, onChange }: Props) {
           <option value="3">Heading 3</option>
         </select>
 
-        {/* Font family */}
         <select
           className="toolbar-select"
+          value={fontValue}
           onChange={(e) =>
             editor.chain().focus().setFontFamily(e.target.value).run()
           }
@@ -176,17 +207,16 @@ export default function RichEditor({ value, onChange }: Props) {
           <option value="monospace">Monospace</option>
         </select>
 
-        {/* Text color */}
         <input
           type="color"
+          aria-label="Text color"
           onChange={(e) =>
             editor.chain().focus().setColor(e.target.value).run()
           }
-          title="Text Color"
         />
 
-        {/* Formatting */}
         <button
+          type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={editor.isActive("bold") ? "is-active" : ""}
           title="Bold"
@@ -194,6 +224,7 @@ export default function RichEditor({ value, onChange }: Props) {
           B
         </button>
         <button
+          type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={editor.isActive("italic") ? "is-active" : ""}
           title="Italic"
@@ -201,6 +232,7 @@ export default function RichEditor({ value, onChange }: Props) {
           I
         </button>
         <button
+          type="button"
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           className={editor.isActive("underline") ? "is-active" : ""}
           title="Underline"
@@ -208,6 +240,7 @@ export default function RichEditor({ value, onChange }: Props) {
           U
         </button>
         <button
+          type="button"
           onClick={() => editor.chain().focus().toggleHighlight().run()}
           className={editor.isActive("highlight") ? "is-active" : ""}
           title="Highlight"
@@ -215,18 +248,20 @@ export default function RichEditor({ value, onChange }: Props) {
           HL
         </button>
 
-        {/* Image upload button */}
         <button
+          type="button"
           onClick={openFilePicker}
           disabled={uploading}
           title="Insert Image"
           className="image-button"
         >
-          {uploading ? "⏳" : "🖼️"}
+          {uploading ? "..." : "IMG"}
         </button>
       </div>
 
-      <EditorContent editor={editor} />
+      <div className="rich-editor-scroll" ref={scrollHostRef}>
+        <EditorContent editor={editor} className="rich-editor-host" />
+      </div>
     </div>
   );
 }

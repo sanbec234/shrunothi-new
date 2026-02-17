@@ -1,0 +1,7 @@
+changes to make in the current webpage:
+1. scroll the entire page while scrolling article in admin (edit material) using keys to scroll instead. format header disappears when thats done
+2. change the announcements banner size in display frontend for both portrait and landscape pictures
+3. the background should be the mirror image the blue colour on the right side and the white on the left side
+5. small indication to users that more content is available on scroll in podcasts and materials
+6. add material in genre creation window is not in scale of view fix that css
+7. changing names of the username before login overlaps with the logo, fix that css

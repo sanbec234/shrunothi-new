@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import RichEditor from "../../../components/RichEditor/RichEditor";
+import AdminRichEditorModal from "../../../components/AdminRichEditorModal/AdminRichEditorModal";
 import type { SelfHelp } from "../admin.types";
 
 interface AddSelfHelpModalProps {
@@ -33,27 +34,22 @@ export function AddSelfHelpModal({ isOpen, onClose, onCreate }: AddSelfHelpModal
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal modal-editor" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-body">
-          <button className="modal-close" onClick={onClose}>
-            ✕
-          </button>
-          <input
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <input
-            placeholder="Author"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-          />
-          <RichEditor value={content} onChange={setContent} />
-          <button onClick={handleCreate}>Add Self-Help</button>
-        </div>
+    <AdminRichEditorModal isOpen={isOpen} onClose={onClose} title="Add Self-Help">
+      <input
+        placeholder="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <input
+        placeholder="Author"
+        value={author}
+        onChange={(e) => setAuthor(e.target.value)}
+      />
+      <div className="editor-window-editor">
+        <RichEditor value={content} onChange={setContent} />
       </div>
-    </div>
+      <button onClick={handleCreate}>Add Self-Help</button>
+    </AdminRichEditorModal>
   );
 }
 
@@ -101,36 +97,28 @@ export function EditSelfHelpModal({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal modal-editor" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-body">
-          <button className="modal-close" onClick={onClose}>
-            ✕
-          </button>
+    <AdminRichEditorModal isOpen={Boolean(selfHelp)} onClose={onClose} title="Edit Self-Help">
+      <input
+        placeholder="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
 
-          <h3>Edit Self-Help</h3>
+      <input
+        placeholder="Author"
+        value={author}
+        onChange={(e) => setAuthor(e.target.value)}
+      />
 
-          <input
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-
-          <input
-            placeholder="Author"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-          />
-
-          {loading ? (
-            <div>Loading content...</div>
-          ) : (
-            <RichEditor value={content} onChange={setContent} />
-          )}
-
-          <button onClick={handleSave}>Save</button>
-        </div>
+      <div className="editor-window-editor">
+        {loading ? (
+          <div>Loading content...</div>
+        ) : (
+          <RichEditor value={content} onChange={setContent} />
+        )}
       </div>
-    </div>
+
+      <button onClick={handleSave}>Save</button>
+    </AdminRichEditorModal>
   );
 }

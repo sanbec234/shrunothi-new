@@ -3,10 +3,16 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 type Props = {
   title: string;
   children: ReactNode;
+  showScrollHint?: boolean;
 };
 
-export default function HorizontalRow({ title, children }: Props) {
+export default function HorizontalRow({
+  title,
+  children,
+  showScrollHint = false,
+}: Props) {
   const rowRef = useRef<HTMLDivElement | null>(null);
+  const [hasOverflow, setHasOverflow] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
@@ -17,6 +23,7 @@ export default function HorizontalRow({ title, children }: Props) {
     const maxScrollLeft = row.scrollWidth - row.clientWidth;
     const hasOverflow = maxScrollLeft > 2;
 
+    setHasOverflow(hasOverflow);
     setCanScrollLeft(hasOverflow && row.scrollLeft > 2);
     setCanScrollRight(hasOverflow && row.scrollLeft < maxScrollLeft - 2);
   }, []);
@@ -57,6 +64,11 @@ export default function HorizontalRow({ title, children }: Props) {
       </div>
 
       <div className="row-nav">
+        {showScrollHint && hasOverflow && (
+          <p className="row-scroll-hint" aria-live="polite">
+            Scroll sideways for more
+          </p>
+        )}
         <button
           type="button"
           className="row-nav-btn"

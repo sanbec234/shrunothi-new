@@ -3,6 +3,7 @@ from db.client import get_db
 from db.models.self_help import create_self_help
 from bson import ObjectId
 from datetime import datetime
+from auth.auth_guard import require_admin
 
 bp = Blueprint("admin_self_help", __name__)
 
@@ -11,6 +12,7 @@ bp = Blueprint("admin_self_help", __name__)
 # POST /admin/self-help
 # -------------------------------
 @bp.route("/admin/self-help", methods=["POST"])
+@require_admin
 def add_self_help():
     data = request.get_json() or {}
 
@@ -32,6 +34,7 @@ def add_self_help():
 # PUT or PATCH /admin/self-help/<id>
 # -------------------------------
 @bp.route("/admin/self-help/<self_help_id>", methods=["PUT", "PATCH"])
+@require_admin
 def update_self_help(self_help_id):
     db = get_db()
 
@@ -68,6 +71,7 @@ def update_self_help(self_help_id):
 # DELETE /admin/self-help/<id>
 # -------------------------------
 @bp.route("/admin/self-help/<self_help_id>", methods=["DELETE", "OPTIONS"])
+@require_admin
 def delete_self_help(self_help_id):
     if request.method == "OPTIONS":
         return "", 200

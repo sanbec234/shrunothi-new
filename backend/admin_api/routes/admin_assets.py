@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify, current_app
 from ..db.models.assets import create_asset
+from auth.auth_guard import require_admin
 
 bp = Blueprint("admin_assets", __name__)
 
 
 @bp.route("/admin/assets", methods=["POST"])
+@require_admin
 def add_asset():
     data = request.get_json()
 
@@ -24,6 +26,7 @@ def add_asset():
 
 
 @bp.route("/admin/assets", methods=["GET"])
+@require_admin
 def list_assets():
     db = current_app.db
     assets = db.assets.find().sort("createdAt", -1)

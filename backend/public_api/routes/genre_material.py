@@ -1,10 +1,12 @@
 from flask import Blueprint, jsonify
 from db.client import get_db
 from bson import ObjectId
+from extensions import limiter
 
 bp = Blueprint("public_genre_material", __name__)
 
 @bp.route("/genres/<genre_id>/material", methods=["GET"])
+@limiter.limit("500 per minute")
 def genre_material(genre_id):
     db = get_db()
 

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from bson import ObjectId
 from datetime import datetime
+from auth.auth_guard import require_admin
 
 bp = Blueprint("admin_editor_images", __name__)
 
@@ -17,6 +18,7 @@ def serialize_editor_image(img):
 
 
 @bp.route("/admin/editor/images", methods=["GET"])
+@require_admin
 def list_editor_images():
     """Get all uploaded editor images"""
     docs = current_app.db.editor_images.find().sort("uploadedAt", -1)
@@ -24,6 +26,7 @@ def list_editor_images():
 
 
 @bp.route("/admin/editor/images", methods=["POST"])
+@require_admin
 def save_editor_image():
     """Save editor image metadata after S3 upload"""
     data = request.json
@@ -45,6 +48,7 @@ def save_editor_image():
 
 
 @bp.route("/admin/editor/images/<id>", methods=["DELETE"])
+@require_admin
 def delete_editor_image(id):
     """Delete editor image record"""
     try:

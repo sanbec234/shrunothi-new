@@ -49,9 +49,7 @@ const getAccent = (genreId: string) => {
 const loggedOutGreetings = [
   "Howdy, curious mind!",
   "Hey there, explorer!",
-  "Welcome, knowledge seeker!",
-  "Hi, ready to dive in?",
-  "Hello, future achiever!",
+  "Hi, ready to learn?",
 ];
 
 export default function Home(): JSX.Element {
@@ -74,9 +72,6 @@ export default function Home(): JSX.Element {
   const isLoggedIn = Boolean(authUser);
 
   const { announcements, shouldShow, loading, onClose } = useDailyAnnouncements();
-
-  const [featuredIndex, setFeaturedIndex] = useState(0);
-  const featuredGenre = genres[featuredIndex] || null;
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
@@ -116,16 +111,6 @@ export default function Home(): JSX.Element {
       mounted = false;
     };
   }, []);
-
-  useEffect(() => {
-    if (genres.length === 0) return;
-
-    const interval = setInterval(() => {
-      setFeaturedIndex((prev) => (prev + 1) % genres.length);
-    }, 2800); // timing feels calm & premium
-
-    return () => clearInterval(interval);
-  }, [genres]);
 
   /* =========================
      Load podcasts
@@ -261,7 +246,6 @@ export default function Home(): JSX.Element {
     }
   }, [isLoggedIn, showUserMenu]);
 
-  const activeAccent = selectedGenre ? getAccent(selectedGenre.id) : "#2f7d79";
   const displayName = authUser?.name || user?.name;
   const pillLabel = displayName
     ? `Howdy, ${displayName}!`
@@ -335,26 +319,6 @@ export default function Home(): JSX.Element {
               <span>Audio + Reading</span>
             </div>
           </div>
-
-          <div className="hero__panel">
-            <div className="glass">
-              <div className="glass__label">Now featuring Genres</div>
-                <div className="glass__title animated-fade" key={featuredGenre?.id}>
-                  {featuredGenre?.name}
-                </div>
-
-                <p className="" key={`${featuredGenre?.id}-desc`}>
-                  {featuredGenre
-                    ? `Curated podcasts and reading for ${featuredGenre.name}.`
-                    : "Curated audio and reading across genres."}
-                </p>
-              <div className="glass__accent">
-                <div className="pulse" style={{ background: activeAccent }}></div>
-                <span>Genre pulse</span>
-              </div>
-            </div>
-            <div className="hero__gradient"></div>
-          </div>
         </section>
 
         <section className="section">
@@ -416,6 +380,7 @@ export default function Home(): JSX.Element {
 
             <HorizontalRow
               title={`Podcasts${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
+              showScrollHint
             >
               {!selectedGenre ? (
                 <div className="row-empty">Click a genre to view podcasts</div>
@@ -451,6 +416,7 @@ export default function Home(): JSX.Element {
 
             <HorizontalRow
               title={`Material${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
+              showScrollHint
             >
               {materialDocs.length === 0 ? (
                 <div className="row-empty">No material found</div>

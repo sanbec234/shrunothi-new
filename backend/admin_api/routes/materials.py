@@ -3,6 +3,7 @@ from db.client import get_db
 from db.models.material import create_material
 from bson import ObjectId
 from datetime import datetime
+from auth.auth_guard import require_admin
 
 bp = Blueprint("admin_materials", __name__)
 
@@ -11,6 +12,7 @@ bp = Blueprint("admin_materials", __name__)
 # POST /admin/materials
 # -------------------------------
 @bp.route("/admin/materials", methods=["POST"])
+@require_admin
 def add_material():
     data = request.get_json() or {}
 
@@ -32,6 +34,7 @@ def add_material():
 # PUT or PATCH /admin/materials/<id>
 # -------------------------------
 @bp.route("/admin/materials/<material_id>", methods=["PUT", "PATCH"])
+@require_admin
 def update_material(material_id):
     db = get_db()
 
@@ -78,6 +81,7 @@ def update_material(material_id):
 # DELETE /admin/materials/<id>
 # -------------------------------
 @bp.route("/admin/materials/<material_id>", methods=["DELETE", "OPTIONS"])
+@require_admin
 def delete_material(material_id):
     if request.method == "OPTIONS":
         return "", 200

@@ -3,6 +3,7 @@ import boto3
 import os
 import uuid
 from dotenv import load_dotenv
+from auth.auth_guard import require_admin
 
 load_dotenv()
 
@@ -22,6 +23,7 @@ s3 = boto3.client(
 )
 
 @bp.route("/admin/editor/upload-image", methods=["POST", "OPTIONS"])
+@require_admin
 def presign_editor_image():
     """Generate presigned URL for TipTap editor image uploads"""
     if request.method == "OPTIONS":

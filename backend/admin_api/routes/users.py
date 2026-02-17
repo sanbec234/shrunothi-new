@@ -1,9 +1,10 @@
 from flask import Blueprint, jsonify
 from db.client import get_db
-
+from auth.auth_guard import require_admin
 bp = Blueprint("admin_users", __name__)
 
 @bp.route("/admin/users", methods=["GET"])
+@require_admin
 def list_users():
     db = get_db()
 

@@ -48,11 +48,6 @@ export default function AnnouncementCarousel({ announcements, onClose }: Props) 
           ✕
         </button>
 
-        {/* Title */}
-        {currentAnnouncement.title && (
-          <h3 className="carousel-title">{currentAnnouncement.title}</h3>
-        )}
-
         {/* Image */}
         <div className="carousel-image-container">
           <img

@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify
 from db.client import get_db
+from extensions import limiter
 
 bp = Blueprint("public_genre_podcasts", __name__)
 
@@ -14,6 +15,7 @@ def to_embed_url(spotify_url: str) -> str:
     return spotify_url.replace("open.spotify.com/", "open.spotify.com/embed/")
 
 @bp.route("/genres/<genre_id>/podcasts", methods=["GET"])
+@limiter.limit("500 per minute")
 def genre_podcasts(genre_id):
     db = get_db()
 

@@ -3,6 +3,7 @@ import boto3
 import os
 import uuid
 from dotenv import load_dotenv
+from auth.auth_guard import require_admin
 
 # 🔑 Load .env ONLY for local development
 load_dotenv()
@@ -23,6 +24,7 @@ s3 = boto3.client(
 )
 
 @bp.route("/admin/uploads/presign", methods=["POST", "OPTIONS"])
+@require_admin
 def presign_upload():
     # 🟡 Handle CORS preflight explicitly (important)
     if request.method == "OPTIONS":
@@ -64,5 +66,3 @@ def presign_upload():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-        

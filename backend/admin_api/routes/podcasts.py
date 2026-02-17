@@ -3,6 +3,7 @@ from db.client import get_db
 from db.models.podcast import create_podcast
 from bson import ObjectId
 from datetime import datetime
+from auth.auth_guard import require_admin
 
 bp = Blueprint("admin_podcasts", __name__)
 
@@ -11,6 +12,7 @@ bp = Blueprint("admin_podcasts", __name__)
 # POST /admin/podcasts
 # -------------------------------
 @bp.route("/admin/podcasts", methods=["POST"])
+@require_admin
 def add_podcast():
     data = request.get_json() or {}
 
@@ -32,6 +34,7 @@ def add_podcast():
 # PUT or PATCH /admin/podcasts/<id>
 # -------------------------------
 @bp.route("/admin/podcasts/<podcast_id>", methods=["PUT", "PATCH"])
+@require_admin
 def update_podcast(podcast_id):
     db = get_db()
 
@@ -81,6 +84,7 @@ def update_podcast(podcast_id):
 # DELETE /admin/podcasts/<id>
 # -------------------------------
 @bp.route("/admin/podcasts/<podcast_id>", methods=["DELETE", "OPTIONS"])
+@require_admin
 def delete_podcast(podcast_id):
     if request.method == "OPTIONS":
         return "", 200

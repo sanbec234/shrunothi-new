@@ -4,12 +4,13 @@ from google.auth.transport import requests
 from db.client import get_db
 import os
 from datetime import datetime
-
+from extensions import limiter   
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 
 @auth_bp.route("/google", methods=["POST"])
+@limiter.limit("500 per minute")
 def google_auth():
     data = request.get_json() or {}
     token = data.get("token")

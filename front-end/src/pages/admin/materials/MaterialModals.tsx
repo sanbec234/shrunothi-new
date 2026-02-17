@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import RichEditor from "../../../components/RichEditor/RichEditor";
+import AdminRichEditorModal from "../../../components/AdminRichEditorModal/AdminRichEditorModal";
 import type { Genre, Material } from "../admin.types";
 import "./materials.css";
 
@@ -42,35 +43,30 @@ export function AddMaterialModal({ isOpen, genres, onClose, onCreate }: AddMater
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal modal-editor" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-body">
-          <button className="modal-close" onClick={onClose}>
-            ✕
-          </button>
-          <input
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <input
-            placeholder="Author"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-          />
-          <RichEditor value={content} onChange={setContent} />
-          <select value={genreId} onChange={(e) => setGenreId(e.target.value)}>
-            <option value="">Select genre</option>
-            {genres.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.name}
-              </option>
-            ))}
-          </select>
-          <button onClick={handleCreate}>Add Material</button>
-        </div>
+    <AdminRichEditorModal isOpen={isOpen} onClose={onClose} title="Add Material">
+      <input
+        placeholder="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <input
+        placeholder="Author"
+        value={author}
+        onChange={(e) => setAuthor(e.target.value)}
+      />
+      <div className="editor-window-editor">
+        <RichEditor value={content} onChange={setContent} />
       </div>
-    </div>
+      <select value={genreId} onChange={(e) => setGenreId(e.target.value)}>
+        <option value="">Select genre</option>
+        {genres.map((g) => (
+          <option key={g.id} value={g.id}>
+            {g.name}
+          </option>
+        ))}
+      </select>
+      <button onClick={handleCreate}>Add Material</button>
+    </AdminRichEditorModal>
   );
 }
 
@@ -130,47 +126,39 @@ export function EditMaterialModal({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal modal-editor" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-body">
-          <button className="modal-close" onClick={onClose}>
-            ✕
-          </button>
+    <AdminRichEditorModal isOpen={Boolean(material)} onClose={onClose} title="Edit Material">
+      {successMessage && <div className="success-banner">{successMessage}</div>}
 
-          {successMessage && <div className="success-banner">{successMessage}</div>}
+      <input
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Title"
+      />
 
-          <h3>Edit Material</h3>
+      <input
+        value={author}
+        onChange={(e) => setAuthor(e.target.value)}
+        placeholder="Author"
+      />
 
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title"
-          />
-
-          <input
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            placeholder="Author"
-          />
-
-          {loading ? (
-            <div>Loading content...</div>
-          ) : (
-            <RichEditor value={content} onChange={setContent} />
-          )}
-
-          <select value={genreId} onChange={(e) => setGenreId(e.target.value)}>
-            <option value="">Select genre</option>
-            {genres.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.name}
-              </option>
-            ))}
-          </select>
-
-          <button onClick={handleSave}>Save</button>
-        </div>
+      <div className="editor-window-editor">
+        {loading ? (
+          <div>Loading content...</div>
+        ) : (
+          <RichEditor value={content} onChange={setContent} />
+        )}
       </div>
-    </div>
+
+      <select value={genreId} onChange={(e) => setGenreId(e.target.value)}>
+        <option value="">Select genre</option>
+        {genres.map((g) => (
+          <option key={g.id} value={g.id}>
+            {g.name}
+          </option>
+        ))}
+      </select>
+
+      <button onClick={handleSave}>Save</button>
+    </AdminRichEditorModal>
   );
 }
