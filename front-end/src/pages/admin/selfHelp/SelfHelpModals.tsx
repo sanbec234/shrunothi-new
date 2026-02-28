@@ -53,6 +53,78 @@ export function AddSelfHelpModal({ isOpen, onClose, onCreate }: AddSelfHelpModal
   );
 }
 
+interface AddGoogleDocSelfHelpModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSync: (data: { title: string; author: string; google_doc_url: string }) => Promise<void>;
+}
+
+export function AddGoogleDocSelfHelpModal({
+  isOpen,
+  onClose,
+  onSync,
+}: AddGoogleDocSelfHelpModalProps) {
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [googleDocUrl, setGoogleDocUrl] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const reset = () => {
+    setTitle("");
+    setAuthor("");
+    setGoogleDocUrl("");
+    setIsSubmitting(false);
+  };
+
+  const handleSync = async () => {
+    if (!title.trim() || !author.trim() || !googleDocUrl.trim()) {
+      alert("Title, author, and Google Doc URL are required");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await onSync({
+        title: title.trim(),
+        author: author.trim(),
+        google_doc_url: googleDocUrl.trim(),
+      });
+      reset();
+      onClose();
+    } catch (err: any) {
+      const apiError = err?.response?.data?.error;
+      const apiDetails = err?.response?.data?.details;
+      alert(apiDetails ? `${apiError}: ${apiDetails}` : (apiError || "Failed to sync Google Doc"));
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <AdminRichEditorModal isOpen={isOpen} onClose={onClose} title="Sync Self-Help from Google Doc">
+      <input
+        placeholder="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <input
+        placeholder="Author"
+        value={author}
+        onChange={(e) => setAuthor(e.target.value)}
+      />
+      <input
+        placeholder="Google Doc URL"
+        value={googleDocUrl}
+        onChange={(e) => setGoogleDocUrl(e.target.value)}
+      />
+      <button onClick={handleSync} disabled={isSubmitting}>
+        {isSubmitting ? "Syncing..." : "Sync Document"}
+      </button>
+    </AdminRichEditorModal>
+  );
+}
+
 interface EditSelfHelpModalProps {
   selfHelp: SelfHelp | null;
   onClose: () => void;

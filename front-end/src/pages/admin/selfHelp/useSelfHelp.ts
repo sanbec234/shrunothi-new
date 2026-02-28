@@ -27,6 +27,15 @@ export function useSelfHelp() {
     await loadSelfHelp();
   }
 
+  async function syncGoogleDocSelfHelp(data: {
+    title: string;
+    author: string;
+    google_doc_url: string;
+  }) {
+    await api.post("/admin/self-help/sync-google-doc", data);
+    await loadSelfHelp();
+  }
+
   async function updateSelfHelp(
     id: string,
     data: { title: string; author: string; content: string }
@@ -49,6 +58,7 @@ export function useSelfHelp() {
     selfHelps,
     loadSelfHelp,
     createSelfHelp,
+    syncGoogleDocSelfHelp,
     updateSelfHelp,
     deleteSelfHelp,
     fetchSelfHelpContent,

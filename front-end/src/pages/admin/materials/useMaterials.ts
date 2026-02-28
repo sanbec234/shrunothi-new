@@ -28,6 +28,16 @@ export function useMaterials() {
     await loadMaterials();
   }
 
+  async function syncGoogleDocMaterial(data: {
+    title: string;
+    author: string;
+    google_doc_url: string;
+    genreId: string;
+  }) {
+    await api.post("/admin/materials/sync-google-doc", data);
+    await loadMaterials();
+  }
+
   async function updateMaterial(
     id: string,
     data: { title: string; author: string; content: string; genreId: string }
@@ -52,6 +62,7 @@ export function useMaterials() {
     materials,
     loadMaterials,
     createMaterial,
+    syncGoogleDocMaterial,
     updateMaterial,
     deleteMaterial,
     fetchMaterialContent,

@@ -5,6 +5,7 @@ interface SelfHelpSectionProps {
   isOpen: boolean;
   onToggle: () => void;
   onAddClick: () => void;
+  onAddGoogleDocClick: () => void;
   onEditClick: (selfHelp: SelfHelp) => void;
   onDeleteClick: (id: string) => void;
 }
@@ -14,6 +15,7 @@ export default function SelfHelpSection({
   isOpen,
   onToggle,
   onAddClick,
+  onAddGoogleDocClick,
   onEditClick,
   onDeleteClick,
 }: SelfHelpSectionProps) {
@@ -25,7 +27,12 @@ export default function SelfHelpSection({
 
       {isOpen && (
         <>
-          <button onClick={onAddClick}>+ Add Self-Help</button>
+          <div className="section-controls">
+            <button onClick={onAddClick}>+ Add Self-Help</button>
+            <button className="secondary" onClick={onAddGoogleDocClick}>
+              + Sync Google Doc
+            </button>
+          </div>
           <div className="section-body">
             <table>
               <thead>
@@ -42,7 +49,13 @@ export default function SelfHelpSection({
                     <td data-label="author">{s.author}</td>
                     <td data-label="actions">
                       <div className="action-group">
-                        <button onClick={() => onEditClick(s)}>Edit</button>
+                        <button
+                          onClick={() => onEditClick(s)}
+                          disabled={s.source === "google_docs"}
+                          title={s.source === "google_docs" ? "Edit disabled for Google-synced self-help" : undefined}
+                        >
+                          Edit
+                        </button>
                         <button className="danger" onClick={() => onDeleteClick(s.id)}>
                           Delete
                         </button>

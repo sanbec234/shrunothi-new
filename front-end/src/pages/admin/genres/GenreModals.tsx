@@ -11,6 +11,7 @@ interface AddGenreModalProps {
     genreName: string;
     podcast?: { title: string; spotifyUrl: string };
     material?: { title: string; author: string; content: string };
+    materialGoogleDoc?: { title: string; author: string; google_doc_url: string };
   }) => Promise<void>;
 }
 
@@ -22,6 +23,8 @@ export function AddGenreModal({ isOpen, onClose, onCreate }: AddGenreModalProps)
   const [materialTitle, setMaterialTitle] = useState("");
   const [materialAuthor, setMaterialAuthor] = useState("");
   const [materialContent, setMaterialContent] = useState("");
+  const [materialGoogleDocUrl, setMaterialGoogleDocUrl] = useState("");
+  const [materialInputMode, setMaterialInputMode] = useState<"rich_text" | "google_docs">("rich_text");
 
   const reset = () => {
     setStep(1);
@@ -31,16 +34,31 @@ export function AddGenreModal({ isOpen, onClose, onCreate }: AddGenreModalProps)
     setMaterialTitle("");
     setMaterialAuthor("");
     setMaterialContent("");
+    setMaterialGoogleDocUrl("");
+    setMaterialInputMode("rich_text");
   };
 
   const handleCreate = async () => {
+    const hasRichTextMaterial =
+      materialInputMode === "rich_text" &&
+      materialTitle &&
+      materialAuthor &&
+      materialContent;
+    const hasGoogleDocMaterial =
+      materialInputMode === "google_docs" &&
+      materialTitle &&
+      materialAuthor &&
+      materialGoogleDocUrl;
+
     await onCreate({
       genreName,
       podcast: podcastTitle && spotifyUrl ? { title: podcastTitle, spotifyUrl } : undefined,
-      material:
-        materialTitle && materialAuthor && materialContent
-          ? { title: materialTitle, author: materialAuthor, content: materialContent }
-          : undefined,
+      material: hasRichTextMaterial
+        ? { title: materialTitle, author: materialAuthor, content: materialContent }
+        : undefined,
+      materialGoogleDoc: hasGoogleDocMaterial
+        ? { title: materialTitle, author: materialAuthor, google_doc_url: materialGoogleDocUrl }
+        : undefined,
     });
     reset();
   };
@@ -87,6 +105,22 @@ export function AddGenreModal({ isOpen, onClose, onCreate }: AddGenreModalProps)
 
       {step === 3 && (
         <>
+          <div className="section-controls">
+            <button
+              type="button"
+              className={materialInputMode === "rich_text" ? "" : "secondary"}
+              onClick={() => setMaterialInputMode("rich_text")}
+            >
+              Rich Editor
+            </button>
+            <button
+              type="button"
+              className={materialInputMode === "google_docs" ? "" : "secondary"}
+              onClick={() => setMaterialInputMode("google_docs")}
+            >
+              Google Doc Sync
+            </button>
+          </div>
           <input
             placeholder="Material title"
             value={materialTitle}
@@ -97,9 +131,18 @@ export function AddGenreModal({ isOpen, onClose, onCreate }: AddGenreModalProps)
             value={materialAuthor}
             onChange={(e) => setMaterialAuthor(e.target.value)}
           />
-          <div className="editor-window-editor">
-            <RichEditor value={materialContent} onChange={setMaterialContent} />
-          </div>
+
+          {materialInputMode === "rich_text" ? (
+            <div className="editor-window-editor">
+              <RichEditor value={materialContent} onChange={setMaterialContent} />
+            </div>
+          ) : (
+            <input
+              placeholder="Google Doc URL"
+              value={materialGoogleDocUrl}
+              onChange={(e) => setMaterialGoogleDocUrl(e.target.value)}
+            />
+          )}
           <button onClick={handleCreate}>Create Genre</button>
         </>
       )}

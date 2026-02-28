@@ -70,6 +70,86 @@ export function AddMaterialModal({ isOpen, genres, onClose, onCreate }: AddMater
   );
 }
 
+interface AddGoogleDocModalProps {
+  isOpen: boolean;
+  genres: Genre[];
+  onClose: () => void;
+  onSync: (data: { title: string; author: string; google_doc_url: string; genreId: string }) => Promise<void>;
+}
+
+export function AddGoogleDocModal({ isOpen, genres, onClose, onSync }: AddGoogleDocModalProps) {
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [googleDocUrl, setGoogleDocUrl] = useState("");
+  const [genreId, setGenreId] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const reset = () => {
+    setTitle("");
+    setAuthor("");
+    setGoogleDocUrl("");
+    setGenreId("");
+    setIsSubmitting(false);
+  };
+
+  const handleSync = async () => {
+    if (!title.trim() || !author.trim() || !googleDocUrl.trim() || !genreId) {
+      alert("Title, author, Google Doc URL, and genre are required");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await onSync({
+        title: title.trim(),
+        author: author.trim(),
+        google_doc_url: googleDocUrl.trim(),
+        genreId,
+      });
+      reset();
+      onClose();
+    } catch (err: any) {
+      const apiError = err?.response?.data?.error;
+      const apiDetails = err?.response?.data?.details;
+      alert(apiDetails ? `${apiError}: ${apiDetails}` : (apiError || "Failed to sync Google Doc"));
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <AdminRichEditorModal isOpen={isOpen} onClose={onClose} title="Sync Google Doc">
+      <input
+        placeholder="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <input
+        placeholder="Author"
+        value={author}
+        onChange={(e) => setAuthor(e.target.value)}
+      />
+      <input
+        placeholder="Google Doc URL"
+        value={googleDocUrl}
+        onChange={(e) => setGoogleDocUrl(e.target.value)}
+      />
+      <select value={genreId} onChange={(e) => setGenreId(e.target.value)}>
+        <option value="">Select genre</option>
+        {genres.map((g) => (
+          <option key={g.id} value={g.id}>
+            {g.name}
+          </option>
+        ))}
+      </select>
+      <button onClick={handleSync} disabled={isSubmitting}>
+        {isSubmitting ? "Syncing..." : "Sync Document"}
+      </button>
+    </AdminRichEditorModal>
+  );
+}
+
 interface EditMaterialModalProps {
   material: Material | null;
   genres: Genre[];
@@ -109,9 +189,9 @@ export function EditMaterialModal({
     useEffect(() => {
         if (!material) return;
 
-        setTitle(material.title);
-        setAuthor(material.author);
-        setGenreId(material.genreId);
+        setTitle(material.title || "");
+        setAuthor(material.author || "");
+        setGenreId(material.genreId || "");
         }, [material]);
     if (!material) return null;
 

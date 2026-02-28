@@ -23,8 +23,16 @@ import AdminAnnouncements from "./announcements/AdminAnnouncements";
 // Modals
 import { AddGenreModal, EditGenreModal } from "./genres/GenreModals";
 import { AddPodcastModal, EditPodcastModal } from "./podcasts/PodcastModals";
-import { AddMaterialModal, EditMaterialModal } from "./materials/MaterialModals";
-import { AddSelfHelpModal, EditSelfHelpModal } from "./selfHelp/SelfHelpModals";
+import {
+  AddMaterialModal,
+  AddGoogleDocModal,
+  EditMaterialModal,
+} from "./materials/MaterialModals";
+import {
+  AddSelfHelpModal,
+  AddGoogleDocSelfHelpModal,
+  EditSelfHelpModal,
+} from "./selfHelp/SelfHelpModals";
 
 // Types
 import type { Genre, Podcast, Material, SelfHelp } from "./admin.types";
@@ -62,10 +70,12 @@ export default function AdminDashboard() {
 
   // Material modals
   const [showAddMaterial, setShowAddMaterial] = useState(false);
+  const [showAddGoogleDoc, setShowAddGoogleDoc] = useState(false);
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
 
   // Self-help modals
   const [showAddSelfHelp, setShowAddSelfHelp] = useState(false);
+  const [showAddSelfHelpGoogleDoc, setShowAddSelfHelpGoogleDoc] = useState(false);
   const [editingSelfHelp, setEditingSelfHelp] = useState<SelfHelp | null>(null);
 
   // Check if any modal is open
@@ -73,7 +83,9 @@ export default function AdminDashboard() {
     showAddGenre ||
     showAddPodcast ||
     showAddMaterial ||
+    showAddGoogleDoc ||
     showAddSelfHelp ||
+    showAddSelfHelpGoogleDoc ||
     !!editingGenre ||
     !!editingPodcast ||
     !!editingMaterial ||
@@ -87,7 +99,9 @@ export default function AdminDashboard() {
     setShowAddGenre(false);
     setShowAddPodcast(false);
     setShowAddMaterial(false);
+    setShowAddGoogleDoc(false);
     setShowAddSelfHelp(false);
+    setShowAddSelfHelpGoogleDoc(false);
     setEditingGenre(null);
     setEditingPodcast(null);
     setEditingMaterial(null);
@@ -99,6 +113,7 @@ export default function AdminDashboard() {
     genreName: string;
     podcast?: { title: string; spotifyUrl: string };
     material?: { title: string; author: string; content: string };
+    materialGoogleDoc?: { title: string; author: string; google_doc_url: string };
   }) => {
     const genreId = await genresHook.createGenre(data.genreName);
 
@@ -108,6 +123,9 @@ export default function AdminDashboard() {
 
     if (data.material) {
       await materialsHook.createMaterial({ ...data.material, genreId });
+    }
+    if (data.materialGoogleDoc) {
+      await materialsHook.syncGoogleDocMaterial({ ...data.materialGoogleDoc, genreId });
     }
 
     setShowAddGenre(false);
@@ -139,6 +157,17 @@ export default function AdminDashboard() {
     await materialsHook.deleteMaterial(id);
   };
 
+  const handleSyncGoogleDoc = async (data: {
+    title: string;
+    author: string;
+    google_doc_url: string;
+    genreId: string;
+  }) => {
+    await materialsHook.syncGoogleDocMaterial(data);
+    setShowAddGoogleDoc(false);
+    setMaterialGenreFilter("all");
+  };
+
   // Self-help handlers
   const handleEditSelfHelp = async (selfHelp: SelfHelp) => {
     setEditingSelfHelp(selfHelp);
@@ -147,6 +176,15 @@ export default function AdminDashboard() {
   const handleDeleteSelfHelp = async (id: string) => {
     if (!confirm("Delete this self-help guide?")) return;
     await selfHelpHook.deleteSelfHelp(id);
+  };
+
+  const handleSyncSelfHelpGoogleDoc = async (data: {
+    title: string;
+    author: string;
+    google_doc_url: string;
+  }) => {
+    await selfHelpHook.syncGoogleDocSelfHelp(data);
+    setShowAddSelfHelpGoogleDoc(false);
   };
 
   return (
@@ -201,6 +239,7 @@ export default function AdminDashboard() {
         onToggle={() => setMaterialsOpen(!materialsOpen)}
         onFilterChange={setMaterialGenreFilter}
         onAddClick={() => setShowAddMaterial(true)}
+        onAddGoogleDocClick={() => setShowAddGoogleDoc(true)}
         onEditClick={handleEditMaterial}
         onDeleteClick={handleDeleteMaterial}
       />
@@ -211,6 +250,7 @@ export default function AdminDashboard() {
         isOpen={selfHelpOpen}
         onToggle={() => setSelfHelpOpen(!selfHelpOpen)}
         onAddClick={() => setShowAddSelfHelp(true)}
+        onAddGoogleDocClick={() => setShowAddSelfHelpGoogleDoc(true)}
         onEditClick={handleEditSelfHelp}
         onDeleteClick={handleDeleteSelfHelp}
       />
@@ -265,6 +305,12 @@ export default function AdminDashboard() {
         onClose={() => setShowAddMaterial(false)}
         onCreate={materialsHook.createMaterial}
       />
+      <AddGoogleDocModal
+        isOpen={showAddGoogleDoc}
+        genres={genresHook.genres}
+        onClose={() => setShowAddGoogleDoc(false)}
+        onSync={handleSyncGoogleDoc}
+      />
       <EditMaterialModal
         material={editingMaterial}
         genres={genresHook.genres}
@@ -278,6 +324,11 @@ export default function AdminDashboard() {
         isOpen={showAddSelfHelp}
         onClose={() => setShowAddSelfHelp(false)}
         onCreate={selfHelpHook.createSelfHelp}
+      />
+      <AddGoogleDocSelfHelpModal
+        isOpen={showAddSelfHelpGoogleDoc}
+        onClose={() => setShowAddSelfHelpGoogleDoc(false)}
+        onSync={handleSyncSelfHelpGoogleDoc}
       />
       <EditSelfHelpModal
         selfHelp={editingSelfHelp}
