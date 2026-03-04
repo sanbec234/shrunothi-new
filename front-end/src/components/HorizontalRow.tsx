@@ -4,12 +4,14 @@ type Props = {
   title: string;
   children: ReactNode;
   showScrollHint?: boolean;
+  titleRight?: ReactNode;
 };
 
 export default function HorizontalRow({
   title,
   children,
   showScrollHint = false,
+  titleRight,
 }: Props) {
   const rowRef = useRef<HTMLDivElement | null>(null);
   const [hasOverflow, setHasOverflow] = useState(false);
@@ -57,7 +59,10 @@ export default function HorizontalRow({
 
   return (
     <section className="row-section">
-      <h2 className="row-title">{title}</h2>
+      <div className="row-head">
+        <h2 className="row-title">{title}</h2>
+        {titleRight ? <div className="row-title-right">{titleRight}</div> : null}
+      </div>
 
       <div ref={rowRef} className="row-scroll" role="region" aria-label={title}>
         {children}
@@ -66,7 +71,7 @@ export default function HorizontalRow({
       <div className="row-nav">
         {showScrollHint && hasOverflow && (
           <p className="row-scroll-hint" aria-live="polite">
-            Scroll sideways for more
+            Scroll sideways for more →
           </p>
         )}
         <button

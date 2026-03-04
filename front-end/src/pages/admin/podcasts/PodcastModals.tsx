@@ -1,32 +1,43 @@
 import { useState, useEffect } from "react";
 import type { Genre, Podcast } from "../admin.types";
+import {
+  DEFAULT_PODCAST_LANGUAGE,
+  INDIAN_PODCAST_LANGUAGES,
+} from "../../../constants/podcastLanguages";
 import "./podcasts.css";
 
 interface AddPodcastModalProps {
   isOpen: boolean;
   genres: Genre[];
   onClose: () => void;
-  onCreate: (data: { title: string; spotifyUrl: string; genreId: string }) => Promise<void>;
+  onCreate: (data: {
+    title: string;
+    spotifyUrl: string;
+    genreId: string;
+    language: string;
+  }) => Promise<void>;
 }
 
 export function AddPodcastModal({ isOpen, genres, onClose, onCreate }: AddPodcastModalProps) {
   const [title, setTitle] = useState("");
   const [spotifyUrl, setSpotifyUrl] = useState("");
   const [genreId, setGenreId] = useState("");
+  const [language, setLanguage] = useState(DEFAULT_PODCAST_LANGUAGE);
 
   const reset = () => {
     setTitle("");
     setSpotifyUrl("");
     setGenreId("");
+    setLanguage(DEFAULT_PODCAST_LANGUAGE);
   };
 
   const handleCreate = async () => {
-    if (!title || !spotifyUrl || !genreId) {
+    if (!title || !spotifyUrl || !genreId || !language) {
       alert("All fields required");
       return;
     }
 
-    await onCreate({ title, spotifyUrl, genreId });
+    await onCreate({ title, spotifyUrl, genreId, language });
     reset();
     onClose();
   };
@@ -57,6 +68,13 @@ export function AddPodcastModal({ isOpen, genres, onClose, onCreate }: AddPodcas
             </option>
           ))}
         </select>
+        <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+          {INDIAN_PODCAST_LANGUAGES.map((lang) => (
+            <option key={lang} value={lang}>
+              {lang}
+            </option>
+          ))}
+        </select>
         <button onClick={handleCreate}>Add Podcast</button>
       </div>
     </div>
@@ -69,7 +87,7 @@ interface EditPodcastModalProps {
   onClose: () => void;
   onSave: (
     id: string,
-    data: { title: string; spotifyUrl: string; genreId: string }
+    data: { title: string; spotifyUrl: string; genreId: string; language: string }
   ) => Promise<void>;
 }
 
@@ -77,6 +95,9 @@ export function EditPodcastModal({ podcast, genres, onClose, onSave }: EditPodca
   const [title, setTitle] = useState(podcast?.title || "");
   const [spotifyUrl, setSpotifyUrl] = useState(podcast?.spotifyUrl || "");
   const [genreId, setGenreId] = useState(podcast?.genreId || "");
+  const [language, setLanguage] = useState(
+    podcast?.language || DEFAULT_PODCAST_LANGUAGE
+  );
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
@@ -85,12 +106,13 @@ export function EditPodcastModal({ podcast, genres, onClose, onSave }: EditPodca
         setTitle(podcast.title);
         setSpotifyUrl(podcast.spotifyUrl);
         setGenreId(podcast.genreId);
+        setLanguage(podcast.language || DEFAULT_PODCAST_LANGUAGE);
       }, [podcast]);
 
   if (!podcast) return null;
       
   const handleSave = async () => {
-    await onSave(podcast.id, { title, spotifyUrl, genreId });
+    await onSave(podcast.id, { title, spotifyUrl, genreId, language });
     setSuccessMessage("Podcast updated successfully");
 
     setTimeout(() => {
@@ -127,6 +149,14 @@ export function EditPodcastModal({ podcast, genres, onClose, onSave }: EditPodca
           {genres.map((g) => (
             <option key={g.id} value={g.id}>
               {g.name}
+            </option>
+          ))}
+        </select>
+
+        <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+          {INDIAN_PODCAST_LANGUAGES.map((lang) => (
+            <option key={lang} value={lang}>
+              {lang}
             </option>
           ))}
         </select>

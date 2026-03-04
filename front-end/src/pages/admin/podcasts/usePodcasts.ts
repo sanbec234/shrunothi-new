@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "../../../api/client";
 import type { Podcast } from "../admin.types";
+import { DEFAULT_PODCAST_LANGUAGE } from "../../../constants/podcastLanguages";
 
 export function usePodcasts() {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
@@ -22,18 +23,26 @@ export function usePodcasts() {
     title: string;
     spotifyUrl: string;
     genreId: string;
+    language?: string;
   }) {
-    await api.post("/admin/podcasts", data);
+    await api.post("/admin/podcasts", {
+      ...data,
+      language: data.language || DEFAULT_PODCAST_LANGUAGE,
+    });
     await loadPodcasts();
   }
 
   async function updatePodcast(
     id: string,
-    data: { title: string; spotifyUrl: string; genreId: string }
+    data: { title: string; spotifyUrl: string; genreId: string; language?: string }
   ) {
-    await api.put(`/admin/podcasts/${id}`, data);
+    const payload = {
+      ...data,
+      language: data.language || DEFAULT_PODCAST_LANGUAGE,
+    };
+    await api.put(`/admin/podcasts/${id}`, payload);
     setPodcasts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, ...data } : p))
+      prev.map((p) => (p.id === id ? { ...p, ...payload } : p))
     );
   }
 

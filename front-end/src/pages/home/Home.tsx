@@ -8,11 +8,16 @@ import "./home.css";
 import LoginPopup from "../../components/GoogleAuthPopup";
 import { useDailyAnnouncements } from "../../hooks/useDailyAnnouncements";
 import AnnouncementCarousel from "../../components/AnnouncementCarousel/AnnouncementCarousel";
+import {
+  DEFAULT_PODCAST_LANGUAGE,
+  INDIAN_PODCAST_LANGUAGES,
+} from "../../constants/podcastLanguages";
 
 /* ---- types ---- */
 type Podcast = {
   embed_url: string;
   title?: string;
+  language?: string;
 };
 
 type TextDoc = {
@@ -61,6 +66,10 @@ export default function Home(): JSX.Element {
 
   /* ---- rows ---- */
   const [podcasts, setPodcasts] = useState<Podcast[] | null>(null);
+  const [podcastLanguages, setPodcastLanguages] = useState<string[]>([]);
+  const [selectedPodcastLanguage, setSelectedPodcastLanguage] = useState(
+    DEFAULT_PODCAST_LANGUAGE
+  );
   const [materialDocs, setMaterialDocs] = useState<TextDoc[]>([]);
   const [selfHelpDocs, setSelfHelpDocs] = useState<TextDoc[]>([]);
   const [activeDoc, setActiveDoc] = useState<TextDoc | null>(null);
@@ -120,6 +129,7 @@ export default function Home(): JSX.Element {
 
     if (!selectedGenre) {
       setPodcasts(null);
+      setPodcastLanguages([...INDIAN_PODCAST_LANGUAGES]);
       return;
     }
 
@@ -127,13 +137,27 @@ export default function Home(): JSX.Element {
 
     async function loadPodcasts() {
       try {
-        const res = await api.get<{ podcasts: Podcast[] }>(
-          `/genres/${genreId}/podcasts`
+        const res = await api.get<{ podcasts: Podcast[]; languages?: string[] }>(
+          `/genres/${genreId}/podcasts`,
+          {
+            params: { language: selectedPodcastLanguage },
+          }
         );
         if (!mounted) return;
-        setPodcasts(res.data.podcasts || []);
+
+        const podcastsData = res.data.podcasts || [];
+        const apiLanguages = (res.data.languages || [])
+          .map((lang) => lang.trim())
+          .filter(Boolean);
+
+        const knownSet = new Set<string>(INDIAN_PODCAST_LANGUAGES as readonly string[]);
+        const extras = apiLanguages.filter((lang) => !knownSet.has(lang));
+
+        setPodcasts(podcastsData);
+        setPodcastLanguages([...INDIAN_PODCAST_LANGUAGES, ...extras]);
       } catch {
         setPodcasts([]);
+        setPodcastLanguages([...INDIAN_PODCAST_LANGUAGES]);
       }
     }
 
@@ -141,7 +165,11 @@ export default function Home(): JSX.Element {
     return () => {
       mounted = false;
     };
-  }, [selectedGenre]);
+  }, [selectedGenre, selectedPodcastLanguage]);
+
+  useEffect(() => {
+    setSelectedPodcastLanguage(DEFAULT_PODCAST_LANGUAGE);
+  }, [selectedGenre?.id]);
 
   /* =========================
      Load material
@@ -380,6 +408,22 @@ export default function Home(): JSX.Element {
 
             <HorizontalRow
               title={`Podcasts${selectedGenre ? ` · ${selectedGenre.name}` : ""}`}
+              titleRight={
+                <select
+                  id="podcast-language"
+                  className="podcast-language-select podcast-language-select--inline"
+                  value={selectedPodcastLanguage}
+                  onChange={(e) => setSelectedPodcastLanguage(e.target.value)}
+                  disabled={!selectedGenre}
+                  aria-label="Podcast language"
+                >
+                  {podcastLanguages.map((lang) => (
+                    <option key={lang} value={lang}>
+                      {lang}
+                    </option>
+                  ))}
+                </select>
+              }
               showScrollHint
             >
               {!selectedGenre ? (
@@ -387,7 +431,9 @@ export default function Home(): JSX.Element {
               ) : podcasts === null ? (
                 <div className="row-empty">Loading podcasts…</div>
               ) : podcasts.length === 0 ? (
-                <div className="row-empty">No podcasts found</div>
+                <div className="row-empty">
+                  {`No podcasts found in ${selectedPodcastLanguage}`}
+                </div>
               ) : (
                 podcasts.map((p, i) => (
                   <div key={i} className="podcast-card">

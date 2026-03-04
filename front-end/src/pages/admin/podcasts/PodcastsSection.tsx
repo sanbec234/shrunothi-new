@@ -58,6 +58,7 @@ export default function PodcastsSection({
                   <th>Title</th>
                   <th>Author</th>
                   <th>Genre</th>
+                  <th>Language</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -70,6 +71,7 @@ export default function PodcastsSection({
                     <td data-label="Genre">
                       {genres.find((g) => g.id === p.genreId)?.name}
                     </td>
+                    <td data-label="Language">{p.language || "English"}</td>
                     <td data-label="Actions">
                       <div className="action-group">
                         <button onClick={() => onEditClick(p)}>Edit</button>
@@ -83,7 +85,7 @@ export default function PodcastsSection({
 
                 {visiblePodcasts.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="empty">
+                    <td colSpan={5} className="empty">
                       No podcasts for this genre
                     </td>
                   </tr>

@@ -9,6 +9,7 @@ export type Podcast = {
   author: string;
   spotifyUrl: string;
   genreId: string;
+  language?: string;
 };
 
 export type Material = {

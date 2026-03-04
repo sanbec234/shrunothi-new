@@ -20,12 +20,16 @@ def add_podcast():
     if not all(data.get(k) for k in required):
         return jsonify({"error": "Missing required fields"}), 400
 
+    language = (data.get("language") or "").strip() or "English"
+    data["language"] = language
+
     db = get_db()
     podcast_id = create_podcast(db, data)
 
     return jsonify({
         "id": str(podcast_id),
-        "title": data["title"]
+        "title": data["title"],
+        "language": language,
     }), 201
 
 
@@ -60,6 +64,8 @@ def update_podcast(podcast_id):
     if not genre:
         return jsonify({"error": "Genre not found"}), 400
 
+    language = (data.get("language") or "").strip() or "English"
+
     result = db.podcasts.update_one(
         { "_id": pid },
         {
@@ -68,6 +74,7 @@ def update_podcast(podcast_id):
                 # "author": data["author"],
                 "spotifyUrl": data["spotifyUrl"],
                 "genreId": data["genreId"],  # keep as string
+                "language": language,
                 "updated_at": datetime.utcnow()
             }
         }
