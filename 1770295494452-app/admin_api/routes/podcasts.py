@@ -6,6 +6,12 @@ from datetime import datetime
 from auth.auth_guard import require_admin
 
 bp = Blueprint("admin_podcasts", __name__)
+SUPPORTED_LANGUAGES = {"English", "Hindi", "Tamil"}
+
+
+def normalized_language(raw_value):
+    language = (raw_value or "").strip() or "English"
+    return language
 
 # -------------------------------
 # ADD PODCAST
@@ -20,7 +26,9 @@ def add_podcast():
     if not all(data.get(k) for k in required):
         return jsonify({"error": "Missing required fields"}), 400
 
-    language = (data.get("language") or "").strip() or "English"
+    language = normalized_language(data.get("language"))
+    if language not in SUPPORTED_LANGUAGES:
+        return jsonify({"error": "language must be one of: English, Hindi, Tamil"}), 400
     data["language"] = language
 
     db = get_db()
@@ -64,7 +72,9 @@ def update_podcast(podcast_id):
     if not genre:
         return jsonify({"error": "Genre not found"}), 400
 
-    language = (data.get("language") or "").strip() or "English"
+    language = normalized_language(data.get("language"))
+    if language not in SUPPORTED_LANGUAGES:
+        return jsonify({"error": "language must be one of: English, Hindi, Tamil"}), 400
 
     result = db.podcasts.update_one(
         { "_id": pid },

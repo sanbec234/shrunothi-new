@@ -3,6 +3,7 @@ from db.client import get_db
 from extensions import limiter
 
 bp = Blueprint("public_genre_podcasts", __name__)
+SUPPORTED_LANGUAGES = ("English", "Hindi", "Tamil")
 
 def to_embed_url(spotify_url: str) -> str:
     """
@@ -16,7 +17,8 @@ def to_embed_url(spotify_url: str) -> str:
 
 
 def normalized_language(doc: dict) -> str:
-    return (doc.get("language") or "").strip() or "English"
+    language = (doc.get("language") or "").strip() or "English"
+    return language if language in SUPPORTED_LANGUAGES else "English"
 
 
 @bp.route("/genres/<genre_id>/podcasts", methods=["GET"])
@@ -25,30 +27,23 @@ def genre_podcasts(genre_id):
     db = get_db()
 
     language = (request.args.get("language") or "").strip()
+    selected_language = language if language in SUPPORTED_LANGUAGES else "English"
 
-    query = {"genreId": genre_id}
-    if language and language.lower() != "all languages":
-        if language == "English":
-            query["$or"] = [
-                {"language": "English"},
-                {"language": {"$exists": False}},
-                {"language": ""},
-                {"language": None},
-            ]
-        else:
-            query["language"] = language
-
-    docs = list(db.podcasts.find(query))
+    docs = list(db.podcasts.find({"genreId": genre_id}))
 
     podcasts = []
     for d in docs:
+        doc_language = normalized_language(d)
+        if doc_language != selected_language:
+            continue
+
         podcasts.append({
             "title": d["title"],
             "embed_url": to_embed_url(d["spotifyUrl"]),
-            "language": normalized_language(d),
+            "language": doc_language,
         })
 
-    all_docs_for_genre = list(db.podcasts.find({"genreId": genre_id}))
-    languages = sorted({normalized_language(d) for d in all_docs_for_genre})
+    available = {normalized_language(d) for d in docs}
+    languages = [lang for lang in SUPPORTED_LANGUAGES if lang in available]
 
     return jsonify({"podcasts": podcasts, "languages": languages}), 200

@@ -146,15 +146,9 @@ export default function Home(): JSX.Element {
         if (!mounted) return;
 
         const podcastsData = res.data.podcasts || [];
-        const apiLanguages = (res.data.languages || [])
-          .map((lang) => lang.trim())
-          .filter(Boolean);
-
-        const knownSet = new Set<string>(INDIAN_PODCAST_LANGUAGES as readonly string[]);
-        const extras = apiLanguages.filter((lang) => !knownSet.has(lang));
 
         setPodcasts(podcastsData);
-        setPodcastLanguages([...INDIAN_PODCAST_LANGUAGES, ...extras]);
+        setPodcastLanguages([...INDIAN_PODCAST_LANGUAGES]);
       } catch {
         setPodcasts([]);
         setPodcastLanguages([...INDIAN_PODCAST_LANGUAGES]);
