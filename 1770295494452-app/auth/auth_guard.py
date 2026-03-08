@@ -68,25 +68,24 @@ def require_admin(f):
                 google_requests.Request(),
                 GOOGLE_CLIENT_ID
             )
-
-            email = payload.get("email", "").lower().strip()
-            if not email:
-                return jsonify({ "error": "Unauthorized" }), 401
-
-            db = get_db()
-            is_admin = db.admin_emails.find_one({ "email": email })
-
-            if not is_admin:
-                return jsonify({ "error": "Forbidden" }), 403
-
-            request.user = {
-                "email": email,
-                "sub": payload.get("sub"),
-            }
-
-            return f(*args, **kwargs)
-
         except Exception:
             return jsonify({ "error": "Invalid or expired token" }), 401
+
+        email = payload.get("email", "").lower().strip()
+        if not email:
+            return jsonify({ "error": "Unauthorized" }), 401
+
+        db = get_db()
+        is_admin = db.admin_emails.find_one({ "email": email })
+
+        if not is_admin:
+            return jsonify({ "error": "Forbidden" }), 403
+
+        request.user = {
+            "email": email,
+            "sub": payload.get("sub"),
+        }
+
+        return f(*args, **kwargs)
 
     return decorated

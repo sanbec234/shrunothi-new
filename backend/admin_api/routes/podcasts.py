@@ -1,17 +1,49 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from db.client import get_db
 from db.models.podcast import create_podcast
 from bson import ObjectId
 from datetime import datetime
 from auth.auth_guard import require_admin
+from pymongo.errors import DuplicateKeyError
 
 bp = Blueprint("admin_podcasts", __name__)
 SUPPORTED_LANGUAGES = {"English", "Hindi", "Tamil"}
+MAX_TITLE_LEN = 300
+MAX_SPOTIFY_URL_LEN = 500
 
 
 def normalized_language(raw_value):
     language = (raw_value or "").strip() or "English"
     return language
+
+
+def normalize_payload(data):
+    return {
+        "title": (data.get("title") or "").strip(),
+        "spotifyUrl": (data.get("spotifyUrl") or "").strip(),
+        "genreId": (data.get("genreId") or "").strip(),
+        "language": normalized_language(data.get("language")),
+    }
+
+
+def validate_payload(payload):
+    if not payload["title"]:
+        return "title is required"
+    if len(payload["title"]) > MAX_TITLE_LEN:
+        return f"title is too long (max {MAX_TITLE_LEN} characters)"
+
+    if not payload["spotifyUrl"]:
+        return "spotifyUrl is required"
+    if len(payload["spotifyUrl"]) > MAX_SPOTIFY_URL_LEN:
+        return f"spotifyUrl is too long (max {MAX_SPOTIFY_URL_LEN} characters)"
+
+    if not payload["genreId"]:
+        return "genreId is required"
+
+    if payload["language"] not in SUPPORTED_LANGUAGES:
+        return "language must be one of: English, Hindi, Tamil"
+
+    return None
 
 # -------------------------------
 # ADD PODCAST
@@ -20,25 +52,35 @@ def normalized_language(raw_value):
 @bp.route("/admin/podcasts", methods=["POST"])
 @require_admin
 def add_podcast():
-    data = request.get_json() or {}
-
-    required = ["title", "spotifyUrl", "genreId"]
-    if not all(data.get(k) for k in required):
-        return jsonify({"error": "Missing required fields"}), 400
-
-    language = normalized_language(data.get("language"))
-    if language not in SUPPORTED_LANGUAGES:
-        return jsonify({"error": "language must be one of: English, Hindi, Tamil"}), 400
-    data["language"] = language
+    payload = normalize_payload(request.get_json() or {})
+    validation_error = validate_payload(payload)
+    if validation_error:
+        return jsonify({"error": validation_error}), 400
 
     db = get_db()
-    podcast_id = create_podcast(db, data)
 
-    return jsonify({
-        "id": str(podcast_id),
-        "title": data["title"],
-        "language": language,
-    }), 201
+    duplicate = db.podcasts.find_one(
+        {
+            "title": payload["title"],
+            "spotifyUrl": payload["spotifyUrl"],
+            "genreId": payload["genreId"],
+        }
+    )
+    if duplicate:
+        return jsonify({"error": "Podcast with same title and URL already exists in this genre"}), 409
+
+    try:
+        podcast_id = create_podcast(db, payload)
+        return jsonify({
+            "id": str(podcast_id),
+            "title": payload["title"],
+            "language": payload["language"],
+        }), 201
+    except DuplicateKeyError:
+        return jsonify({"error": "Podcast already exists"}), 409
+    except Exception:
+        current_app.logger.exception("Failed to create podcast")
+        return jsonify({"error": "Failed to create podcast"}), 500
 
 
 # -------------------------------
@@ -48,23 +90,21 @@ def add_podcast():
 @bp.route("/admin/podcasts/<podcast_id>", methods=["PUT", "PATCH"])
 @require_admin
 def update_podcast(podcast_id):
-    db = get_db()
-
     try:
         pid = ObjectId(podcast_id)
     except Exception:
         return jsonify({"error": "Invalid podcast id"}), 400
 
-    data = request.get_json() or {}
+    payload = normalize_payload(request.get_json() or {})
+    validation_error = validate_payload(payload)
+    if validation_error:
+        return jsonify({"error": validation_error}), 400
 
-    required = ["title", "spotifyUrl", "genreId"]
-    for field in required:
-        if not data.get(field):
-            return jsonify({"error": f"{field} is required"}), 400
+    db = get_db()
 
     # Validate genreId
     try:
-        genre_oid = ObjectId(data["genreId"])
+        genre_oid = ObjectId(payload["genreId"])
     except Exception:
         return jsonify({"error": "Invalid genreId"}), 400
 
@@ -72,23 +112,35 @@ def update_podcast(podcast_id):
     if not genre:
         return jsonify({"error": "Genre not found"}), 400
 
-    language = normalized_language(data.get("language"))
-    if language not in SUPPORTED_LANGUAGES:
-        return jsonify({"error": "language must be one of: English, Hindi, Tamil"}), 400
-
-    result = db.podcasts.update_one(
-        { "_id": pid },
+    duplicate = db.podcasts.find_one(
         {
-            "$set": {
-                "title": data["title"],
-                # "author": data["author"],
-                "spotifyUrl": data["spotifyUrl"],
-                "genreId": data["genreId"],  # keep as string
-                "language": language,
-                "updated_at": datetime.utcnow()
-            }
+            "_id": {"$ne": pid},
+            "title": payload["title"],
+            "spotifyUrl": payload["spotifyUrl"],
+            "genreId": payload["genreId"],
         }
     )
+    if duplicate:
+        return jsonify({"error": "Another podcast with same title and URL already exists in this genre"}), 409
+
+    try:
+        result = db.podcasts.update_one(
+            { "_id": pid },
+            {
+                "$set": {
+                    "title": payload["title"],
+                    "spotifyUrl": payload["spotifyUrl"],
+                    "genreId": payload["genreId"],  # keep as string
+                    "language": payload["language"],
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+    except DuplicateKeyError:
+        return jsonify({"error": "Podcast already exists"}), 409
+    except Exception:
+        current_app.logger.exception("Failed to update podcast")
+        return jsonify({"error": "Failed to update podcast"}), 500
 
     if result.matched_count == 0:
         return jsonify({"error": "Podcast not found"}), 404

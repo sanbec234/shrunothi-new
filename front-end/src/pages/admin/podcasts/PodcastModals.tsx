@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import type { Genre, Podcast } from "../admin.types";
 import {
   DEFAULT_PODCAST_LANGUAGE,
@@ -32,14 +33,30 @@ export function AddPodcastModal({ isOpen, genres, onClose, onCreate }: AddPodcas
   };
 
   const handleCreate = async () => {
-    if (!title || !spotifyUrl || !genreId || !language) {
+    const normalizedTitle = title.trim();
+    const normalizedSpotifyUrl = spotifyUrl.trim();
+
+    if (!normalizedTitle || !normalizedSpotifyUrl || !genreId || !language) {
       alert("All fields required");
       return;
     }
 
-    await onCreate({ title, spotifyUrl, genreId, language });
-    reset();
-    onClose();
+    try {
+      await onCreate({
+        title: normalizedTitle,
+        spotifyUrl: normalizedSpotifyUrl,
+        genreId,
+        language,
+      });
+      reset();
+      onClose();
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        alert(err.response?.data?.error || "Failed to add podcast");
+        return;
+      }
+      alert("Failed to add podcast");
+    }
   };
 
   if (!isOpen) return null;
@@ -112,13 +129,34 @@ export function EditPodcastModal({ podcast, genres, onClose, onSave }: EditPodca
   if (!podcast) return null;
       
   const handleSave = async () => {
-    await onSave(podcast.id, { title, spotifyUrl, genreId, language });
-    setSuccessMessage("Podcast updated successfully");
+    const normalizedTitle = title.trim();
+    const normalizedSpotifyUrl = spotifyUrl.trim();
 
-    setTimeout(() => {
-      onClose();
-      setSuccessMessage("");
-    }, 800);
+    if (!normalizedTitle || !normalizedSpotifyUrl || !genreId || !language) {
+      alert("All fields required");
+      return;
+    }
+
+    try {
+      await onSave(podcast.id, {
+        title: normalizedTitle,
+        spotifyUrl: normalizedSpotifyUrl,
+        genreId,
+        language,
+      });
+      setSuccessMessage("Podcast updated successfully");
+
+      setTimeout(() => {
+        onClose();
+        setSuccessMessage("");
+      }, 800);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        alert(err.response?.data?.error || "Failed to update podcast");
+        return;
+      }
+      alert("Failed to update podcast");
+    }
   };
 
   return (
