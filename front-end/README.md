@@ -2,6 +2,12 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Pre-launch Site Lock
+
+To protect the site before launch, set `VITE_SITE_LOCK_PASSWORD` in your environment (see `.env.example`).
+When this value is set, visitors must enter that shared password to view the website.
+When it is missing, the website is open as usual.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh

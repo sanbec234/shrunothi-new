@@ -7,8 +7,9 @@ import AdminGuard from './guards/AdminGuard';
 import PrivacyPolicy from './pages/privacypolicy/PrivacyPolicy';
 import TermsOfService from './pages/termsofservice/TermsOfService';
 import NotFound from './pages/NotFound';
+import SiteLockGate from './components/SiteLock/SiteLockGate';
 
-export default function App(): JSX.Element {
+function AppRoutes(): JSX.Element {
   return (
     <BrowserRouter>
       <Routes>
@@ -20,5 +21,19 @@ export default function App(): JSX.Element {
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
+  );
+}
+
+export default function App(): JSX.Element {
+  const siteLockPassword = import.meta.env.VITE_SITE_LOCK_PASSWORD?.trim();
+
+  if (!siteLockPassword) {
+    return <AppRoutes />;
+  }
+
+  return (
+    <SiteLockGate password={siteLockPassword}>
+      <AppRoutes />
+    </SiteLockGate>
   );
 }
