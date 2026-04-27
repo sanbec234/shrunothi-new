@@ -1,0 +1,136 @@
+/* =========================
+   Navbar  (Figma: Frame 3, 1440x195)
+========================= */
+.navbar {
+  width: 100%;
+  background: var(--bg-navbar);
+  border-bottom: 1px solid var(--border-soft);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 48px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+/* Logo */
+.navbar-logo {
+  flex-shrink: 0;
+}
+.navbar-logo-img {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Nav links */
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  flex: 1;
+  justify-content: center;
+}
+.navbar-link {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-white);
+  text-decoration: none;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+.navbar-link:hover {
+  color: var(--accent-blue);
+}
+
+/* Right section */
+.navbar-right {
+  flex-shrink: 0;
+}
+
+/* Sign Up button — gradient pill */
+.navbar-signup-btn {
+  background: var(--btn-gradient);
+  border: none;
+  border-radius: var(--btn-radius);
+  color: var(--text-dark);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 500;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+.navbar-signup-btn:hover { opacity: 0.85; }
+
+/* Logged-in user */
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.navbar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.navbar-username {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-white);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================
+   Ticker bar (info strip below navbar)
+========================= */
+.ticker-bar {
+  width: 100%;
+  background: transparent;
+  border-bottom: 1px solid var(--border-soft);
+  padding: 10px 48px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  overflow: hidden;
+}
+.ticker-item {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-white);
+  white-space: nowrap;
+  opacity: 0.85;
+}
+.ticker-dot {
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .navbar-inner {
+    padding: 0 20px;
+    height: 68px;
+  }
+  .navbar-links {
+    display: none;
+  }
+  .navbar-logo-img {
+    height: 46px;
+  }
+}

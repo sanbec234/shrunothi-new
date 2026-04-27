@@ -26,6 +26,7 @@ from admin_api.routes.materials import bp as admin_materials
 from admin_api.routes.self_help import bp as admin_self_help
 from admin_api.routes.admin_emails import bp as admin_emails_bp
 from admin_api.routes.users import bp as admin_users
+from admin_api.routes.admin_thumbnail_uploads import bp as admin_thumbnail_uploads
 from admin_api.routes.admin_announcements import bp as admin_announcements_bp
 from admin_api.routes.admin_uploads import bp as admin_uploads_bp
 from admin_api.routes.admin_editor_uploads import bp as admin_editor_uploads_bp
@@ -85,6 +86,7 @@ def create_app():
     app.register_blueprint(admin_self_help)
     app.register_blueprint(admin_emails_bp)
     app.register_blueprint(admin_users)
+    app.register_blueprint(admin_thumbnail_uploads)
     app.register_blueprint(admin_announcements_bp)
     app.register_blueprint(admin_uploads_bp)
     app.register_blueprint(admin_editor_uploads_bp)
