@@ -1,87 +1,128 @@
 /* =========================
-   Design tokens
+   Design Tokens — Figma: Nibbana-dev version
 ========================= */
 :root {
-  --bg-gradient: linear-gradient(180deg, #f6f7fb 0%, #eef2ff 100%);
-  --panel-bg: #ffffff;
-  --text-main: #111827;
-  --text-muted: #6b7280;
-  --border-soft: rgba(0,0,0,0.06);
-  --accent: #0369a1;
+  /* backgrounds */
+  --bg-main: #141414;
+  --bg-navbar: #000000;
+  --bg-card: #1d1d1d;
+  --bg-footer: #f4f4f4;
+
+  /* text */
+  --text-white: #ffffff;
+  --text-muted: #939393;
+  --text-dark: #000000;
+
+  /* accents */
+  --accent-blue: #209ae5;
+  --accent-orange: #f48557;
+
+  /* buttons */
+  --btn-gradient: linear-gradient(90deg, #ffffff 0%, #209ae5 100%);
+  --btn-radius: 8px;
+
+  /* pills */
+  --pill-selected-gradient: linear-gradient(90deg, #ffffff 0%, #209ae5 100%);
+  --pill-radius: 12px;
+
+  /* inputs */
+  --input-bg: #d9d9d9;
+
+  /* borders */
+  --border-soft: rgba(255,255,255,0.08);
+
+  /* font families */
+  --font-heading: 'Outfit', 'Poppins', ui-sans-serif, sans-serif;
+  --font-body: 'Inter', 'DM Sans', ui-sans-serif, sans-serif;
 }
 
 /* =========================
-   Reset & base
+   Reset & Base
 ========================= */
-* {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-html,
-body,
-#root {
-  height: 100%;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  color: var(--text-main);
+html, body, #root {
   width: 100%;
+  min-height: 100%;
+  background-color: var(--bg-main);
+  color: var(--text-white);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+body {
+  display: block;
+  place-items: unset;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+img { max-width: 100%; }
 
 /* =========================
-   Left menu (global)
+   Scroll utilities
 ========================= */
-.left-menu {
-  background: var(--panel-bg);
-  border-right: 1px solid var(--border-soft);
-  padding: 22px;
-  overflow-y: auto;
-}
-
-.left-menu .logo {
-  margin-bottom: 18px;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.genre-list {
+.scroll-x {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  gap: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+  scrollbar-width: none;
 }
+.scroll-x::-webkit-scrollbar { display: none; }
 
-.genre-btn {
-  background: transparent;
+/* =========================
+   Gradient CTA button
+========================= */
+.btn-gradient {
+  background: var(--btn-gradient);
   border: none;
-  text-align: left;
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: var(--btn-radius);
+  color: var(--text-dark);
+  font-family: var(--font-body);
+  font-size: 16px;
   font-weight: 500;
-  color: var(--text-main);
+  padding: 14px 28px;
   cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
 }
+.btn-gradient:hover { opacity: 0.88; }
 
-.genre-btn:hover {
-  background: #f3f4f6;
+/* =========================
+   Section header with orange bar
+========================= */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
 }
-
-.genre-btn.selected {
-  background: #e5f5ff;
-  color: var(--accent);
-  font-weight: 600;
+.section-bar {
+  width: 5px;
+  height: 40px;
+  background: var(--accent-orange);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-white);
+  letter-spacing: -0.3px;
 }
 
 /* =========================
-   Responsive shell
+   Blur on focus-loss
 ========================= */
-@media (max-width: 900px) {
-  .home-root {
-    grid-template-columns: 64px 1fr;
-  }
-
-  .left-menu {
-    padding: 12px;
-  }
+html.blurred body {
+  filter: blur(14px) brightness(0.7);
+  transition: filter 0.15s ease;
 }

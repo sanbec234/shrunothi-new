@@ -93,6 +93,7 @@ export default function AdminGuard() {
                 const user = response.data;
 
                 localStorage.setItem("authUser", JSON.stringify(user));
+                localStorage.setItem("googleToken", res.credential!);
                 setAuthUser(user);
               } catch (err) {
                 console.error("Login failed", err);

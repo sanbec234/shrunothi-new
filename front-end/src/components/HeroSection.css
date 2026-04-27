@@ -1,0 +1,109 @@
+/* =========================
+   Hero  (Figma: Frame 6, 1271x539)
+========================= */
+.hero {
+  width: 100%;
+  padding: 60px 48px 56px;
+  background: var(--bg-main);
+}
+
+.hero-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 60px;
+}
+
+/* Left column */
+.hero-left {
+  flex: 1;
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.hero-heading {
+  font-family: var(--font-heading);
+  font-size: clamp(36px, 4.5vw, 62px);
+  font-weight: 700;
+  line-height: 1.18;
+  color: var(--text-white);
+  letter-spacing: -0.5px;
+}
+
+.hero-sub {
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: rgba(255,255,255,0.78);
+  max-width: 520px;
+}
+
+.hero-cta {
+  align-self: flex-start;
+  font-size: 18px;
+  padding: 16px 36px;
+  border-radius: 8px;
+}
+
+/* Right column */
+.hero-right {
+  flex-shrink: 0;
+  width: 440px;
+  height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.hero-img-wrap {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Decorative orb shown when no image */
+.hero-orb {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: radial-gradient(ellipse at 60% 40%, rgba(32,154,229,0.35) 0%, rgba(32,154,229,0.08) 55%, transparent 80%);
+  border: 1px solid rgba(32,154,229,0.2);
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .hero-right {
+    width: 320px;
+    height: 320px;
+  }
+}
+@media (max-width: 850px) {
+  .hero {
+    padding: 36px 20px 32px;
+  }
+  .hero-inner {
+    flex-direction: column;
+    gap: 36px;
+  }
+  .hero-right {
+    width: 100%;
+    height: 260px;
+  }
+  .hero-left {
+    max-width: 100%;
+  }
+}

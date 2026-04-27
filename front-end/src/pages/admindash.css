@@ -4,17 +4,44 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+/* Force light mode for the entire admin page —
+   index.css sets color-scheme:dark which makes text white */
+.admin {
+  color-scheme: light;
+  width: 100%;
+  padding: 24px 32px;
   background: #f7f7f8;
+  color: #111;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.admin h1,
+.admin h2,
+.admin h3,
+.admin h4,
+.admin p,
+.admin td,
+.admin th,
+.admin label,
+.admin input,
+.admin textarea,
+.admin select {
+  color: inherit;
+}
+
+.admin button {
+  color: #fff;
+}
+
+.admin button.secondary {
   color: #111;
 }
 
-/* ---------- Layout ---------- */
-
-.admin {
-  width: 100%;
-  padding: 24px 32px;
+.modal-overlay,
+.modal {
+  color-scheme: light;
+  color: #111;
 }
 
 h2 {
@@ -265,4 +292,60 @@ textarea {
   margin-bottom: 12px;
   font-weight: 500;
   text-align: center;
+}
+
+/* ---------- Thumbnail Field ---------- */
+
+.thumb-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.thumb-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.thumb-hint {
+  font-size: 12px;
+  font-weight: 400;
+  color: #6b7280;
+  margin-left: 4px;
+}
+
+.thumb-preview {
+  width: 279px;
+  height: 225px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.thumb-btn {
+  align-self: flex-start;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 7px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #374151;
+}
+
+.thumb-btn:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.thumb-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.thumb-error {
+  font-size: 13px;
+  color: #dc2626;
+  margin: 0;
 }

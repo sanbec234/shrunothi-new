@@ -1,143 +1,84 @@
-// import { GoogleLogin } from "@react-oauth/google";
-
-// type Props = {
-//   onSuccess?: () => void;
-//   onClose?: () => void;
-// };
-
-// const overlayStyle: React.CSSProperties = {
-//   position: "fixed",
-//   inset: 0,
-//   background: "rgba(0,0,0,0.55)",
-//   display: "flex",
-//   alignItems: "center",
-//   justifyContent: "center",
-//   zIndex: 2000
-// };
-
-// const popupStyle: React.CSSProperties = {
-//   background: "#fff",
-//   padding: "28px 24px",
-//   borderRadius: 12,
-//   width: 360,
-//   maxWidth: "90vw",
-//   textAlign: "center",
-//   position: "relative",
-//   boxShadow: "0 10px 30px rgba(0,0,0,0.25)"
-// };
-
-// const closeStyle: React.CSSProperties = {
-//   position: "absolute",
-//   top: 10,
-//   right: 10,
-//   background: "transparent",
-//   border: "none",
-//   fontSize: 18,
-//   cursor: "pointer"
-// };
-
-// export default function GoogleAuthPopup({ onSuccess, onClose }: Props) {
-//   return (
-//     <div style={overlayStyle}>
-//       <div style={popupStyle}>
-//         <button style={closeStyle} onClick={onClose}>✕</button>
-
-//         <h3 style={{ marginBottom: 16 }}>Sign in with Google</h3>
-
-//         <GoogleLogin
-//           onSuccess={async (res) => {
-//             try {
-//               const response = await fetch("http://localhost:5001/auth/google", {
-//                 method: "POST",
-//                 headers: { "Content-Type": "application/json" },
-//                 body: JSON.stringify({ token: res.credential })
-//               });
-
-//               const user = await response.json();
-
-//               // store login info
-//               localStorage.setItem("authUser", JSON.stringify(user));
-
-//               if (onSuccess) onSuccess();
-//             } catch (err) {
-//               console.error("Login error", err);
-//             }
-//           }}
-//           onError={() => {
-//             console.log("Login failed");
-//           }}
-//         />
-//       </div>
-//     </div>
-//   );
-// }
-
 import { GoogleLogin } from "@react-oauth/google";
-import { api } from "../api/client"; // adjust path if needed
+import { api } from "../api/client";
 
 type Props = {
   onSuccess?: () => void;
   onClose?: () => void;
 };
 
-const overlayStyle: React.CSSProperties = {
-  position: "fixed",
-  inset: 0,
-  background: "rgba(0,0,0,0.55)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  zIndex: 2000
-};
-
-const popupStyle: React.CSSProperties = {
-  background: "#fff",
-  padding: "28px 24px",
-  borderRadius: 12,
-  width: 360,
-  maxWidth: "90vw",
-  textAlign: "center",
-  position: "relative",
-  boxShadow: "0 10px 30px rgba(0,0,0,0.25)"
-};
-
-const closeStyle: React.CSSProperties = {
-  position: "absolute",
-  top: 10,
-  right: 10,
-  background: "transparent",
-  border: "none",
-  fontSize: 18,
-  cursor: "pointer"
-};
-
 export default function GoogleAuthPopup({ onSuccess, onClose }: Props) {
   return (
-    <div style={overlayStyle}>
-      <div style={popupStyle}>
-        <button style={closeStyle} onClick={onClose}>✕</button>
+    <div style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.72)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 2000,
+    }}>
+      <div style={{
+        background: "#1d1d1d",
+        border: "1px solid rgba(255,255,255,0.1)",
+        padding: "36px 28px",
+        borderRadius: 16,
+        width: 360,
+        maxWidth: "90vw",
+        textAlign: "center",
+        position: "relative",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+      }}>
+        <button
+          onClick={onClose}
+          style={{
+            position: "absolute",
+            top: 14,
+            right: 16,
+            background: "transparent",
+            border: "none",
+            fontSize: 22,
+            cursor: "pointer",
+            color: "#fff",
+            lineHeight: 1,
+          }}
+          aria-label="Close"
+        >
+          ✕
+        </button>
 
-        <h3 style={{ marginBottom: 16 }}>Sign in with Google</h3>
+        <h3 style={{
+          marginBottom: 8,
+          fontSize: 22,
+          fontWeight: 600,
+          color: "#ffffff",
+          fontFamily: "var(--font-heading)",
+        }}>
+          Sign in to continue
+        </h3>
+        <p style={{
+          marginBottom: 24,
+          fontSize: 14,
+          color: "#939393",
+          fontFamily: "var(--font-body)",
+        }}>
+          Access exclusive coaching materials
+        </p>
 
         <GoogleLogin
           onSuccess={async (res) => {
             try {
               const response = await api.post("/auth/google", {
-                token: res.credential
+                token: res.credential,
               });
-
               const user = response.data;
-
               localStorage.setItem("authUser", JSON.stringify(user));
-
+              localStorage.setItem("googleToken", res.credential!);
               onSuccess?.();
             } catch (err) {
               console.error("Login error", err);
             }
           }}
-          onError={() => {
-            console.log("Login failed");
-          }}
+          onError={() => console.log("Login failed")}
         />
       </div>
     </div>

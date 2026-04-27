@@ -15,39 +15,26 @@ export default function DocModal({ doc, onClose }: Props) {
 
     async function loadContent() {
       try {
-        const res = await api.get<{ content: string }>(
-          `/material/${doc.id}`
-        );
+        const res = await api.get<{ content: string }>(`/material/${doc.id}`);
         if (!mounted) return;
         setContent(res.data.content);
-      } catch (err) {
-        console.error("Failed to load document", err);
+      } catch {
         setContent("Failed to load document.");
       }
     }
 
     loadContent();
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [doc.id]);
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div
-        className="modal-panel"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button className="modal-close" onClick={onClose}>
-          ×
-        </button>
-
-        <h2 className="modal-title">{doc.filename}</h2>
+      <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose} aria-label="Close">×</button>
+        <h2 className="modal-title">{doc.title}</h2>
         <p className="modal-author">By {doc.author}</p>
+        <div className="modal-body" dangerouslySetInnerHTML={{ __html: content }} />
 
-        <div className="modal-body">
-          <pre>{content}</pre>
-        </div>
       </div>
     </div>
   );
