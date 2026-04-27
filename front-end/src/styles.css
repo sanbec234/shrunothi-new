@@ -1,128 +1,21 @@
-/* =========================
-   Design Tokens — Figma: Nibbana-dev version
-========================= */
 :root {
-  /* backgrounds */
-  --bg-main: #141414;
-  --bg-navbar: #000000;
-  --bg-card: #1d1d1d;
-  --bg-footer: #f4f4f4;
+  /* Brand */
+  --brand-blue: #5394CF;
+  --brand-blue-soft: #EAF2FB;
+  --brand-blue-muted: #5091D7;
+  --brand-copper: #DC8465;
 
-  /* text */
-  --text-white: #ffffff;
-  --text-muted: #939393;
-  --text-dark: #000000;
+  /* Neutrals */
+  --bg-page: #F5F8FC;
+  --bg-panel: #FFFFFF;
+  --bg-panel-soft: #FAFBFD;
 
-  /* accents */
-  --accent-blue: #209ae5;
-  --accent-orange: #f48557;
+  --text-primary: #0F172A;
+  --text-muted: #6B7280;
 
-  /* buttons */
-  --btn-gradient: linear-gradient(90deg, #ffffff 0%, #209ae5 100%);
-  --btn-radius: 8px;
+  --border-soft: #E5E7EB;
 
-  /* pills */
-  --pill-selected-gradient: linear-gradient(90deg, #ffffff 0%, #209ae5 100%);
-  --pill-radius: 12px;
-
-  /* inputs */
-  --input-bg: #d9d9d9;
-
-  /* borders */
-  --border-soft: rgba(255,255,255,0.08);
-
-  /* font families */
-  --font-heading: 'Outfit', 'Poppins', ui-sans-serif, sans-serif;
-  --font-body: 'Inter', 'DM Sans', ui-sans-serif, sans-serif;
-}
-
-/* =========================
-   Reset & Base
-========================= */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body, #root {
-  width: 100%;
-  min-height: 100%;
-  background-color: var(--bg-main);
-  color: var(--text-white);
-  font-family: var(--font-body);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-  display: block;
-  place-items: unset;
-}
-
-a { color: inherit; text-decoration: none; }
-button { font-family: inherit; cursor: pointer; }
-img { max-width: 100%; }
-
-/* =========================
-   Scroll utilities
-========================= */
-.scroll-x {
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 8px;
-  scrollbar-width: none;
-}
-.scroll-x::-webkit-scrollbar { display: none; }
-
-/* =========================
-   Gradient CTA button
-========================= */
-.btn-gradient {
-  background: var(--btn-gradient);
-  border: none;
-  border-radius: var(--btn-radius);
-  color: var(--text-dark);
-  font-family: var(--font-body);
-  font-size: 16px;
-  font-weight: 500;
-  padding: 14px 28px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-  white-space: nowrap;
-}
-.btn-gradient:hover { opacity: 0.88; }
-
-/* =========================
-   Section header with orange bar
-========================= */
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.section-bar {
-  width: 5px;
-  height: 40px;
-  background: var(--accent-orange);
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-.section-title {
-  font-family: var(--font-heading);
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text-white);
-  letter-spacing: -0.3px;
-}
-
-/* =========================
-   Blur on focus-loss
-========================= */
-html.blurred body {
-  filter: blur(14px) brightness(0.7);
-  transition: filter 0.15s ease;
+  /* Elevation */
+  --shadow-soft: 0 8px 30px rgba(15, 23, 42, 0.06);
+  --shadow-float: 0 12px 40px rgba(15, 23, 42, 0.10);
 }

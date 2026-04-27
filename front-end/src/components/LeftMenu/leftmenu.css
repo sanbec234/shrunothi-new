@@ -1,0 +1,286 @@
+/* ---------- Logo (isolated, centered) ---------- */
+
+.left-menu .logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* padding: 20px 12px 24px; */
+  margin-bottom: 16px;
+
+  /* visually separates logo from menu */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.left-menu .logo-img {
+  height: clamp(14rem, 6vw, 4.25rem);          /* stable, no clamp */
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+
+  display: block;
+}
+
+.left-menu {
+  position: fixed;
+  top: env(safe-area-inset-top);
+  left: 0;
+
+  width: clamp(14rem, 18vw, 18rem);
+  height: calc(100vh - env(safe-area-inset-top));
+
+  display: flex;
+  flex-direction: column;
+
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+
+  border-radius: 22px;
+  margin: 14px;
+
+  box-shadow:
+    0 20px 50px rgba(15, 23, 42, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  border: 1px solid rgba(255, 255, 255, 0.4);
+
+  z-index: 200;
+}
+
+.genre-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.genre-list button {
+  border-radius: 10px;
+  transition: background 0.15s ease;
+}
+
+.genre-list button:hover {
+  background: var(--brand-blue-soft);
+}
+
+.genre-list button.active {
+  background: var(--brand-blue);
+  color: #fff;
+}
+
+/* Avatar */
+
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* User meta (name + logout) */
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* Name */
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.2;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-box,
+.leftmenu-user {
+  background: linear-gradient(
+    180deg,
+    #FFFFFF 0%,
+    #FAFAFA 100%
+  );
+}
+
+.logout-btn {
+  color: var(--brand-copper);
+}
+
+.privacy-policy-btn {
+  background: none;
+  border: none;
+  padding: 1rem;
+
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--brand-blue);
+  cursor: pointer;
+
+  opacity: 0.85;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.privacy-policy-btn:hover {
+  opacity: 1;
+  transform: translateY(-0.5px);
+  text-decoration: underline;
+  background: transparent;
+}
+
+/* ---------- Left menu user (minimal, floating) ---------- */
+
+.leftmenu-user {
+  margin-top: auto;
+  padding: 14px 16px 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  /* remove box feel */
+  background: transparent;
+  border-top: none;
+}
+
+/* Username */
+.leftmenu-user .username {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Logout */
+.leftmenu-user .logout-btn {
+  background: none;
+  border: none;
+  padding: 0;
+
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--brand-copper);
+  cursor: pointer;
+
+  opacity: 0.85;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.leftmenu-user .logout-btn:hover {
+  opacity: 1;
+  transform: translateY(-0.5px);
+  text-decoration: underline;
+}
+/* Username */
+
+.username {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================
+   Left menu (SCOPED)
+========================= */
+
+.left-menu {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;              /* ⬅ only the menu is fixed */
+  background: var(--panel-bg);
+  border-right: 1px solid var(--border-soft);
+  padding: 22px;
+}
+
+/* Genre list scrolls, not page */
+.left-menu .genre-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Buttons */
+.left-menu .genre-btn {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.left-menu .genre-btn:hover {
+  background: #f3f4f6;
+}
+
+.left-menu .genre-btn.selected {
+  background: linear-gradient(
+    135deg,
+    rgba(83, 156, 207, 0.9),   /* brand blue */
+    rgba(220, 132, 101, 0.85) /* brand copper */
+  );
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* =========================
+   User footer (bottom)
+========================= */
+
+.left-menu .user-box {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.left-menu .user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.left-menu .logout-btn {
+  background: transparent;
+  border: none;
+  color: #dc2626;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.left-menu .logout-btn:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   Responsive (menu only)
+========================= */
+
+@media (max-width: 900px) {
+  .left-menu {
+    padding: 12px;
+  }
+}

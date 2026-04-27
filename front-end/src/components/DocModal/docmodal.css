@@ -1,0 +1,199 @@
+/* ====== DocModal: match current site styling ====== */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+:root {
+  --doc-modal-font: "Poppins", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.modal-backdrop {
+  background: rgba(20, 16, 10, 0.6);
+  backdrop-filter: blur(6px);
+}
+
+.modal-panel {
+  background: #faf7f2;
+  border-radius: 20px;
+  max-width: 50rem;
+  max-height: 90vh;
+  box-shadow: 0 24px 60px rgba(20, 16, 10, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  font-family: var(--doc-modal-font);
+}
+
+.modal-header {
+  padding: 1.5rem 1.8rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.modal-logo-inline {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
+
+.modal-title {
+  font-family: var(--doc-modal-font);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1f1c19;
+}
+
+.modal-author {
+  font-size: 0.9rem;
+  color: #6b645d;
+}
+
+.modal-close {
+  top: 1rem;
+  right: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 1.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+  color: #1f1c19;
+}
+
+.modal-body {
+  padding: 1.8rem;
+  line-height: 1.75;
+  color: #1f1c19;
+  font-size: 1rem;
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 5rem;
+}
+
+.modal-body.tiptap-content,
+.modal-body.tiptap-content * {
+  font-family: var(--doc-modal-font) !important;
+}
+
+.modal-body.tiptap-content pre,
+.modal-body.tiptap-content code {
+  font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+}
+
+/* Highlight style in reading mode */
+.reading-highlight {
+  background: rgba(231, 167, 94, 0.18);
+  border-left: 4px solid #c4782a;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  box-shadow: 0 8px 20px rgba(20, 16, 10, 0.12);
+}
+
+/* Paragraph hover */
+.modal-body.tiptap-content p:hover,
+.modal-body.tiptap-content h1:hover,
+.modal-body.tiptap-content h2:hover,
+.modal-body.tiptap-content h3:hover,
+.modal-body.tiptap-content h4:hover,
+.modal-body.tiptap-content h5:hover,
+.modal-body.tiptap-content h6:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* Scroll hint */
+.scroll-hint {
+  text-align: center;
+  padding-top: 0.8rem;
+  font-size: 0.85rem;
+  color: #9b948b;
+}
+
+/* Mini player: warm neutral style */
+/* ===== Mini Player: refined pill style ===== */
+.mini-player {
+  position: absolute;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  min-width: 18rem;
+  max-width: 22rem;
+
+  background: #f7f2ea;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+
+  box-shadow: 0 16px 40px rgba(20, 16, 10, 0.22);
+  backdrop-filter: blur(6px);
+  
+}
+
+.mini-player-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 7.5rem;
+}
+
+.mini-player-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #1f1c19;
+}
+
+.mini-player-para {
+  font-size: 0.72rem;
+  color: #6b645d;
+}
+
+/* Controls */
+.mini-player-controls {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.mini-btn,
+.mini-btn-main {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+
+  background: #fff;
+  color: #1f1c19;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 0.9rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.mini-btn-main {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1rem;
+}
+
+.mini-btn:hover,
+.mini-btn-main:hover {
+  background: rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(20, 16, 10, 0.12);
+}
+
+.mini-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
