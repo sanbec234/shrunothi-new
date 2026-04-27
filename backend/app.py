@@ -10,6 +10,7 @@ from admin_api.routes.materials import bp as admin_materials
 from admin_api.routes.self_help import bp as admin_self_help
 from admin_api.routes.admin_emails import bp as admin_emails_bp
 from admin_api.routes.users import bp as admin_users
+from admin_api.routes.admin_thumbnail_uploads import bp as admin_thumbnail_uploads
 
 # ---------- Public routes ----------
 from public_api.routes.genres import bp as public_genres
@@ -41,6 +42,7 @@ def create_app():
     app.register_blueprint(admin_self_help)     # /admin/self-help
     app.register_blueprint(admin_emails_bp)     # /admin/admin-emails
     app.register_blueprint(admin_users)         # /admin/users
+    app.register_blueprint(admin_thumbnail_uploads) # /admin/thumbnail/upload
 
     # ---------- Register public APIs ----------
     app.register_blueprint(public_genres)       # /genres
