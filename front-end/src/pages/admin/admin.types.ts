@@ -19,6 +19,7 @@ export type Material = {
   content: string;
   genreId: string;
   source?: string;
+  subscriberOnly?: boolean;
 };
 
 export type SelfHelp = {
@@ -27,6 +28,7 @@ export type SelfHelp = {
   author: string;
   content: string;
   source?: string;
+  subscriberOnly?: boolean;
 };
 
 export type AdminEmail = {

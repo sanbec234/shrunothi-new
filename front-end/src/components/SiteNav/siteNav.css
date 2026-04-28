@@ -1,0 +1,100 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap");
+
+.site-nav {
+  align-items: center;
+  backdrop-filter: blur(14px);
+  background: #151515;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+  padding: 1.25rem clamp(1.5rem, 5vw, 5.5rem);
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+}
+
+.site-nav__brand {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.6rem;
+}
+
+.site-nav__logo {
+  background: transparent;
+  border-radius: 0.4rem;
+  height: 8rem;
+  object-fit: contain;
+  width: 8rem;
+}
+
+.site-nav__links {
+  align-items: center;
+  display: flex;
+  gap: clamp(1.5rem, 3vw, 2.75rem);
+  list-style: none;
+}
+
+.site-nav__links a,
+.site-nav__links button {
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.02rem;
+  font-weight: 400;
+  opacity: 0.92;
+  padding: 0;
+  transition: opacity 0.18s;
+}
+
+.site-nav__links a:hover,
+.site-nav__links button:hover {
+  opacity: 1;
+}
+
+.site-nav__cta {
+  align-items: center;
+  background: linear-gradient(135deg, #ffffff 0%, #209ae5 100%);
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(32, 154, 229, 0.22);
+  color: #000000;
+  display: inline-flex;
+  font-family: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 0.75rem 1.7rem;
+  transition: filter 0.18s, transform 0.15s, box-shadow 0.18s;
+  white-space: nowrap;
+}
+
+.site-nav__cta:hover {
+  box-shadow: 0 8px 22px rgba(32, 154, 229, 0.32);
+  filter: brightness(0.96);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+  .site-nav {
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .site-nav__logo {
+    height: 5.5rem;
+    width: 5.5rem;
+  }
+
+  .site-nav__links {
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    justify-content: center;
+  }
+}

@@ -71,6 +71,43 @@ function isValidAnnouncement(a: any): a is Announcement {
   return isValid;
 }
 
+function extractAnnouncements(raw: unknown): Announcement[] {
+  if (Array.isArray(raw)) {
+    return raw.filter(isValidAnnouncement);
+  }
+
+  if (typeof raw === "string") {
+    try {
+      return extractAnnouncements(JSON.parse(raw));
+    } catch {
+      console.warn("⚠️ Announcements endpoint returned a non-JSON string response");
+      return [];
+    }
+  }
+
+  if (raw && typeof raw === "object") {
+    const wrapped = raw as {
+      announcements?: unknown;
+      data?: unknown;
+      results?: unknown;
+    };
+
+    if ("announcements" in wrapped) {
+      return extractAnnouncements(wrapped.announcements);
+    }
+
+    if ("data" in wrapped) {
+      return extractAnnouncements(wrapped.data);
+    }
+
+    if ("results" in wrapped) {
+      return extractAnnouncements(wrapped.results);
+    }
+  }
+
+  return [];
+}
+
 /**
  * Custom hook to manage daily announcement carousel
  */
@@ -88,18 +125,16 @@ export function useDailyAnnouncements() {
       }
 
       try {
-        const res = await api.get<Announcement[]>("/announcements/active");
-        // Validate response data
-        if (!Array.isArray(res.data)) {
-          console.error('❌ Invalid announcements data format - not an array:', typeof res.data);
-          setLoading(false);
-          return;
+        const res = await api.get<unknown>("/announcements/active");
+        const validAnnouncements = extractAnnouncements(res.data);
+
+        if (validAnnouncements.length === 0 && res.data) {
+          console.warn("⚠️ No valid announcements found in response", {
+            dataType: typeof res.data,
+          });
         }
-        
-        console.log(`📋 Found ${res.data.length} announcement(s) in response`);
-        
-        // Filter and validate announcements
-        const validAnnouncements = res.data.filter(isValidAnnouncement);
+
+        console.log(`📋 Found ${validAnnouncements.length} valid announcement(s) in response`);
         
         if (validAnnouncements.length > 0) {
           setAnnouncements(validAnnouncements);

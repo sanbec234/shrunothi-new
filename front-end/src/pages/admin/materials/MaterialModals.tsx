@@ -13,6 +13,7 @@ interface AddMaterialModalProps {
     author: string;
     content: string;
     genreId: string;
+    subscriberOnly: boolean;
   }) => Promise<void>;
 }
 
@@ -21,12 +22,14 @@ export function AddMaterialModal({ isOpen, genres, onClose, onCreate }: AddMater
   const [author, setAuthor] = useState("");
   const [content, setContent] = useState("");
   const [genreId, setGenreId] = useState("");
+  const [subscriberOnly, setSubscriberOnly] = useState(false);
 
   const reset = () => {
     setTitle("");
     setAuthor("");
     setContent("");
     setGenreId("");
+    setSubscriberOnly(false);
   };
 
   const handleCreate = async () => {
@@ -35,7 +38,7 @@ export function AddMaterialModal({ isOpen, genres, onClose, onCreate }: AddMater
       return;
     }
 
-    await onCreate({ title, author, content, genreId });
+    await onCreate({ title, author, content, genreId, subscriberOnly });
     reset();
     onClose();
   };
@@ -65,6 +68,14 @@ export function AddMaterialModal({ isOpen, genres, onClose, onCreate }: AddMater
           </option>
         ))}
       </select>
+      <label style={{ display: "flex", alignItems: "center", gap: 8, margin: "8px 0" }}>
+        <input
+          type="checkbox"
+          checked={subscriberOnly}
+          onChange={(e) => setSubscriberOnly(e.target.checked)}
+        />
+        Subscriber-only content
+      </label>
       <button onClick={handleCreate}>Add Material</button>
     </AdminRichEditorModal>
   );
@@ -74,7 +85,7 @@ interface AddGoogleDocModalProps {
   isOpen: boolean;
   genres: Genre[];
   onClose: () => void;
-  onSync: (data: { title: string; author: string; google_doc_url: string; genreId: string }) => Promise<void>;
+  onSync: (data: { title: string; author: string; google_doc_url: string; genreId: string; subscriberOnly: boolean }) => Promise<void>;
 }
 
 export function AddGoogleDocModal({ isOpen, genres, onClose, onSync }: AddGoogleDocModalProps) {
@@ -82,6 +93,7 @@ export function AddGoogleDocModal({ isOpen, genres, onClose, onSync }: AddGoogle
   const [author, setAuthor] = useState("");
   const [googleDocUrl, setGoogleDocUrl] = useState("");
   const [genreId, setGenreId] = useState("");
+  const [subscriberOnly, setSubscriberOnly] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const reset = () => {
@@ -89,6 +101,7 @@ export function AddGoogleDocModal({ isOpen, genres, onClose, onSync }: AddGoogle
     setAuthor("");
     setGoogleDocUrl("");
     setGenreId("");
+    setSubscriberOnly(false);
     setIsSubmitting(false);
   };
 
@@ -105,6 +118,7 @@ export function AddGoogleDocModal({ isOpen, genres, onClose, onSync }: AddGoogle
         author: author.trim(),
         google_doc_url: googleDocUrl.trim(),
         genreId,
+        subscriberOnly,
       });
       reset();
       onClose();
@@ -143,6 +157,14 @@ export function AddGoogleDocModal({ isOpen, genres, onClose, onSync }: AddGoogle
           </option>
         ))}
       </select>
+      <label style={{ display: "flex", alignItems: "center", gap: 8, margin: "8px 0" }}>
+        <input
+          type="checkbox"
+          checked={subscriberOnly}
+          onChange={(e) => setSubscriberOnly(e.target.checked)}
+        />
+        Subscriber-only content
+      </label>
       <button onClick={handleSync} disabled={isSubmitting}>
         {isSubmitting ? "Syncing..." : "Sync Document"}
       </button>
@@ -156,7 +178,7 @@ interface EditMaterialModalProps {
   onClose: () => void;
   onSave: (
     id: string,
-    data: { title: string; author: string; content: string; genreId: string }
+    data: { title: string; author: string; content: string; genreId: string; subscriberOnly: boolean }
   ) => Promise<void>;
   fetchContent: (id: string) => Promise<string>;
 }
@@ -172,6 +194,7 @@ export function EditMaterialModal({
   const [author, setAuthor] = useState(material?.author || "");
   const [content, setContent] = useState("");
   const [genreId, setGenreId] = useState(material?.genreId || "");
+  const [subscriberOnly, setSubscriberOnly] = useState<boolean>(Boolean(material?.subscriberOnly));
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -192,11 +215,12 @@ export function EditMaterialModal({
         setTitle(material.title || "");
         setAuthor(material.author || "");
         setGenreId(material.genreId || "");
+        setSubscriberOnly(Boolean(material.subscriberOnly));
         }, [material]);
     if (!material) return null;
 
   const handleSave = async () => {
-    await onSave(material.id, { title, author, content, genreId });
+    await onSave(material.id, { title, author, content, genreId, subscriberOnly });
     setSuccessMessage("Material updated successfully");
 
     setTimeout(() => {
@@ -237,6 +261,15 @@ export function EditMaterialModal({
           </option>
         ))}
       </select>
+
+      <label style={{ display: "flex", alignItems: "center", gap: 8, margin: "8px 0" }}>
+        <input
+          type="checkbox"
+          checked={subscriberOnly}
+          onChange={(e) => setSubscriberOnly(e.target.checked)}
+        />
+        Subscriber-only content
+      </label>
 
       <button onClick={handleSave}>Save</button>
     </AdminRichEditorModal>

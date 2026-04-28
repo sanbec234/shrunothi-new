@@ -2,9 +2,11 @@ from flask import Blueprint, request, jsonify
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from db.client import get_db
+from db.models.subscriber import is_subscriber
+from auth.auth_guard import attach_optional_user
 import os
 from datetime import datetime
-from extensions import limiter   
+from extensions import limiter
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -59,3 +61,18 @@ def google_auth():
 
     except Exception:
         return jsonify({ "error": "Invalid Google token" }), 401
+
+
+@auth_bp.route("/me/subscription", methods=["GET"])
+@limiter.limit("500 per minute")
+def my_subscription():
+    """
+    Returns { isSubscribed: bool } for the bearer of the token.
+    Anonymous callers get { isSubscribed: false } with 200 — this is a
+    UI hint, not an auth gate, so a missing token isn't an error.
+    """
+    user = attach_optional_user()
+    if not user:
+        return jsonify({"isSubscribed": False}), 200
+    db = get_db()
+    return jsonify({"isSubscribed": bool(is_subscriber(db, user["email"]))}), 200

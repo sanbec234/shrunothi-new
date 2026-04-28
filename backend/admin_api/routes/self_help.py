@@ -59,6 +59,7 @@ def update_self_help(self_help_id):
             "title": data["title"],
             "author": data["author"],
             "content": data["content"],
+            "subscriberOnly": bool(data.get("subscriberOnly", False)),
             "updated_at": datetime.utcnow()
         }}
     )
@@ -158,6 +159,7 @@ def sync_google_doc_self_help():
         "html_content": html_content,
         "last_synced": now,
         "source": "google_docs",
+        "subscriberOnly": bool(data.get("subscriberOnly", False)),
         "created_at": now,
         "updated_at": now,
     })

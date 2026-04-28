@@ -104,7 +104,12 @@ export default function Home(): JSX.Element {
         const res = await api.get<Genre[]>("/genres");
         if (!mounted) return;
 
-        const list = res.data || [];
+        const raw = res.data;
+        const list: Genre[] = Array.isArray(raw)
+          ? raw
+          : Array.isArray((raw as { genres?: Genre[] }).genres)
+          ? (raw as { genres: Genre[] }).genres
+          : [];
         setGenres(list);
 
         if (list.length > 0) {
@@ -145,7 +150,7 @@ export default function Home(): JSX.Element {
         );
         if (!mounted) return;
 
-        const podcastsData = res.data.podcasts || [];
+        const podcastsData = Array.isArray(res.data?.podcasts) ? res.data.podcasts : [];
 
         setPodcasts(podcastsData);
         setPodcastLanguages([...INDIAN_PODCAST_LANGUAGES]);
@@ -182,7 +187,7 @@ export default function Home(): JSX.Element {
       try {
         const res = await api.get<TextDoc[]>(`/genres/${genreId}/material`);
         if (!mounted) return;
-        setMaterialDocs(res.data || []);
+        setMaterialDocs(Array.isArray(res.data) ? res.data : []);
       } catch {
         setMaterialDocs([]);
       }
@@ -204,7 +209,7 @@ export default function Home(): JSX.Element {
       try {
         const res = await api.get<TextDoc[]>("/corpus/self-help");
         if (!mounted) return;
-        setSelfHelpDocs(res.data || []);
+        setSelfHelpDocs(Array.isArray(res.data) ? res.data : []);
       } catch {
         /* silent */
       }

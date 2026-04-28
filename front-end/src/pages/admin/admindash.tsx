@@ -162,6 +162,7 @@ export default function AdminDashboard() {
     author: string;
     google_doc_url: string;
     genreId: string;
+    subscriberOnly?: boolean;
   }) => {
     await materialsHook.syncGoogleDocMaterial(data);
     setShowAddGoogleDoc(false);
@@ -182,6 +183,7 @@ export default function AdminDashboard() {
     title: string;
     author: string;
     google_doc_url: string;
+    subscriberOnly?: boolean;
   }) => {
     await selfHelpHook.syncGoogleDocSelfHelp(data);
     setShowAddSelfHelpGoogleDoc(false);

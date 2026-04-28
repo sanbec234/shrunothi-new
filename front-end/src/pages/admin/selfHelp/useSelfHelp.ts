@@ -2,6 +2,22 @@ import { useState, useEffect } from "react";
 import { api } from "../../../api/client";
 import type { SelfHelp } from "../admin.types";
 
+type CreatePayload = {
+  title: string;
+  author: string;
+  content: string;
+  subscriberOnly?: boolean;
+};
+
+type UpdatePayload = CreatePayload;
+
+type GoogleDocPayload = {
+  title: string;
+  author: string;
+  google_doc_url: string;
+  subscriberOnly?: boolean;
+};
+
 export function useSelfHelp() {
   const [selfHelps, setSelfHelps] = useState<SelfHelp[]>([]);
 
@@ -18,28 +34,17 @@ export function useSelfHelp() {
     }
   }
 
-  async function createSelfHelp(data: {
-    title: string;
-    author: string;
-    content: string;
-  }) {
+  async function createSelfHelp(data: CreatePayload) {
     await api.post("/admin/self-help", data);
     await loadSelfHelp();
   }
 
-  async function syncGoogleDocSelfHelp(data: {
-    title: string;
-    author: string;
-    google_doc_url: string;
-  }) {
+  async function syncGoogleDocSelfHelp(data: GoogleDocPayload) {
     await api.post("/admin/self-help/sync-google-doc", data);
     await loadSelfHelp();
   }
 
-  async function updateSelfHelp(
-    id: string,
-    data: { title: string; author: string; content: string }
-  ) {
+  async function updateSelfHelp(id: string, data: UpdatePayload) {
     await api.put(`/admin/self-help/${id}`, data);
     await loadSelfHelp();
   }

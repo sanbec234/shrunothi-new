@@ -6,18 +6,20 @@ import type { SelfHelp } from "../admin.types";
 interface AddSelfHelpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (data: { title: string; author: string; content: string }) => Promise<void>;
+  onCreate: (data: { title: string; author: string; content: string; subscriberOnly: boolean }) => Promise<void>;
 }
 
 export function AddSelfHelpModal({ isOpen, onClose, onCreate }: AddSelfHelpModalProps) {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [content, setContent] = useState("");
+  const [subscriberOnly, setSubscriberOnly] = useState(false);
 
   const reset = () => {
     setTitle("");
     setAuthor("");
     setContent("");
+    setSubscriberOnly(false);
   };
 
   const handleCreate = async () => {
@@ -26,7 +28,7 @@ export function AddSelfHelpModal({ isOpen, onClose, onCreate }: AddSelfHelpModal
       return;
     }
 
-    await onCreate({ title, author, content });
+    await onCreate({ title, author, content, subscriberOnly });
     reset();
     onClose();
   };
@@ -48,6 +50,14 @@ export function AddSelfHelpModal({ isOpen, onClose, onCreate }: AddSelfHelpModal
       <div className="editor-window-editor">
         <RichEditor value={content} onChange={setContent} />
       </div>
+      <label style={{ display: "flex", alignItems: "center", gap: 8, margin: "8px 0" }}>
+        <input
+          type="checkbox"
+          checked={subscriberOnly}
+          onChange={(e) => setSubscriberOnly(e.target.checked)}
+        />
+        Subscriber-only content
+      </label>
       <button onClick={handleCreate}>Add Self-Help</button>
     </AdminRichEditorModal>
   );
@@ -56,7 +66,7 @@ export function AddSelfHelpModal({ isOpen, onClose, onCreate }: AddSelfHelpModal
 interface AddGoogleDocSelfHelpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSync: (data: { title: string; author: string; google_doc_url: string }) => Promise<void>;
+  onSync: (data: { title: string; author: string; google_doc_url: string; subscriberOnly: boolean }) => Promise<void>;
 }
 
 export function AddGoogleDocSelfHelpModal({
@@ -67,12 +77,14 @@ export function AddGoogleDocSelfHelpModal({
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [googleDocUrl, setGoogleDocUrl] = useState("");
+  const [subscriberOnly, setSubscriberOnly] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const reset = () => {
     setTitle("");
     setAuthor("");
     setGoogleDocUrl("");
+    setSubscriberOnly(false);
     setIsSubmitting(false);
   };
 
@@ -88,6 +100,7 @@ export function AddGoogleDocSelfHelpModal({
         title: title.trim(),
         author: author.trim(),
         google_doc_url: googleDocUrl.trim(),
+        subscriberOnly,
       });
       reset();
       onClose();
@@ -118,6 +131,14 @@ export function AddGoogleDocSelfHelpModal({
         value={googleDocUrl}
         onChange={(e) => setGoogleDocUrl(e.target.value)}
       />
+      <label style={{ display: "flex", alignItems: "center", gap: 8, margin: "8px 0" }}>
+        <input
+          type="checkbox"
+          checked={subscriberOnly}
+          onChange={(e) => setSubscriberOnly(e.target.checked)}
+        />
+        Subscriber-only content
+      </label>
       <button onClick={handleSync} disabled={isSubmitting}>
         {isSubmitting ? "Syncing..." : "Sync Document"}
       </button>
@@ -128,7 +149,7 @@ export function AddGoogleDocSelfHelpModal({
 interface EditSelfHelpModalProps {
   selfHelp: SelfHelp | null;
   onClose: () => void;
-  onSave: (id: string, data: { title: string; author: string; content: string }) => Promise<void>;
+  onSave: (id: string, data: { title: string; author: string; content: string; subscriberOnly: boolean }) => Promise<void>;
   fetchContent: (id: string) => Promise<string>;
 }
 
@@ -141,9 +162,9 @@ export function EditSelfHelpModal({
   const [title, setTitle] = useState(selfHelp?.title || "");
   const [author, setAuthor] = useState(selfHelp?.author || "");
   const [content, setContent] = useState("");
+  const [subscriberOnly, setSubscriberOnly] = useState<boolean>(Boolean(selfHelp?.subscriberOnly));
   const [loading, setLoading] = useState(true);
 
-  // Fetch content when modal opens
   useEffect(() => {
     if (!selfHelp) return;
 
@@ -159,12 +180,13 @@ export function EditSelfHelpModal({
 
     setTitle(selfHelp.title);
     setAuthor(selfHelp.author);
+    setSubscriberOnly(Boolean(selfHelp.subscriberOnly));
     }, [selfHelp]);
 
   if (!selfHelp) return null;
 
   const handleSave = async () => {
-    await onSave(selfHelp.id, { title, author, content });
+    await onSave(selfHelp.id, { title, author, content, subscriberOnly });
     onClose();
   };
 
@@ -189,6 +211,15 @@ export function EditSelfHelpModal({
           <RichEditor value={content} onChange={setContent} />
         )}
       </div>
+
+      <label style={{ display: "flex", alignItems: "center", gap: 8, margin: "8px 0" }}>
+        <input
+          type="checkbox"
+          checked={subscriberOnly}
+          onChange={(e) => setSubscriberOnly(e.target.checked)}
+        />
+        Subscriber-only content
+      </label>
 
       <button onClick={handleSave}>Save</button>
     </AdminRichEditorModal>

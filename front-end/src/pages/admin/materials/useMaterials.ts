@@ -2,6 +2,24 @@ import { useState, useEffect } from "react";
 import { api } from "../../../api/client";
 import type { Material } from "../admin.types";
 
+type CreatePayload = {
+  title: string;
+  author: string;
+  content: string;
+  genreId: string;
+  subscriberOnly?: boolean;
+};
+
+type UpdatePayload = CreatePayload;
+
+type GoogleDocPayload = {
+  title: string;
+  author: string;
+  google_doc_url: string;
+  genreId: string;
+  subscriberOnly?: boolean;
+};
+
 export function useMaterials() {
   const [materials, setMaterials] = useState<Material[]>([]);
 
@@ -18,30 +36,17 @@ export function useMaterials() {
     }
   }
 
-  async function createMaterial(data: {
-    title: string;
-    author: string;
-    content: string;
-    genreId: string;
-  }) {
+  async function createMaterial(data: CreatePayload) {
     await api.post("/admin/materials", data);
     await loadMaterials();
   }
 
-  async function syncGoogleDocMaterial(data: {
-    title: string;
-    author: string;
-    google_doc_url: string;
-    genreId: string;
-  }) {
+  async function syncGoogleDocMaterial(data: GoogleDocPayload) {
     await api.post("/admin/materials/sync-google-doc", data);
     await loadMaterials();
   }
 
-  async function updateMaterial(
-    id: string,
-    data: { title: string; author: string; content: string; genreId: string }
-  ) {
+  async function updateMaterial(id: string, data: UpdatePayload) {
     await api.put(`/admin/materials/${id}`, data);
     setMaterials((prev) =>
       prev.map((m) => (m.id === id ? { ...m, ...data } : m))

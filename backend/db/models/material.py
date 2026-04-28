@@ -8,6 +8,7 @@ def serialize_material(doc):
         "author": doc.get("author"),
         "genreId": str(doc["genreId"]) if doc.get("genreId") else None,
         "source": doc.get("source"),
+        "subscriberOnly": bool(doc.get("subscriberOnly", False)),
     }
 
 def create_material(db, data):
@@ -17,6 +18,7 @@ def create_material(db, data):
         "author": data["author"],
         "content": data["content"],
         "genreId": data["genreId"],
+        "subscriberOnly": bool(data.get("subscriberOnly", False)),
         "created_at": now,
         "updated_at": now
     })

@@ -16,8 +16,9 @@ def genre_material(genre_id):
     for d in docs:
         materials.append({
             "id": str(d["_id"]),
-            "title": d["title"],   # frontend expects `title`
-            "author": d.get("author", "Unknown")
+            "title": d["title"],
+            "author": d.get("author", "Unknown"),
+            "thumbnailUrl": d.get("thumbnailUrl"),
         })
 
     return jsonify(materials), 200

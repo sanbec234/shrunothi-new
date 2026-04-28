@@ -69,6 +69,7 @@ def update_material(material_id):
             "author": data["author"],
             "content": data["content"],
             "genreId": data["genreId"],  # keep STRING for consistency
+            "subscriberOnly": bool(data.get("subscriberOnly", False)),
             "updated_at": datetime.utcnow()
         }}
     )
@@ -180,6 +181,7 @@ def sync_google_doc_material():
         "html_content": html_content,
         "last_synced": now,
         "source": "google_docs",
+        "subscriberOnly": bool(data.get("subscriberOnly", False)),
         "created_at": now,
         "updated_at": now,
     })
