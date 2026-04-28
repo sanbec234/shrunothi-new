@@ -214,7 +214,7 @@ export default function Home2(): JSX.Element {
     JSON.parse(localStorage.getItem("authUser") || "null")
   );
   const isLoggedIn = Boolean(authUser);
-  const { isSubscribed, refresh: refreshSubscription } = useSubscription();
+  useSubscription();
 
   /* genre */
   const [genres,        setGenres]        = useState<Genre[]>([]);
