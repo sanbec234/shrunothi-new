@@ -7,15 +7,23 @@ type CreatePayload = {
   author: string;
   content: string;
   subscriberOnly?: boolean;
+  thumbnailUrl: string;
 };
 
-type UpdatePayload = CreatePayload;
+type UpdatePayload = {
+  title: string;
+  author: string;
+  content: string;
+  subscriberOnly?: boolean;
+  thumbnailUrl?: string;
+};
 
 type GoogleDocPayload = {
   title: string;
   author: string;
   google_doc_url: string;
   subscriberOnly?: boolean;
+  thumbnailUrl: string;
 };
 
 export function useSelfHelp() {

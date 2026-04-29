@@ -1,12 +1,117 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { api } from "../../../api/client";
 import RichEditor from "../../../components/RichEditor/RichEditor";
 import AdminRichEditorModal from "../../../components/AdminRichEditorModal/AdminRichEditorModal";
 import type { SelfHelp } from "../admin.types";
+import "../materials/materials.css";
+
+// ---------------------------------------------------------------------------
+// Shared thumbnail uploader (same logic as MaterialModals)
+// ---------------------------------------------------------------------------
+
+interface ThumbnailUploaderProps {
+  value: string;
+  onChange: (url: string) => void;
+}
+
+function ThumbnailUploader({ value, onChange }: ThumbnailUploaderProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleFile(file: File) {
+    setError("");
+    const allowed = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      setError("Only JPG, PNG, or WebP images are allowed.");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const presignRes = await api.post<{ uploadUrl: string; fileUrl: string }>(
+        "/admin/uploads/thumbnail-presign",
+        { filename: file.name, contentType: file.type }
+      );
+      const { uploadUrl, fileUrl } = presignRes.data;
+
+      await fetch(uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+
+      onChange(fileUrl);
+    } catch (err: any) {
+      setError(err?.response?.data?.error || "Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="thumbnail-uploader">
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+        <label className="thumbnail-uploader__label">Thumbnail *</label>
+        <span style={{ fontSize: "0.75rem", color: "var(--muted, #888)" }}>
+          (Recommended: 570×456px for materials, 570×570px for guides)
+        </span>
+      </div>
+
+      {value ? (
+        <div className="thumbnail-uploader__preview">
+          <img src={value} alt="Thumbnail preview" className="thumbnail-uploader__img" />
+          <button
+            type="button"
+            className="thumbnail-uploader__change"
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? "Uploading…" : "Change image"}
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="thumbnail-uploader__pick"
+          onClick={() => inputRef.current?.click()}
+          disabled={uploading}
+        >
+          {uploading ? "Uploading…" : "Upload thumbnail"}
+        </button>
+      )}
+
+      {error && <p className="thumbnail-uploader__error">{error}</p>}
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleFile(file);
+          e.target.value = "";
+        }}
+      />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Add Self-Help modal
+// ---------------------------------------------------------------------------
 
 interface AddSelfHelpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (data: { title: string; author: string; content: string; subscriberOnly: boolean }) => Promise<void>;
+  onCreate: (data: {
+    title: string;
+    author: string;
+    content: string;
+    subscriberOnly: boolean;
+    thumbnailUrl: string;
+  }) => Promise<void>;
 }
 
 export function AddSelfHelpModal({ isOpen, onClose, onCreate }: AddSelfHelpModalProps) {
@@ -14,12 +119,14 @@ export function AddSelfHelpModal({ isOpen, onClose, onCreate }: AddSelfHelpModal
   const [author, setAuthor] = useState("");
   const [content, setContent] = useState("");
   const [subscriberOnly, setSubscriberOnly] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
 
   const reset = () => {
     setTitle("");
     setAuthor("");
     setContent("");
     setSubscriberOnly(false);
+    setThumbnailUrl("");
   };
 
   const handleCreate = async () => {
@@ -27,8 +134,12 @@ export function AddSelfHelpModal({ isOpen, onClose, onCreate }: AddSelfHelpModal
       alert("All fields required");
       return;
     }
+    if (!thumbnailUrl) {
+      alert("Please upload a thumbnail before saving.");
+      return;
+    }
 
-    await onCreate({ title, author, content, subscriberOnly });
+    await onCreate({ title, author, content, subscriberOnly, thumbnailUrl });
     reset();
     onClose();
   };
@@ -58,15 +169,26 @@ export function AddSelfHelpModal({ isOpen, onClose, onCreate }: AddSelfHelpModal
         />
         Subscriber-only content
       </label>
+      <ThumbnailUploader value={thumbnailUrl} onChange={setThumbnailUrl} />
       <button onClick={handleCreate}>Add Self-Help</button>
     </AdminRichEditorModal>
   );
 }
 
+// ---------------------------------------------------------------------------
+// Add Google Doc Self-Help modal
+// ---------------------------------------------------------------------------
+
 interface AddGoogleDocSelfHelpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSync: (data: { title: string; author: string; google_doc_url: string; subscriberOnly: boolean }) => Promise<void>;
+  onSync: (data: {
+    title: string;
+    author: string;
+    google_doc_url: string;
+    subscriberOnly: boolean;
+    thumbnailUrl: string;
+  }) => Promise<void>;
 }
 
 export function AddGoogleDocSelfHelpModal({
@@ -78,6 +200,7 @@ export function AddGoogleDocSelfHelpModal({
   const [author, setAuthor] = useState("");
   const [googleDocUrl, setGoogleDocUrl] = useState("");
   const [subscriberOnly, setSubscriberOnly] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const reset = () => {
@@ -85,12 +208,17 @@ export function AddGoogleDocSelfHelpModal({
     setAuthor("");
     setGoogleDocUrl("");
     setSubscriberOnly(false);
+    setThumbnailUrl("");
     setIsSubmitting(false);
   };
 
   const handleSync = async () => {
     if (!title.trim() || !author.trim() || !googleDocUrl.trim()) {
       alert("Title, author, and Google Doc URL are required");
+      return;
+    }
+    if (!thumbnailUrl) {
+      alert("Please upload a thumbnail before syncing.");
       return;
     }
 
@@ -101,6 +229,7 @@ export function AddGoogleDocSelfHelpModal({
         author: author.trim(),
         google_doc_url: googleDocUrl.trim(),
         subscriberOnly,
+        thumbnailUrl,
       });
       reset();
       onClose();
@@ -139,6 +268,7 @@ export function AddGoogleDocSelfHelpModal({
         />
         Subscriber-only content
       </label>
+      <ThumbnailUploader value={thumbnailUrl} onChange={setThumbnailUrl} />
       <button onClick={handleSync} disabled={isSubmitting}>
         {isSubmitting ? "Syncing..." : "Sync Document"}
       </button>
@@ -146,10 +276,20 @@ export function AddGoogleDocSelfHelpModal({
   );
 }
 
+// ---------------------------------------------------------------------------
+// Edit Self-Help modal
+// ---------------------------------------------------------------------------
+
 interface EditSelfHelpModalProps {
   selfHelp: SelfHelp | null;
   onClose: () => void;
-  onSave: (id: string, data: { title: string; author: string; content: string; subscriberOnly: boolean }) => Promise<void>;
+  onSave: (id: string, data: {
+    title: string;
+    author: string;
+    content: string;
+    subscriberOnly: boolean;
+    thumbnailUrl?: string;
+  }) => Promise<void>;
   fetchContent: (id: string) => Promise<string>;
 }
 
@@ -163,30 +303,36 @@ export function EditSelfHelpModal({
   const [author, setAuthor] = useState(selfHelp?.author || "");
   const [content, setContent] = useState("");
   const [subscriberOnly, setSubscriberOnly] = useState<boolean>(Boolean(selfHelp?.subscriberOnly));
+  const [thumbnailUrl, setThumbnailUrl] = useState(selfHelp?.thumbnailUrl || "");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!selfHelp) return;
-
     setLoading(true);
     fetchContent(selfHelp.id).then((data) => {
-        setContent(data);
-        setLoading(false);
+      setContent(data);
+      setLoading(false);
     });
-    }, [selfHelp?.id]);
+  }, [selfHelp?.id]);
 
   useEffect(() => {
     if (!selfHelp) return;
-
     setTitle(selfHelp.title);
     setAuthor(selfHelp.author);
     setSubscriberOnly(Boolean(selfHelp.subscriberOnly));
-    }, [selfHelp]);
+    setThumbnailUrl(selfHelp.thumbnailUrl || "");
+  }, [selfHelp]);
 
   if (!selfHelp) return null;
 
   const handleSave = async () => {
-    await onSave(selfHelp.id, { title, author, content, subscriberOnly });
+    await onSave(selfHelp.id, {
+      title,
+      author,
+      content,
+      subscriberOnly,
+      ...(thumbnailUrl ? { thumbnailUrl } : {}),
+    });
     onClose();
   };
 
@@ -220,6 +366,8 @@ export function EditSelfHelpModal({
         />
         Subscriber-only content
       </label>
+
+      <ThumbnailUploader value={thumbnailUrl} onChange={setThumbnailUrl} />
 
       <button onClick={handleSave}>Save</button>
     </AdminRichEditorModal>

@@ -1,0 +1,80 @@
+/* ── Thumbnail uploader ──────────────────────────────────────────────────── */
+
+.thumbnail-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.thumbnail-uploader__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink, #1a1a1a);
+}
+
+/* "Upload thumbnail" button (no image yet) */
+.thumbnail-uploader__pick {
+  align-self: flex-start;
+  padding: 0.5rem 1rem;
+  border: 2px dashed var(--muted, #888);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted, #888);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.thumbnail-uploader__pick:hover:not(:disabled) {
+  border-color: var(--ink, #1a1a1a);
+  color: var(--ink, #1a1a1a);
+}
+
+.thumbnail-uploader__pick:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Preview once an image is uploaded */
+.thumbnail-uploader__preview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.thumbnail-uploader__img {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}
+
+/* "Change image" button shown beside the preview */
+.thumbnail-uploader__change {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--muted, #888);
+  border-radius: 6px;
+  background: transparent;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--ink, #1a1a1a);
+  transition: background 0.15s;
+}
+
+.thumbnail-uploader__change:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.thumbnail-uploader__change:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.thumbnail-uploader__error {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #d32f2f;
+}

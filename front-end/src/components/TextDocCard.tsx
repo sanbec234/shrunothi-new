@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { api } from "../api/client";
 import type { TextDoc } from "../types";
 
+// Generic placeholder shown for materials that have no thumbnail yet.
+// Place a real image at /public/thumb-placeholder.jpg to customise it.
+const FALLBACK_THUMBNAIL = "/thumb-placeholder.jpg";
+
 type Props = {
   doc: TextDoc;
   onClick?: () => void;
@@ -17,6 +21,7 @@ function htmlToText(html: string): string {
 
 export default function TextDocCard({ doc, onClick, showPreview = true }: Props) {
   const [preview, setPreview] = useState<string>("");
+  const thumb = doc.thumbnailUrl || FALLBACK_THUMBNAIL;
 
   useEffect(() => {
     let mounted = true;
@@ -52,9 +57,21 @@ export default function TextDocCard({ doc, onClick, showPreview = true }: Props)
 
   return (
     <div className="doc-card" onClick={onClick}>
+      {/* Thumbnail */}
+      <div className="doc-card-thumb">
+        <img
+          src={thumb}
+          alt={doc.title}
+          className="doc-card-thumb-img"
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).src = FALLBACK_THUMBNAIL;
+          }}
+        />
+      </div>
+
       <div className="doc-title">{doc.title}</div>
       <div className="doc-author">{doc.author}</div>
-      
+
       {showPreview && preview && <p className="doc-preview">{preview}</p>}
 
       <button className="ghost ghost--tight">Read guide</button>

@@ -1,5 +1,4 @@
 import type { JSX } from "react";
-import { Link } from "react-router-dom";
 
 import SiteNav from "../../components/SiteNav/SiteNav";
 import "./aboutUs.css";
@@ -14,6 +13,7 @@ type ProductCard = {
   title: string[];
   image: string;
   titleClassName: string;
+  href: string;
 };
 
 const founders: PersonCard[] = [
@@ -57,16 +57,19 @@ const products: ProductCard[] = [
     title: ["NICCS", "(A Career By Choice)"],
     image: "/about-us/product-niccs.png",
     titleClassName: "about-us-product-title--teal",
+    href: "https://www.nibbanaindia.com/services/niccs",
   },
   {
     title: ["Become a Workplace", "Informed Counsellor"],
     image: "/about-us/product-counsellor.png",
     titleClassName: "about-us-product-title--coral",
+    href: "https://www.nibbanaindia.com/services/workplace-informed-counselling",
   },
   {
     title: ["Become a", "Globally Recognised", "Executive Coach"],
     image: "/about-us/product-coach.png",
     titleClassName: "about-us-product-title--blue",
+    href: "https://www.nibbanaindia.com/services/executive-coach",
   },
 ];
 
@@ -149,13 +152,15 @@ export default function AboutUs(): JSX.Element {
                     <span key={line}>{line}</span>
                   ))}
                 </div>
-                <Link
+                <a
                   className="about-us-product-button"
-                  to="/"
+                  href={product.href}
+                  target="_blank"
+                  rel="noreferrer"
                   aria-label={`Learn more about ${product.title.join(" ")}`}
                 >
                   Learn More
-                </Link>
+                </a>
               </article>
             ))}
           </div>
