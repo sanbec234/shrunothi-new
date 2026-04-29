@@ -1,5 +1,6 @@
 import type { JSX } from "react";
 
+import Footer from "../../components/Footer";
 import SiteNav from "../../components/SiteNav/SiteNav";
 import "./aboutUs.css";
 
@@ -73,12 +74,6 @@ const products: ProductCard[] = [
   },
 ];
 
-const footerLinks = [
-  { href: "https://www.facebook.com", label: "Facebook", icon: "/about-us/icon-facebook.png" },
-  { href: "https://www.linkedin.com", label: "LinkedIn", icon: "/about-us/icon-linkedin.png" },
-  { href: "https://www.instagram.com", label: "Instagram", icon: "/about-us/icon-instagram.png" },
-  { href: "https://www.youtube.com", label: "YouTube", icon: "/about-us/icon-youtube.png" },
-];
 
 function PersonCard({ name, role, image }: PersonCard): JSX.Element {
   return (
@@ -167,25 +162,7 @@ export default function AboutUs(): JSX.Element {
         </div>
       </div>
 
-      <footer className="about-us-footer">
-        <div className="about-us-footer-inner">
-          <img className="about-us-footer-logo" src="/about-us/logo.png" alt="Shrunothi" />
-
-          <div className="about-us-footer-social">
-            {footerLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={link.label}
-              >
-                <img src={link.icon} alt="" />
-              </a>
-            ))}
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }

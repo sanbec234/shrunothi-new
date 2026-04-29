@@ -10,18 +10,20 @@ import TermsOfService from './pages/termsofservice/TermsOfService';
 import NotFound from './pages/NotFound';
 import SiteLockGate from './components/SiteLock/SiteLockGate';
 import AboutUs from './pages/aboutus/AboutUs';
+import Plans from './pages/plans/Plans';
 
 function AppRoutes(): JSX.Element {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home2 />} />
         <Route path="/admin" element={<AdminGuard />} />
-        <Route path="/home2" element={<Home2 />} />
+        {/* <Route path="/home2" element={<Home2 />} /> */}
         <Route path="/login-test" element={<LoginTest />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/tos" element={<TermsOfService />} />
         <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/plans" element={<Plans />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

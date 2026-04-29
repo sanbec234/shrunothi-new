@@ -7,6 +7,7 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import DocModal from "../../components/DocModal/DocModal";
 import LoginPopup from "../../components/GoogleAuthPopup";
@@ -17,6 +18,7 @@ import {
   DEFAULT_PODCAST_LANGUAGE,
   INDIAN_PODCAST_LANGUAGES,
 } from "../../constants/podcastLanguages";
+import Footer from "../../components/Footer";
 import SiteNav from "../../components/SiteNav/SiteNav";
 import "./home2.css";
 
@@ -25,7 +27,7 @@ type Podcast      = { embed_url: string; title?: string; language?: string };
 type PodcastApi   = { podcasts?: Podcast[]; languages?: string[] };
 type MaterialDoc  = TextDoc & { thumbnailUrl?: string | null; subscriberOnly?: boolean; locked?: boolean };
 type SelfHelpDoc  = TextDoc & { preview?: string; thumbnailUrl?: string | null; subscriberOnly?: boolean; locked?: boolean };
-type Suggestion   = { id: string; title: string; kind: "material" | "guide" };
+type Suggestion   = { id: string; title: string; kind: "podcast" | "material" | "guide"; onSelect: () => void };
 
 const THUMB_PLACEHOLDER = "/thumb-placeholder.jpg";
 
@@ -134,12 +136,12 @@ function SearchWithSuggest({
         <input
           className="h2-search__input"
           type="text"
-          placeholder="Search materials and guides"
+          placeholder="Search podcasts, materials and guides"
           value={value}
           onChange={(e) => { onChange(e.target.value); setOpen(true); }}
           onFocus={() => value && setOpen(true)}
           onKeyDown={(e) => { if (e.key === "Escape") setOpen(false); }}
-          aria-label="Search materials and guides"
+          aria-label="Search podcasts, materials and guides"
           autoComplete="off"
         />
         {value && (
@@ -159,13 +161,14 @@ function SearchWithSuggest({
               role="option"
               className="h2-suggest__item"
               onMouseDown={(e) => {
-                e.preventDefault();          /* keep input focused */
-                onChange(s.title);
+                e.preventDefault();
+                onChange("");
+                s.onSelect();
                 setOpen(false);
               }}
             >
               <span className="h2-suggest__badge">
-                {s.kind === "material" ? "Material" : "Guide"}
+                {s.kind === "podcast" ? "Podcast" : s.kind === "material" ? "Material" : "Guide"}
               </span>
               <span className="h2-suggest__label">{s.title}</span>
             </button>
@@ -210,6 +213,7 @@ function LangTabs({
    HOME2
    ============================================================ */
 export default function Home2(): JSX.Element {
+  const navigate = useNavigate();
   const [authUser, setAuthUser] = useState(() =>
     JSON.parse(localStorage.getItem("authUser") || "null")
   );
@@ -231,6 +235,13 @@ export default function Home2(): JSX.Element {
   /* content */
   const [materialDocs, setMaterialDocs] = useState<MaterialDoc[]>([]);
   const [selfHelpDocs, setSelfHelpDocs] = useState<SelfHelpDoc[]>([]);
+
+  /* cross-genre suggestion pool */
+  const [allMaterials, setAllMaterials] = useState<{ doc: MaterialDoc; genre: Genre }[]>([]);
+  const [allPodcasts,  setAllPodcasts]  = useState<{ podcast: Podcast & { title: string }; genre: Genre }[]>([]);
+
+  /* pending scroll-to-podcast after genre switch */
+  const [pendingPodcastTitle, setPendingPodcastTitle] = useState<string | null>(null);
 
   /* modals */
   const [activeDoc,    setActiveDoc]    = useState<TextDoc | null>(null);
@@ -258,6 +269,47 @@ export default function Home2(): JSX.Element {
       .catch(console.error);
     return () => { ok = false; };
   }, []);
+
+  /* ── fetch all genres' content for cross-genre suggestions ── */
+  useEffect(() => {
+    if (!genres.length) return;
+    let ok = true;
+    Promise.all(
+      genres.map((g) =>
+        api.get<MaterialDoc[]>(`/genres/${g.id}/material`)
+          .then((r) => (Array.isArray(r.data) ? r.data : []).map((d) => ({ doc: d, genre: g })))
+          .catch(() => [] as { doc: MaterialDoc; genre: Genre }[])
+      )
+    ).then((results) => { if (ok) setAllMaterials(results.flat()); });
+
+    Promise.all(
+      genres.map((g) =>
+        api.get<PodcastApi>(`/genres/${g.id}/podcasts`, { params: { language: DEFAULT_PODCAST_LANGUAGE } })
+          .then((r) =>
+            (Array.isArray(r.data?.podcasts) ? r.data.podcasts! : [])
+              .filter((p): p is Podcast & { title: string } => Boolean(p.title))
+              .map((p) => ({ podcast: p, genre: g }))
+          )
+          .catch(() => [] as { podcast: Podcast & { title: string }; genre: Genre }[])
+      )
+    ).then((results) => { if (ok) setAllPodcasts(results.flat()); });
+
+    return () => { ok = false; };
+  }, [genres]);
+
+  /* ── scroll to pending podcast once the row loads ── */
+  useEffect(() => {
+    if (!pendingPodcastTitle || !podcasts) return;
+    const frames = podcastRowRef.current?.querySelectorAll<HTMLIFrameElement>("iframe");
+    if (!frames?.length) return;
+    for (const frame of Array.from(frames)) {
+      if (frame.title === pendingPodcastTitle) {
+        frame.closest(".h2-podcast-card")?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        setPendingPodcastTitle(null);
+        break;
+      }
+    }
+  }, [podcasts, pendingPodcastTitle]);
 
   /* ── reset lang on genre change ── */
   useEffect(() => { setPodcastLang(DEFAULT_PODCAST_LANGUAGE); }, [selectedGenre?.id]);
@@ -345,16 +397,44 @@ export default function Home2(): JSX.Element {
             d.author.toLowerCase().includes(searchQuery.toLowerCase()),
         );
 
+  const filteredPodcasts  = !searchQuery
+    ? podcasts
+    : podcasts?.filter(
+        (p) => p.title?.toLowerCase().includes(searchQuery.toLowerCase()),
+      ) ?? null;
   const filteredMaterials = filterDocs(materialDocs);
   const filteredSelfHelp  = filterDocs(selfHelpDocs);
 
   /* What's New = first 5 from same genre+lang feed */
   const whatsNewPodcasts = podcasts?.slice(0, 5) ?? null;
 
-  /* autocomplete suggestions pool */
+  /* autocomplete suggestions pool — covers all genres */
   const suggestions: Suggestion[] = [
-    ...materialDocs.map((d) => ({ id: d.id, title: d.title, kind: "material" as const })),
-    ...selfHelpDocs.map((d) => ({ id: d.id, title: d.title, kind: "guide"    as const })),
+    ...allPodcasts.map((item, i) => ({
+      id: `podcast-${item.genre.id}-${i}`,
+      title: item.podcast.title,
+      kind: "podcast" as const,
+      onSelect: () => {
+        setSelectedGenre(item.genre);
+        setPendingPodcastTitle(item.podcast.title);
+        setTimeout(() => scrollTo(podcastSection), 100);
+      },
+    })),
+    ...allMaterials.map((item) => ({
+      id: `material-${item.genre.id}-${item.doc.id}`,
+      title: item.doc.title,
+      kind: "material" as const,
+      onSelect: () => {
+        setSelectedGenre(item.genre);
+        openDoc(item.doc);
+      },
+    })),
+    ...selfHelpDocs.map((d) => ({
+      id: d.id,
+      title: d.title,
+      kind: "guide" as const,
+      onSelect: () => openDoc(d),
+    })),
   ];
 
   /* ============================================================
@@ -372,7 +452,7 @@ export default function Home2(): JSX.Element {
         cta={
           isLoggedIn
             ? { label: "Logout", onClick: handleLogout }
-            : { label: "Subscribe Now", onClick: () => setShowLogin(true) }
+            : { label: "Subscribe Now", onClick: () => navigate("/plans") }
         }
       />
 
@@ -480,13 +560,15 @@ export default function Home2(): JSX.Element {
 
           {!selectedGenre ? (
             <p className="h2-empty">Select a genre to view podcasts.</p>
-          ) : podcasts === null ? (
+          ) : filteredPodcasts === null ? (
             <p className="h2-empty">Loading podcasts…</p>
-          ) : podcasts.length === 0 ? (
-            <p className="h2-empty">No podcasts found in {podcastLang} for this genre.</p>
+          ) : filteredPodcasts.length === 0 ? (
+            <p className="h2-empty">
+              {searchQuery ? "No podcasts match your search." : `No podcasts found in ${podcastLang} for this genre.`}
+            </p>
           ) : (
             <PodcastRow rowRef={podcastRowRef} label="Podcasts">
-              {podcasts.map((p, i) => (
+              {filteredPodcasts.map((p, i) => (
                 <div key={i} className="h2-podcast-card">
                   <iframe
                     className="h2-spotify-frame"
@@ -533,7 +615,7 @@ export default function Home2(): JSX.Element {
                 </h2>
                 <button
                   className="h2-grad-btn h2-grad-btn--lg h2-subscribe-card__btn"
-                  onClick={() => (isLoggedIn ? setShowSubscribe(true) : setShowLogin(true))}
+                  onClick={() => navigate("/plans")}
                 >
                   Get Access
                 </button>
@@ -570,24 +652,7 @@ export default function Home2(): JSX.Element {
       </main>
 
       {/* ── FOOTER ── */}
-      <footer className="h2-footer">
-        <div className="h2-footer__brand">
-          <img src="/logo-figma.png" alt="Shrunothi" className="h2-footer__logo" />
-        </div>
-        <div className="h2-footer__socials">
-          <a className="h2-footer__social" href="#" aria-label="Facebook"><img src="/social-fb.png" alt="" /></a>
-          <a className="h2-footer__social" href="#" aria-label="LinkedIn"><img src="/social-li.png" alt="" /></a>
-          <a className="h2-footer__social" href="#" aria-label="Twitter / X"><img src="/social-tw.png" alt="" /></a>
-          <a className="h2-footer__social" href="#" aria-label="YouTube"><img src="/social-yt.png" alt="" /></a>
-        </div>
-        <div className="h2-footer__bottom">
-          <span>© {new Date().getFullYear()} Shrunothi. All rights reserved.</span>
-          <div style={{ display: "flex", gap: "1rem" }}>
-            <a className="h2-footer__link" href="/privacy-policy">Privacy Policy</a>
-            <a className="h2-footer__link" href="/tos">Terms of Service</a>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* ── MODALS ── */}
       {activeDoc && <DocModal doc={activeDoc} onClose={() => setActiveDoc(null)} />}
