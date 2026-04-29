@@ -1,7 +1,6 @@
 import { type JSX } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import Home from './pages/home/Home';
 import Home2 from './pages/home2/Home2';
 import LoginTest from './pages/login/LoginTest';
 import AdminGuard from './guards/AdminGuard';
