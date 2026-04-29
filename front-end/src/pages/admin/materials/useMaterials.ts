@@ -8,7 +8,7 @@ type CreatePayload = {
   content: string;
   genreId: string;
   subscriberOnly?: boolean;
-  thumbnailUrl: string;
+  thumbnailUrl?: string;
 };
 
 type UpdatePayload = {
@@ -26,7 +26,7 @@ type GoogleDocPayload = {
   google_doc_url: string;
   genreId: string;
   subscriberOnly?: boolean;
-  thumbnailUrl: string;
+  thumbnailUrl?: string;
 };
 
 export function useMaterials() {
