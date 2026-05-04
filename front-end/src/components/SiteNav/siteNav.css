@@ -56,6 +56,15 @@
   opacity: 1;
 }
 
+/* ── CTA group: Sign In + Subscribe Now side by side ── */
+.site-nav__cta-group {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.85rem;
+}
+
+/* Primary CTA — gradient pill (Subscribe Now / Logout) */
 .site-nav__cta {
   align-items: center;
   background: linear-gradient(135deg, #ffffff 0%, #209ae5 100%);
@@ -79,6 +88,28 @@
   box-shadow: 0 8px 22px rgba(32, 154, 229, 0.32);
   filter: brightness(0.96);
   transform: translateY(-1px);
+}
+
+/* Secondary CTA — ghost / plain text (Sign In) */
+.site-nav__secondary-cta {
+  align-items: center;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  justify-content: center;
+  padding: 0.75rem 0.25rem;
+  text-decoration: none;
+  transition: color 0.18s;
+  white-space: nowrap;
+}
+
+.site-nav__secondary-cta:hover {
+  color: #ffffff;
 }
 
 /* ── Hamburger — hidden on desktop ── */
@@ -191,11 +222,25 @@
 }
 
 /* CTA at bottom of drawer */
-.site-nav__drawer-footer { margin-top: auto; }
+.site-nav__drawer-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: auto;
+}
 
 .site-nav__drawer-cta {
   width: 100%;
   justify-content: center;
+}
+
+.site-nav__drawer-secondary-cta {
+  width: 100%;
+  justify-content: center;
+  padding: 0.5rem 0;
+  font-size: 0.98rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 0.85rem;
 }
 
 /* ============================================================
@@ -234,9 +279,9 @@
     max-width: 5rem;
   }
 
-  /* Hide desktop links and CTA */
+  /* Hide desktop links and CTA group */
   .site-nav__links,
-  .site-nav__cta {
+  .site-nav__cta-group {
     display: none;
   }
 

@@ -398,6 +398,19 @@ export default function Home2(): JSX.Element {
     fetchSelfHelp();
   }, [fetchSelfHelp]);
 
+  /* ── subscribe click — requires login first ── */
+  const handleSubscribeClick = useCallback(() => {
+    if (!isLoggedIn) {
+      // Show login popup; after login redirect to /plans
+      setPendingDoc(null);
+      setShowLogin(true);
+      // Store intent so onSuccess knows to redirect
+      sessionStorage.setItem("post_login_redirect", "/plans");
+    } else {
+      navigate("/plans");
+    }
+  }, [isLoggedIn, navigate]);
+
   /* ── logout ── */
   const handleLogout = useCallback(() => {
     localStorage.removeItem("google_id_token");
@@ -509,7 +522,12 @@ export default function Home2(): JSX.Element {
         cta={
           isLoggedIn
             ? { label: "Logout", onClick: handleLogout }
-            : { label: "Subscribe Now", onClick: () => navigate("/plans") }
+            : { label: "Subscribe Now", onClick: handleSubscribeClick }
+        }
+        secondaryCta={
+          isLoggedIn
+            ? undefined
+            : { label: "Sign In", onClick: () => setShowLogin(true) }
         }
       />
 
@@ -716,9 +734,20 @@ export default function Home2(): JSX.Element {
             // Re-fetch with the new token — backend returns locked:false for subscriber content
             if (selectedGenre) fetchMaterials(selectedGenre.id);
             fetchSelfHelp();
+            // Handle post-login redirect (e.g. from "Subscribe Now" click)
+            const redirect = sessionStorage.getItem("post_login_redirect");
+            if (redirect) {
+              sessionStorage.removeItem("post_login_redirect");
+              navigate(redirect);
+              return;
+            }
             if (pendingDoc) { setActiveDoc(pendingDoc); setPendingDoc(null); }
           }}
-          onClose={() => { setShowLogin(false); setPendingDoc(null); }}
+          onClose={() => {
+            setShowLogin(false);
+            setPendingDoc(null);
+            sessionStorage.removeItem("post_login_redirect");
+          }}
         />
       )}
       {showSubscribe && (

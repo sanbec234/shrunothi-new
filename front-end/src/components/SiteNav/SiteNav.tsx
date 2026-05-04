@@ -18,6 +18,8 @@ type Cta = {
 type Props = {
   items: NavItem[];
   cta: Cta;
+  /** Optional ghost button rendered to the left of the primary CTA */
+  secondaryCta?: Cta;
 };
 
 function NavLink({ item }: { item: NavItem }): JSX.Element {
@@ -40,7 +42,7 @@ function CtaElement({ cta, className }: { cta: Cta; className: string }): JSX.El
   return <a href={cta.href} className={className}>{cta.label}</a>;
 }
 
-export default function SiteNav({ items, cta }: Props): JSX.Element {
+export default function SiteNav({ items, cta, secondaryCta }: Props): JSX.Element {
   const [menuOpen, setMenuOpen] = useState(false);
 
   /* Lock body scroll while drawer is visible */
@@ -66,7 +68,13 @@ export default function SiteNav({ items, cta }: Props): JSX.Element {
           ))}
         </ul>
 
-        <CtaElement cta={cta} className="site-nav__cta" />
+        {/* Right-side buttons: optional ghost "Sign In" + primary CTA */}
+        <div className="site-nav__cta-group">
+          {secondaryCta && (
+            <CtaElement cta={secondaryCta} className="site-nav__secondary-cta" />
+          )}
+          <CtaElement cta={cta} className="site-nav__cta" />
+        </div>
 
         {/* Hamburger — right end on mobile */}
         <button
@@ -122,6 +130,9 @@ export default function SiteNav({ items, cta }: Props): JSX.Element {
         </ul>
 
         <div className="site-nav__drawer-footer" onClick={close}>
+          {secondaryCta && (
+            <CtaElement cta={secondaryCta} className="site-nav__secondary-cta site-nav__drawer-secondary-cta" />
+          )}
           <CtaElement cta={cta} className="site-nav__cta site-nav__drawer-cta" />
         </div>
       </div>
