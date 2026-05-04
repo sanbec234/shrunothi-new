@@ -5,14 +5,34 @@ from db.models.subscriber import is_subscriber
 from auth.auth_guard import attach_optional_user
 from bson import ObjectId
 from extensions import limiter
+import re
 
 bp = Blueprint("public_materials", __name__)
 
 
+def _strip_html(text: str) -> str:
+    text = re.sub(r"<[^>]+>", "", text)
+    text = re.sub(r"&nbsp;", " ", text)
+    text = re.sub(r"&amp;", "&", text)
+    text = re.sub(r"&lt;", "<", text)
+    text = re.sub(r"&gt;", ">", text)
+    text = re.sub(r"&quot;", '"', text)
+    return text.strip()
+
+
+def _resolve_content(doc):
+    if doc.get("source") == "google_docs":
+        return doc.get("html_content", "")
+    return doc.get("content", "")
+
+
 def _serialize_for_caller(doc, caller_is_subscriber):
-    """List-view payload. Never includes content; just flags lock state."""
+    """List-view payload with a short preview when the item is accessible."""
     out = serialize_material(doc)
-    out["locked"] = bool(out.get("subscriberOnly")) and not caller_is_subscriber
+    locked = bool(out.get("subscriberOnly")) and not caller_is_subscriber
+    out["locked"] = locked
+    out["thumbnailUrl"] = doc.get("thumbnailUrl")
+    out["preview"] = "" if locked else _strip_html(_resolve_content(doc))[:300]
     return out
 
 

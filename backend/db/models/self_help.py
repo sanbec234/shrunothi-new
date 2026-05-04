@@ -7,6 +7,7 @@ def serialize_self_help(doc):
         "author": doc["author"],
         "source": doc.get("source"),
         "subscriberOnly": bool(doc.get("subscriberOnly", False)),
+        "thumbnailUrl": doc.get("thumbnailUrl"),
     }
 
 def create_self_help(db, data):
@@ -15,6 +16,7 @@ def create_self_help(db, data):
         "title": data["title"],
         "author": data["author"],
         "content": data["content"],
+        "thumbnailUrl": data.get("thumbnailUrl"),
         "subscriberOnly": bool(data.get("subscriberOnly", False)),
         "created_at": now,
         "updated_at": now

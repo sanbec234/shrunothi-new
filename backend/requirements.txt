@@ -2,6 +2,7 @@ blinker==1.9.0
 click==8.1.8
 Flask==3.1.2
 flask-cors==6.0.2
+flask-limiter==3.8.0
 importlib_metadata==8.7.0
 itsdangerous==2.2.0
 Jinja2==3.1.6
@@ -14,3 +15,7 @@ google-api-python-client
 google-auth
 google-auth-httplib2
 google-auth-oauthlib
+razorpay==1.4.2
+gunicorn==21.2.0
+redis==5.0.8
+limits>=3.0

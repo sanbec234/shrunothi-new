@@ -18,11 +18,12 @@ def get_db():
     if _db is None:
         _client = MongoClient(
             MONGO_URI,
-            serverSelectionTimeoutMS=5000
+            serverSelectionTimeoutMS=5000,
+            maxPoolSize=50,
+            minPoolSize=5,
+            waitQueueTimeoutMS=3000,
         )
         _db = _client.get_default_database()
-
-        # Force connection test
         _db.command("ping")
 
     return _db

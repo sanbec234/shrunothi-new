@@ -18,3 +18,4 @@ google-auth-oauthlib
 gunicorn==21.2.0
 redis==5.0.8
 limits>=3.0
+razorpay==1.4.2

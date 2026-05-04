@@ -125,6 +125,7 @@ button { font: inherit; }
   gap: 2.25rem;
   padding: 1rem clamp(1.5rem, 5vw, 5.5rem) 3.5rem;
   flex-wrap: wrap;
+  min-height: 4rem; /* prevent layout shift during transitions */
 }
 .h2-statsbar__item { font-size: 1rem; color: var(--ink); }
 .h2-statsbar__dot {
@@ -133,6 +134,21 @@ button { font: inherit; }
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.55);
   flex-shrink: 0;
+}
+
+/* ── Statsbar desktop/mobile variants ── */
+/* Desktop items are always shown; mobile item hidden by default */
+.h2-statsbar__item--mobile { display: none; }
+
+/* Fade+slide transition on the mobile rotating item */
+.h2-statsbar__item--mobile {
+  transition: opacity 0.28s ease, transform 0.28s ease;
+  opacity: 1;
+  transform: translateY(0);
+}
+.h2-statsbar__item--mobile.h2-statsbar__item--out {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 
 /* ============================================================
@@ -175,7 +191,7 @@ button { font: inherit; }
    GENRE CHIPS — wide pills, 12px radius, gradient when active
    ============================================================ */
 .h2-genres {
-  padding: 0 clamp(1.5rem, 5vw, 5.5rem);
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -215,15 +231,26 @@ button { font: inherit; }
    (placed between What's New and Podcast, matches Figma)
    ============================================================ */
 .h2-controls-bar {
+  padding: 0 clamp(1.5rem, 5vw, 5.5rem);
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  /* .h2-genres and .h2-search-lang-row handle their own padding */
+  gap: 3.25rem;
 }
 
-/* search-lang row uses the same horizontal padding as other rows */
-.h2-search-lang-row {
-  padding: 0 clamp(1.5rem, 5vw, 5.5rem);
+.h2-category-tools {
+  align-items: center;
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+}
+
+.h2-category-title {
+  color: var(--ink);
+  flex-shrink: 0;
+  font-family: var(--font-head);
+  font-size: clamp(1.85rem, 3vw, 2.7rem);
+  font-weight: 800;
+  line-height: 1.05;
 }
 
 .h2-search {
@@ -233,7 +260,7 @@ button { font: inherit; }
   background: var(--grey-input);
   border-radius: 12px;
   padding: 0.85rem 1.1rem;
-  width: 32rem;
+  width: min(36rem, 42vw);
   height: 53px;
 }
 .h2-search__icon { color: #555; flex-shrink: 0; display: inline-flex; }
@@ -249,37 +276,25 @@ button { font: inherit; }
 .h2-search__input::placeholder { color: var(--grey-input-text); }
 
 /* ============================================================
-   LANGUAGE TABS — above the podcast row
+   LANGUAGE FILTER
    ============================================================ */
-.h2-lang-tabs {
-  padding: 0 clamp(1.5rem, 5vw, 5.5rem);
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-.h2-lang-tab {
-  padding: 0.48rem 1.35rem;
-  border-radius: 20px;
-  border: 1.5px solid rgba(255, 255, 255, 0.3);
-  background: transparent;
-  color: var(--ink);
-  font-family: var(--font-head);
-  font-size: 0.88rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.18s, border-color 0.18s, color 0.18s;
-  white-space: nowrap;
-}
-.h2-lang-tab:hover {
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.06);
-}
-.h2-lang-tab--active {
-  background: var(--grad-button);
-  border-color: transparent;
+.h2-lang-select {
+  appearance: none;
+  background:
+    linear-gradient(45deg, transparent 50%, #111111 50%) right 1.35rem center / 8px 8px no-repeat,
+    linear-gradient(135deg, #111111 50%, transparent 50%) right 0.95rem center / 8px 8px no-repeat,
+    var(--grey-input);
+  border: none;
+  border-radius: 12px;
   color: var(--ink-dark);
-  box-shadow: 0 3px 12px rgba(32, 154, 229, 0.3);
+  cursor: pointer;
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 600;
+  height: 53px;
+  min-width: 10rem;
+  outline: none;
+  padding: 0 2.9rem 0 1.35rem;
 }
 
 /* ============================================================
@@ -288,7 +303,7 @@ button { font: inherit; }
 .h2-search-lang-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 0.85rem;
   flex-wrap: wrap;
 }
@@ -420,17 +435,12 @@ button { font: inherit; }
 }
 
 /* ============================================================
-   MATERIALS GRID — 4 cols, Subscribe CTA spans 2x2 in middle
+   MATERIALS CAROUSEL — horizontal scroll with material cards
    ============================================================ */
-.h2-materials-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: minmax(0, auto);
-  gap: 1.25rem;
-  /* padding: 0 clamp(1.5rem, 5vw, 5.5rem); */
-}
 
 .h2-material-card {
+  flex: 0 0 auto;
+  width: clamp(18rem, 28vw, 22rem);
   background: var(--bg-card);
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -480,6 +490,7 @@ button { font: inherit; }
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  flex: 1;
 }
 .h2-material-card__title {
   font-family: var(--font-head);
@@ -497,35 +508,76 @@ button { font: inherit; }
   color: var(--ink-muted);
   font-weight: 300;
 }
+.h2-material-card__desc {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+.h2-material-card__btn {
+  align-self: center;
+  background: var(--grey-input);
+  color: var(--ink-dark);
+  border: none;
+  border-radius: 6px;
+  width: 80%;
+  max-width: 14rem;
+  padding: 0.55rem 1.6rem;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 0.45rem;
+  transition: background 0.15s;
+}
+.h2-material-card__btn:hover { background: #c4c4c4; }
 
-/* Subscribe CTA card — anchored to right 2 cols, rows 2-3 */
+/* Subscribe CTA card — in self-help grid, spans 2 columns */
 .h2-subscribe-card {
-  grid-column: 3 / 5;   /* right half */
-  grid-row: 2 / 4;      /* spans 2 rows */
   background: var(--bg-cta-card);
   border-radius: var(--radius-md);
   padding: 2.5rem 2.25rem;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
   gap: 1.75rem;
+  text-align: center;
+}
+
+/* Position CTA in 4-column grid: columns 3-4 (right half), rows 2-3 */
+.h2-subscribe-card--selfhelp {
+  grid-column: 3 / 5;
+  grid-row: 2 / 4;
 }
 .h2-subscribe-card__text {
   font-family: var(--font-head);
-  font-size: clamp(1.85rem, 3vw, 2.85rem);
+  font-size: clamp(1.75rem, 3.5vw, 2.6rem);
   font-weight: 800;
   color: var(--ink);
-  line-height: 1.05;
-  letter-spacing: -0.01em;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin: 0;
 }
-.h2-subscribe-card__btn { align-self: flex-start; }
+.h2-subscribe-card__btn {
+  align-self: center;
+  font-size: 1.05rem;
+  padding: 0.9rem 2.2rem;
+  font-weight: 600;
+}
 
 /* ============================================================
-   SELF-HELP GRID — 4 cols, image + title + desc + Read More
+   SELF-HELP GRID — 4 cols, 3 rows, CTA in cols 3-4, rows 2-3
    ============================================================ */
 .h2-selfhelp-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, auto);
   gap: 1.25rem;
   /* padding: 0 clamp(1.5rem, 5vw, 5.5rem); */
 }
@@ -582,7 +634,7 @@ button { font: inherit; }
   flex: 1;
 }
 .h2-guide-card__btn {
-  align-self: flex-start;
+  align-self: center;
   background: var(--grey-input);
   color: var(--ink-dark);
   border: none;
@@ -611,9 +663,7 @@ button { font: inherit; }
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1100px) {
-  .h2-materials-grid,
-  .h2-selfhelp-grid { grid-template-columns: repeat(3, 1fr); }
-  .h2-subscribe-card { grid-column: span 3; grid-row: span 1; }
+  .h2-material-card { width: clamp(16rem, 25vw, 20rem); }
 }
 
 @media (max-width: 800px) {
@@ -622,22 +672,201 @@ button { font: inherit; }
   .h2-nav__links { display: none; }
   .h2-statsbar { gap: 1rem; padding: 1rem 1.5rem 2rem; }
   .h2-statsbar__dot { display: none; }
-  .h2-materials-grid,
   .h2-selfhelp-grid { grid-template-columns: repeat(2, 1fr); }
-  .h2-subscribe-card { grid-column: span 2; grid-row: auto; padding: 2rem 1.5rem; }
+  .h2-subscribe-card--selfhelp { grid-column: 1 / 3; grid-row: auto; padding: 2rem 1.5rem; }
+  .h2-category-tools { align-items: stretch; flex-direction: column; gap: 1rem; }
+  .h2-search-lang-row { justify-content: flex-start; }
   .h2-search { width: 100%; max-width: 100%; }
   .h2-podcast-card { width: 80vw; }
+  .h2-material-card { width: 75vw; }
   .h2-genre-chip { flex: 1 1 calc(50% - 0.5rem); min-width: 0; padding: 0.85rem 1rem; }
-  .h2-lang-tabs { gap: 0.45rem; }
+  .h2-lang-select { width: 100%; }
 }
 
-@media (max-width: 500px) {
-  .h2-hero__headline { font-size: 2.4rem; }
-  .h2-section__head { padding-left: 1.5rem; padding-right: 1.5rem; }
-  .h2-genres { padding-left: 1.5rem; padding-right: 1.5rem; }
-  .h2-controls-bar { padding-left: 1.5rem; padding-right: 1.5rem; }
-  .h2-lang-tabs { padding-left: 1.5rem; padding-right: 1.5rem; }
-  .h2-materials-grid, .h2-selfhelp-grid { padding-left: 1.5rem; padding-right: 1.5rem; }
-  .h2-scroll { padding-left: 1.5rem; padding-right: 1.5rem; }
-  .h2-scroll-nav { padding-left: 1.5rem; padding-right: 1.5rem; }
+/* ============================================================
+   MOBILE — matches Figma "iPhone 13 & 14" frame (390 px)
+   ============================================================ */
+@media (max-width: 480px) {
+
+  /* ── Section base padding ── */
+  .h2-root section {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  /* ── Main gap ── */
+  .h2-main { gap: 3.5rem; }
+
+  /* ── HERO: two-column (text | image) ── */
+  .h2-hero {
+    grid-template-columns: 1fr minmax(0, 8.625rem); /* ~138 px image col */
+    gap: 0.75rem;
+    padding: 1.375rem 1.25rem 1rem;
+    align-items: flex-start;
+  }
+  .h2-hero__visual {
+    order: 0;         /* reset the "image on top" from 800 px breakpoint */
+    max-width: 8.625rem;
+    margin: 0;
+    justify-content: flex-end;
+  }
+  .h2-hero__img { max-width: 8.625rem; }
+  .h2-hero__headline {
+    font-size: 1.5rem;   /* 24 px — Figma */
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+  .h2-hero__sub {
+    font-size: 0.75rem;  /* 12 px — Figma */
+    margin-bottom: 1rem;
+    max-width: none;
+  }
+  /* Explore Library button — Figma: 109×35, 4 px radius, 12 px font */
+  .h2-grad-btn--lg {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: 4px;
+  }
+
+  /* ── Stats bar: hide desktop items, show rotating mobile item ── */
+  .h2-statsbar {
+    padding: 0.5rem 1.25rem 1.5rem;
+    gap: 0;
+    min-height: 2.5rem;
+  }
+  .h2-statsbar__item--desktop,
+  .h2-statsbar__dot--desktop { display: none; }
+  .h2-statsbar__item--mobile  { display: inline-block; }
+
+  /* ── Section header (orange bar + title) ── */
+  .h2-section__head {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .h2-section__bar  { height: 1.375rem; } /* 22 px */
+  .h2-section__name { font-size: 1.125rem; } /* 18 px */
+
+  /* ── Horizontal scroll rows ── */
+  .h2-scroll {
+    gap: 0.625rem; /* 10 px — Figma gap between podcast cards */
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* ── Podcast cards: comfortable width, full Spotify height ── */
+  .h2-podcast-card {
+    width: min(78vw, 16rem); /* ~300 px max, ~1.3 cards visible */
+    padding: 0.85rem;
+    background: var(--bg-card);
+    box-shadow: var(--shadow);
+    border-radius: var(--radius-md);
+    gap: 0;
+  }
+  .h2-spotify-frame {
+    height: 9.5rem; /* 152 px — matches desktop, Spotify recommended minimum */
+    border-radius: var(--radius);
+  }
+
+  /* ── Controls bar ── */
+  .h2-controls-bar {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    gap: 1.25rem;
+  }
+  .h2-category-title { font-size: 1.125rem; } /* 18 px */
+  .h2-category-tools {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+  /* Search + language on the same row */
+  .h2-search-lang-row {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  /* Search bar: 168×27, 5 px radius (Figma) */
+  .h2-search {
+    flex: 1;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    height: 1.6875rem; /* 27 px */
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.3125rem;
+  }
+  .h2-search__input { font-size: 0.875rem; }
+  /* Language dropdown: 80×27, 5 px radius */
+  .h2-lang-select {
+    height: 1.6875rem;
+    min-width: 5rem;
+    width: auto;
+    font-size: 0.75rem;
+    border-radius: 0.3125rem;
+    padding-right: 2rem;
+  }
+
+  /* ── Genre chips: 3 per row ── */
+  .h2-genres { gap: 0.3125rem; } /* 5 px */
+  .h2-genre-chip {
+    flex: 1 1 calc(33.333% - 0.25rem);
+    min-width: 0;
+    max-width: none;
+    padding: 0.4rem 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 0.3125rem; /* 5 px */
+    height: 1.625rem; /* 26 px */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Material cards: 170 px wide, 2 visible side-by-side ── */
+  .h2-material-card {
+    width: 10.625rem; /* 170 px */
+    border-radius: 0.3125rem;
+  }
+  .h2-material-card__thumb { aspect-ratio: 147 / 128; }
+  .h2-material-card__title  { font-size: 0.875rem; }
+  .h2-material-card__btn {
+    font-size: 0.6875rem;
+    padding: 0.4rem 0.9rem;
+  }
+
+  /* ── Self-help grid: 3 columns, subscribe CTA first ── */
+  .h2-selfhelp-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    gap: 0.625rem; /* 10 px */
+  }
+  .h2-guide-card { border-radius: 0.3125rem; }
+  .h2-guide-card__thumb { aspect-ratio: 110 / 100; }
+  .h2-guide-card__title  { font-size: 0.75rem; }
+  .h2-guide-card__author { font-size: 0.5rem; }
+  .h2-guide-card__btn {
+    font-size: 0.6875rem;
+    padding: 0.35rem 0.6rem;
+  }
+
+  /* CTA card spans all 3 cols and appears first (order: -1) */
+  .h2-subscribe-card--selfhelp {
+    grid-column: 1 / 4;
+    grid-row: 1;
+    order: -1;
+    padding: 1.0625rem 1.25rem; /* ~17 px top/bottom — Figma */
+  }
+  .h2-subscribe-card__text {
+    font-size: 1.125rem; /* 18 px */
+    line-height: 1.2;
+  }
+  .h2-subscribe-card__btn {
+    font-size: 0.6875rem;
+    padding: 0.5rem 1.25rem;
+  }
+
+  /* ── Empty state ── */
+  .h2-empty { padding: 0.5rem 0; }
 }

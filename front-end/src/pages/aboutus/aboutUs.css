@@ -83,6 +83,16 @@
   text-align: center;
 }
 
+.about-us-person-label--blue {
+  background: #cae6ff;
+  color: #037fec;
+}
+
+.about-us-person-label--coral {
+  background: #ffecec;
+  color: #cc3366;
+}
+
 .about-us-copy {
   color: #ffffff;
   font-family: "Poppins", sans-serif;
@@ -321,4 +331,96 @@
   .about-us-footer-social {
     margin-top: 24px;
   }
+}
+
+/* ============================================================
+   MOBILE — matches Figma "iPhone 13 & 14" frame (390 px)
+   ============================================================ */
+@media (max-width: 480px) {
+
+  /* ── Section titles: 18 px (Figma) ── */
+  .about-us-section-title { font-size: 18px; }
+
+  /* ── Intro section ── */
+  .about-us-section--intro {
+    padding: 40px 20px 0;
+  }
+
+  /* ── Founder cards: stacked, each full-width ── */
+  .about-us-founders {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 24px;
+    margin: 40px 0 32px;
+  }
+  .about-us-person-card {
+    width: 100%;
+  }
+  .about-us-person-image {
+    height: auto;
+    width: 100%;
+    aspect-ratio: 185 / 157; /* Figma: 185×157 */
+    border-radius: 8px;
+  }
+  .about-us-person-label {
+    font-size: 12px;
+    height: 30px;
+    border-radius: 6px;
+    padding: 0 12px;
+  }
+
+  /* ── Bio copy ── */
+  .about-us-copy {
+    font-size: 12px;
+    color: #d9d9d9;
+    line-height: 1.6;
+    text-align: left;
+  }
+
+  /* ── Coaches section ── */
+  .about-us-section--coaches {
+    padding: 56px 20px 0;
+  }
+  /* 2 per row (Figma: 185×157 each side-by-side) */
+  .about-us-coaches {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: center;
+    gap: 12px;
+    margin-top: 32px;
+  }
+  .about-us-section--coaches .about-us-person-image {
+    aspect-ratio: 185 / 157;
+    height: auto;
+  }
+  .about-us-section--coaches .about-us-person-label {
+    font-size: 11px;
+    height: 28px;
+    border-radius: 6px;
+  }
+
+  /* ── Products section ── */
+  .about-us-section--products {
+    padding: 56px 20px 0;
+  }
+  .about-us-products {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    margin-top: 32px;
+    justify-items: center;
+  }
+  .about-us-product-card {
+    width: 100%;
+    max-width: 364px;
+    height: auto;
+  }
+  .about-us-product-background { height: auto; }
+
+  /* ── Footer ── */
+  .about-us-footer {
+    margin-top: 56px;
+    min-height: auto;
+  }
+  .about-us-footer-inner { padding: 40px 20px; }
+  .about-us-footer-logo { width: 120px; height: auto; }
+  .about-us-footer-social { margin-top: 20px; }
 }

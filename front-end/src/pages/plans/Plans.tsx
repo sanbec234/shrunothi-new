@@ -1,6 +1,9 @@
 import { useState, type JSX } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./plans.css";
+import { usePayment } from "../../hooks/usePayment";
+import { useSubscription } from "../../hooks/useSubscription";
+import LoginPopup from "../../components/GoogleAuthPopup";
 
 const CHECK = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -43,9 +46,43 @@ const PREMIUM_FEATURES = [
 
 export default function Plans(): JSX.Element {
   const [billing, setBilling] = useState<"monthly" | "annual">("annual");
+  const [showLogin, setShowLogin] = useState(false);
+  const { startPayment, status: paymentStatus } = usePayment();
+  const { isSubscribed, refresh } = useSubscription();
+  const navigate = useNavigate();
 
-  const basicPrice  = billing === "annual" ? 9  : 12;
-  const premiumPrice = billing === "annual" ? 24 : 29;
+  const isLoggedIn = Boolean(localStorage.getItem("google_id_token"));
+
+  const handleGetPremium = () => {
+    // Must be logged in — the create-order endpoint requires auth.
+    if (!isLoggedIn) {
+      setShowLogin(true);
+      return;
+    }
+    startPayment(
+      billing,
+      async () => {
+        // Subscription confirmed active — refresh and redirect.
+        await refresh();
+        navigate("/home2");
+      }
+    );
+  };
+
+  const premiumPriceDisplay = billing === "annual" ? "₹999" : "₹99";
+  const premiumPricePeriod  = billing === "annual" ? "year" : "month";
+
+  const buttonDisabled = paymentStatus === "loading"
+    || paymentStatus === "checkout_open"
+    || paymentStatus === "verifying";
+
+  const buttonLabel =
+    !isLoggedIn                         ? "Sign in to subscribe"
+    : paymentStatus === "loading"        ? "Opening payment…"
+    : paymentStatus === "checkout_open"  ? "Complete payment in Razorpay"
+    : paymentStatus === "verifying"      ? "Verifying payment…"
+    : paymentStatus === "pending_capture" ? "Confirming with bank…"
+    : "Get Premium plan";
 
   return (
     <div className="plans-root">
@@ -84,25 +121,13 @@ export default function Plans(): JSX.Element {
             <p className="plans-card__tagline">Explore and grow</p>
 
             <div className="plans-card__price">
-              <span className="plans-card__amount">${basicPrice}</span>
-              <span className="plans-card__period">USD / month</span>
+              <span className="plans-card__amount">Free</span>
+              <span className="plans-card__period"> forever</span>
             </div>
-            <p className="plans-card__billing-note">
-              {billing === "annual" ? "billed annually" : "billed monthly"}
-            </p>
+            <p className="plans-card__billing-note">no credit card required</p>
 
-            {billing === "annual" && (
-              <div className="plans-card__notice">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M8 5v4M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                You are saving 25% with annual billing.
-              </div>
-            )}
-
-            <button className="plans-card__cta plans-card__cta--outline">
-              Get Basic {billing === "annual" ? "annual" : ""} plan
+            <button className="plans-card__cta plans-card__cta--outline" onClick={() => navigate("/")}>
+              Get started free
             </button>
 
             <ul className="plans-card__features">
@@ -122,17 +147,32 @@ export default function Plans(): JSX.Element {
             <p className="plans-card__tagline">Full access, priority support</p>
 
             <div className="plans-card__price">
-              <span className="plans-card__amount">${premiumPrice}</span>
-              <span className="plans-card__period">USD / month</span>
+              <span className="plans-card__amount">{premiumPriceDisplay}</span>
+              <span className="plans-card__period"> / {premiumPricePeriod}</span>
             </div>
             <p className="plans-card__billing-note">
               {billing === "annual" ? "billed annually" : "billed monthly"}
             </p>
 
-            <button className="plans-card__cta plans-card__cta--filled">
-              Get Premium plan
-            </button>
-            <p className="plans-card__no-commit">No commitment · Cancel anytime</p>
+            {isSubscribed ? (
+              <div className="plans-card__cta plans-card__cta--filled" style={{ textAlign: "center", pointerEvents: "none", opacity: 0.85 }}>
+                ✓ You're subscribed
+              </div>
+            ) : (
+              <button
+                className="plans-card__cta plans-card__cta--filled"
+                onClick={handleGetPremium}
+                disabled={buttonDisabled}
+              >
+                {buttonLabel}
+              </button>
+            )}
+            {paymentStatus === "pending_capture" && (
+              <p style={{ color: "#6366f1", fontSize: "0.85rem", marginTop: "0.5rem" }}>
+                Your bank is taking longer than usual. We'll activate your subscription as soon as the payment captures — you can safely close this page.
+              </p>
+            )}
+            <p className="plans-card__no-commit">Secure payment via Razorpay</p>
 
             <ul className="plans-card__features">
               {PREMIUM_FEATURES.map((f) => (
@@ -149,6 +189,21 @@ export default function Plans(): JSX.Element {
           *Prices shown don't include applicable tax. Plans are subject to change at Shrunothi's discretion.
         </p>
       </div>
+
+      {/* Login gate — shown when unauthenticated user tries to subscribe */}
+      {showLogin && (
+        <LoginPopup
+          onSuccess={() => {
+            setShowLogin(false);
+            // Proceed straight to payment after login
+            startPayment(billing, async () => {
+              await refresh();
+              navigate("/home2");
+            });
+          }}
+          onClose={() => setShowLogin(false)}
+        />
+      )}
     </div>
   );
 }

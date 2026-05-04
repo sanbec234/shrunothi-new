@@ -5,19 +5,13 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent
 ENV_PATH = BASE_DIR / ".env"
 
-print("📁 BASE_DIR =", BASE_DIR)
-print("📄 ENV_PATH =", ENV_PATH)
-print("📄 ENV EXISTS =", ENV_PATH.exists())
-
 load_dotenv(dotenv_path=ENV_PATH, override=True)
 
-print("AWS_BUCKET_NAME =", os.getenv("AWS_BUCKET_NAME"))
-
 from flask import Flask, jsonify
-from flask_cors import CORS   
+from flask_cors import CORS
 from extensions import limiter
 from db.client import get_db
-# app.py (VERY TOP of the file)
+from config.config import get_config
 
 # ---------- Admin routes ----------
 from admin_api.routes.genres import bp as admin_genres
@@ -40,15 +34,46 @@ from public_api.routes.material import bp as public_material
 from public_api.routes.genre_podcasts import bp as genre_podcasts_bp
 from public_api.routes.self_help import bp as public_self_help
 from public_api.routes.corpus_self_help import bp as corpus_self_help_bp
-from public_api.routes.announcements import bp as announcements_bp  # NEW
+from public_api.routes.announcements import bp as announcements_bp
+from public_api.routes.payments import bp as payments_bp
 
 # ---------- Auth ----------
 from auth.routes import auth_bp
 
+
+def _ensure_payment_indexes(db):
+    """Create indexes for payment and subscriber collections (safe & idempotent)."""
+    db.payments.create_index("user_email")
+    db.payments.create_index("razorpay_order_id", unique=True)
+    # Sparse so legacy subscriber docs without user_email don't collide.
+    db.subscribers.create_index("user_email", unique=True, sparse=True)
+
+
+def _add_security_headers(response):
+    """Attach CSP + standard browser-security headers to every response."""
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self' https://checkout.razorpay.com https://accounts.google.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data: https:; "
+        "frame-src https://api.razorpay.com https://checkout.razorpay.com "
+        "https://accounts.google.com; "
+        "connect-src 'self' https://*.razorpay.com https://accounts.google.com;"
+    )
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
+
+
 def create_app():
     app = Flask(__name__)
+    app.config.from_object(get_config())
 
-    # Init limiter
+    # Init limiter — degrade gracefully if Redis is unavailable
+    app.config.setdefault("RATELIMIT_IN_MEMORY_FALLBACK_ENABLED", True)
+    app.config.setdefault("RATELIMIT_IN_MEMORY_FALLBACK", "200 per day;50 per hour")
     limiter.init_app(app)
 
     cors_origins_env = os.getenv("CORS_ORIGINS")
@@ -79,6 +104,16 @@ def create_app():
 
     app.db = get_db()
 
+    # Payment indexes (idempotent — safe to run on every boot)
+    _ensure_payment_indexes(app.db)
+
+    # Validate Razorpay credentials at startup — warns in logs if missing
+    from config.razorpay_config import validate_razorpay_config
+    validate_razorpay_config()
+
+    # Security headers on every response
+    app.after_request(_add_security_headers)
+
     # ---------- Register admin APIs ----------
     app.register_blueprint(admin_genres)
     app.register_blueprint(admin_podcasts)
@@ -101,12 +136,14 @@ def create_app():
     app.register_blueprint(public_self_help)
     app.register_blueprint(corpus_self_help_bp)
     app.register_blueprint(announcements_bp)
+    app.register_blueprint(payments_bp, url_prefix="/payments")
 
     # ---------- Auth ----------
     app.register_blueprint(auth_bp)
 
-    # ---------- Health check ----------
+    # ---------- Health check (exempt from rate limiting) ----------
     @app.route("/health", methods=["GET"])
+    @limiter.exempt
     def health():
         try:
             get_db().command("ping")
@@ -114,13 +151,9 @@ def create_app():
         except Exception as e:
             return jsonify({"status": "error", "error": str(e)}), 500
 
-    print("\n=== REGISTERED ROUTES ===")
-    for rule in app.url_map.iter_rules():
-        print(rule, rule.methods)
-
     return app
 
-application = create_app()
 
 if __name__ == "__main__":
+    application = create_app()
     application.run(host="0.0.0.0", port=5001, debug=True)

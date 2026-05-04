@@ -23,13 +23,12 @@ s3 = boto3.client(
 )
 
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
-REQUIRED_WIDTH = 279
-REQUIRED_HEIGHT = 225
 
-@bp.route("/admin/thumbnail/upload", methods=["POST", "OPTIONS"])
+
+@bp.route("/admin/uploads/thumbnail-presign", methods=["POST", "OPTIONS"])
 @require_admin
-def presign_thumbnail():
-    """Generate presigned URL for material/self-help thumbnail uploads"""
+def presign_thumbnail_upload():
+    """Generate presigned URL for material / self-help thumbnail uploads."""
     if request.method == "OPTIONS":
         return "", 200
 
@@ -37,16 +36,9 @@ def presign_thumbnail():
 
     filename = data.get("filename")
     content_type = data.get("contentType")
-    width = data.get("width")
-    height = data.get("height")
 
     if not filename or not content_type:
         return jsonify({"error": "filename and contentType required"}), 400
-
-    if width != REQUIRED_WIDTH or height != REQUIRED_HEIGHT:
-        return jsonify({
-            "error": f"Image must be exactly {REQUIRED_WIDTH}×{REQUIRED_HEIGHT}px. Got {width}×{height}px."
-        }), 400
 
     ext = filename.rsplit(".", 1)[-1].lower()
 
@@ -63,14 +55,14 @@ def presign_thumbnail():
                 "Key": key,
                 "ContentType": content_type,
             },
-            ExpiresIn=300,
+            ExpiresIn=300,  # 5 minutes
         )
 
         file_url = f"https://{BUCKET}.s3.{AWS_REGION}.amazonaws.com/{key}"
 
         return jsonify({
             "uploadUrl": upload_url,
-            "fileUrl": file_url
+            "fileUrl": file_url,
         }), 200
 
     except Exception as e:

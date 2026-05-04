@@ -1,14 +1,17 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "../api/client";
 
-/**
- * Returns whether the currently logged-in user is a paid subscriber.
- * Anonymous → false. Logged-in users today are treated as subscribers
- * (server-side flag in db.models.subscriber.is_subscriber). When real
- * payments wire in, only the backend changes.
- */
+interface SubscriptionStatus {
+  is_subscriber: boolean;
+  subscription_status: "active" | "expired" | "not_subscribed";
+  subscription_type: "one_time" | "recurring" | null;
+  expires_at: string | null;
+  current_payment_id: string | null;
+}
+
 export function useSubscription() {
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
@@ -17,12 +20,15 @@ export function useSubscription() {
       const token = localStorage.getItem("google_id_token");
       if (!token) {
         setIsSubscribed(false);
+        setSubscriptionDetails(null);
         return;
       }
-      const res = await api.get<{ isSubscribed: boolean }>("/auth/me/subscription");
-      setIsSubscribed(Boolean(res.data?.isSubscribed));
+      const res = await api.get<SubscriptionStatus>("/payments/subscription-status");
+      setIsSubscribed(Boolean(res.data?.is_subscriber));
+      setSubscriptionDetails(res.data ?? null);
     } catch {
       setIsSubscribed(false);
+      setSubscriptionDetails(null);
     } finally {
       setLoading(false);
     }
@@ -32,5 +38,5 @@ export function useSubscription() {
     refresh();
   }, [refresh]);
 
-  return { isSubscribed, loading, refresh };
+  return { isSubscribed, subscriptionDetails, loading, refresh };
 }

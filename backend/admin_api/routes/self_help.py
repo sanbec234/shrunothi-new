@@ -19,7 +19,7 @@ bp = Blueprint("admin_self_help", __name__)
 def add_self_help():
     data = request.get_json() or {}
 
-    required = ["title", "author", "content"]
+    required = ["title", "author", "content", "thumbnailUrl"]
     if not all(data.get(k) for k in required):
         return jsonify({"error": "Missing required fields"}), 400
 
@@ -53,15 +53,19 @@ def update_self_help(self_help_id):
         if not data.get(field):
             return jsonify({ "error": f"{field} is required" }), 400
 
+    update_fields = {
+        "title": data["title"],
+        "author": data["author"],
+        "content": data["content"],
+        "subscriberOnly": bool(data.get("subscriberOnly", False)),
+        "updated_at": datetime.utcnow(),
+    }
+    if data.get("thumbnailUrl"):
+        update_fields["thumbnailUrl"] = data["thumbnailUrl"]
+
     result = db.self_help.update_one(
         { "_id": oid },
-        { "$set": {
-            "title": data["title"],
-            "author": data["author"],
-            "content": data["content"],
-            "subscriberOnly": bool(data.get("subscriberOnly", False)),
-            "updated_at": datetime.utcnow()
-        }}
+        { "$set": update_fields }
     )
 
     if result.matched_count == 0:
@@ -107,12 +111,16 @@ def sync_google_doc_self_help():
     author = (data.get("author") or "").strip()
     google_doc_url = (data.get("google_doc_url") or "").strip()
 
+    thumbnail_url = (data.get("thumbnailUrl") or "").strip()
+
     if not title:
         return jsonify({"error": "title is required"}), 400
     if not author:
         return jsonify({"error": "author is required"}), 400
     if not google_doc_url:
         return jsonify({"error": "google_doc_url is required"}), 400
+    if not thumbnail_url:
+        return jsonify({"error": "thumbnailUrl is required"}), 400
 
     try:
         doc_id = extract_doc_id(google_doc_url)
@@ -157,6 +165,7 @@ def sync_google_doc_self_help():
         "author": author,
         "google_doc_id": doc_id,
         "html_content": html_content,
+        "thumbnailUrl": thumbnail_url,
         "last_synced": now,
         "source": "google_docs",
         "subscriberOnly": bool(data.get("subscriberOnly", False)),

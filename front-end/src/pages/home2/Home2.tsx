@@ -7,7 +7,49 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import { useNavigate } from "react-router-dom";
+
+/* ── Rotating stats bar ─────────────────────────────────────── */
+const STAT_ITEMS = [
+  "Updated Weekly",
+  "Curated by Professional Coaches",
+  "Audio + Reading",
+] as const;
+
+function RotatingStatsBar(): JSX.Element {
+  const [idx,     setIdx]     = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setVisible(false);
+      const tid = setTimeout(() => {
+        setIdx((i) => (i + 1) % STAT_ITEMS.length);
+        setVisible(true);
+      }, 280); // fade-out duration
+      return () => clearTimeout(tid);
+    }, 1780); // 1500 ms shown + 280 ms transition
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className="h2-statsbar">
+      {/* Desktop: all three items with dot separators — unchanged */}
+      <span className="h2-statsbar__item h2-statsbar__item--desktop">Updated Weekly</span>
+      <span className="h2-statsbar__dot  h2-statsbar__dot--desktop" />
+      <span className="h2-statsbar__item h2-statsbar__item--desktop">Curated by Professional Coaches</span>
+      <span className="h2-statsbar__dot  h2-statsbar__dot--desktop" />
+      <span className="h2-statsbar__item h2-statsbar__item--desktop">Audio + Reading</span>
+
+      {/* Mobile only: single rotating caption with fade+slide */}
+      <span
+        className={`h2-statsbar__item h2-statsbar__item--mobile${visible ? "" : " h2-statsbar__item--out"}`}
+      >
+        {STAT_ITEMS[idx]}
+      </span>
+    </div>
+  );
+}
+import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import DocModal from "../../components/DocModal/DocModal";
 import LoginPopup from "../../components/GoogleAuthPopup";
@@ -193,19 +235,18 @@ function LangTabs({
 }) {
   if (languages.length <= 1) return null;
   return (
-    <div className="h2-lang-tabs" role="tablist" aria-label="Podcast language">
+    <select
+      className="h2-lang-select"
+      value={active}
+      onChange={(event) => onChange(event.target.value)}
+      aria-label="Podcast language"
+    >
       {languages.map((lang) => (
-        <button
-          key={lang}
-          role="tab"
-          aria-selected={lang === active}
-          className={`h2-lang-tab${lang === active ? " h2-lang-tab--active" : ""}`}
-          onClick={() => onChange(lang)}
-        >
+        <option key={lang} value={lang}>
           {lang}
-        </button>
+        </option>
       ))}
-    </div>
+    </select>
   );
 }
 
@@ -213,12 +254,13 @@ function LangTabs({
    HOME2
    ============================================================ */
 export default function Home2(): JSX.Element {
+  const location = useLocation();
   const navigate = useNavigate();
   const [authUser, setAuthUser] = useState(() =>
     JSON.parse(localStorage.getItem("authUser") || "null")
   );
   const isLoggedIn = Boolean(authUser);
-  useSubscription();
+  const { isSubscribed: isPaidSubscriber, refresh: refreshSubscription } = useSubscription();
 
   /* genre */
   const [genres,        setGenres]        = useState<Genre[]>([]);
@@ -248,10 +290,10 @@ export default function Home2(): JSX.Element {
   const [showLogin,    setShowLogin]    = useState(false);
   const [showSubscribe, setShowSubscribe] = useState(false);
   const [pendingDoc,   setPendingDoc]   = useState<TextDoc | null>(null);
-
   /* refs */
   const podcastRowRef   = useRef<HTMLDivElement>(null);
   const whatsNewRowRef  = useRef<HTMLDivElement>(null);
+  const materialsRowRef = useRef<HTMLDivElement>(null);
   const podcastSection  = useRef<HTMLElement>(null);
   const materialsSection = useRef<HTMLElement>(null);
   const selfHelpSection  = useRef<HTMLElement>(null);
@@ -361,10 +403,11 @@ export default function Home2(): JSX.Element {
     localStorage.removeItem("google_id_token");
     localStorage.removeItem("authUser");
     setAuthUser(null);
+    refreshSubscription();
     // Re-fetch without token — backend returns locked:true for subscriber content
     if (selectedGenre) fetchMaterials(selectedGenre.id);
     fetchSelfHelp();
-  }, [selectedGenre, fetchMaterials, fetchSelfHelp]);
+  }, [selectedGenre, fetchMaterials, fetchSelfHelp, refreshSubscription]);
 
   /* ── scroll lock ── */
   useEffect(() => {
@@ -385,8 +428,22 @@ export default function Home2(): JSX.Element {
     }
     setActiveDoc(doc);
   };
-  const scrollTo = (ref: RefObject<HTMLElement | null>) =>
+  const scrollTo = useCallback((ref: RefObject<HTMLElement | null>) => {
     ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  useEffect(() => {
+    const sectionByHash: Record<string, RefObject<HTMLElement | null>> = {
+      "#podcast": podcastSection,
+      "#materials": materialsSection,
+      "#selfhelp": selfHelpSection,
+    };
+    const sectionRef = sectionByHash[location.hash];
+
+    if (!sectionRef) return;
+
+    window.requestAnimationFrame(() => scrollTo(sectionRef));
+  }, [location.hash, scrollTo]);
 
   const filterDocs = <T extends { title: string; author: string }>(arr: T[]) =>
     !searchQuery
@@ -477,13 +534,7 @@ export default function Home2(): JSX.Element {
       </section>
 
       {/* ── STATS BAR ── */}
-      <div className="h2-statsbar">
-        <span className="h2-statsbar__item">Updated Weekly</span>
-        <span className="h2-statsbar__dot" />
-        <span className="h2-statsbar__item">Curated by Professional Coaches</span>
-        <span className="h2-statsbar__dot" />
-        <span className="h2-statsbar__item">Audio + Reading</span>
-      </div>
+      <RotatingStatsBar />
 
       <main className="h2-main">
 
@@ -517,9 +568,24 @@ export default function Home2(): JSX.Element {
           )}
         </section>
 
-        {/* ── CONTROLS (genre chips + search + lang) ──
-             Placed between What's New and Podcast, matching Figma */}
+        {/* ── CONTROLS (category title + search/lang + genre chips) ── */}
         <div className="h2-controls-bar">
+          <div className="h2-category-tools">
+            <h2 className="h2-category-title">Browse By Category</h2>
+            <div className="h2-search-lang-row">
+              <SearchWithSuggest
+                value={searchQuery}
+                onChange={setSearchQuery}
+                suggestions={suggestions}
+              />
+              <LangTabs
+                languages={podcastLanguages}
+                active={podcastLang}
+                onChange={setPodcastLang}
+              />
+            </div>
+          </div>
+
           {genres.length > 0 && (
             <div className="h2-genres">
               {genres.map((g) => (
@@ -533,20 +599,6 @@ export default function Home2(): JSX.Element {
               ))}
             </div>
           )}
-
-          {/* search + language on same row */}
-          <div className="h2-search-lang-row">
-            <SearchWithSuggest
-              value={searchQuery}
-              onChange={setSearchQuery}
-              suggestions={suggestions}
-            />
-            <LangTabs
-              languages={podcastLanguages}
-              active={podcastLang}
-              onChange={setPodcastLang}
-            />
-          </div>
         </div>
 
         {/* ── PODCAST ── */}
@@ -554,7 +606,7 @@ export default function Home2(): JSX.Element {
           <div className="h2-section__head">
             <div className="h2-section__bar" />
             <span className="h2-section__name">
-              Podcast{selectedGenre ? ` · ${selectedGenre.name}` : ""}
+              Listen and Learn{selectedGenre ? ` · ${selectedGenre.name}` : ""}
             </span>
           </div>
 
@@ -588,7 +640,7 @@ export default function Home2(): JSX.Element {
           <div className="h2-section__head">
             <div className="h2-section__bar" />
             <span className="h2-section__name">
-              Materials{selectedGenre ? ` · ${selectedGenre.name}` : ""}
+              Expert Guide{selectedGenre ? ` · ${selectedGenre.name}` : ""}
             </span>
           </div>
 
@@ -597,35 +649,11 @@ export default function Home2(): JSX.Element {
               {searchQuery ? "No materials match your search." : "No materials found for this genre."}
             </p>
           ) : (
-            <div className="h2-materials-grid">
-              {/* Row 1 — first 4 cards */}
-              {filteredMaterials.slice(0, 4).map((doc) => (
+            <PodcastRow rowRef={materialsRowRef} label="Materials">
+              {filteredMaterials.map((doc) => (
                 <MaterialCard key={doc.id} doc={doc} onOpen={openDoc} locked={isDocLocked(doc)} />
               ))}
-
-              {/* Row 2-3 col 1-2 — auto-placed; CTA fills col 3-4 */}
-              {filteredMaterials.slice(4, 6).map((doc) => (
-                <MaterialCard key={doc.id} doc={doc} onOpen={openDoc} locked={isDocLocked(doc)} />
-              ))}
-
-              {/* Subscribe CTA — pinned to col 3-4, rows 2-3 (right side) */}
-              <div className="h2-subscribe-card" id="about">
-                <h2 className="h2-subscribe-card__text">
-                  Subscribe Now to Access All Our Content
-                </h2>
-                <button
-                  className="h2-grad-btn h2-grad-btn--lg h2-subscribe-card__btn"
-                  onClick={() => navigate("/plans")}
-                >
-                  Get Access
-                </button>
-              </div>
-
-              {/* Row 3 col 1-2 — more cards */}
-              {filteredMaterials.slice(6, 8).map((doc) => (
-                <MaterialCard key={doc.id} doc={doc} onOpen={openDoc} locked={isDocLocked(doc)} />
-              ))}
-            </div>
+            </PodcastRow>
           )}
         </section>
 
@@ -633,7 +661,7 @@ export default function Home2(): JSX.Element {
         <section className="h2-section" id="selfhelp" ref={selfHelpSection}>
           <div className="h2-section__head">
             <div className="h2-section__bar" />
-            <span className="h2-section__name">Self Help Guide</span>
+            <span className="h2-section__name">Exclusive Content</span>
           </div>
 
           {filteredSelfHelp.length === 0 ? (
@@ -642,9 +670,31 @@ export default function Home2(): JSX.Element {
             </p>
           ) : (
             <div className="h2-selfhelp-grid">
-              {filteredSelfHelp.slice(0, 8).map((doc) => (
-                <GuideCard key={doc.id} doc={doc} onOpen={openDoc} locked={isDocLocked(doc)} />
-              ))}
+              {/* Show all cards for paid subscribers, or 10 cards + CTA for non-subscribers (4+2+4 layout) */}
+              {isPaidSubscriber ? (
+                filteredSelfHelp.map((doc) => (
+                  <GuideCard key={doc.id} doc={doc} onOpen={openDoc} locked={isDocLocked(doc)} />
+                ))
+              ) : (
+                <>
+                  {/* 10 cards total: row 1 (4) + row 2 (2) + row 3 (4) */}
+                  {filteredSelfHelp.slice(0, 10).map((doc) => (
+                    <GuideCard key={doc.id} doc={doc} onOpen={openDoc} locked={isDocLocked(doc)} />
+                  ))}
+                  {/* Subscribe CTA — spans columns 7-12 (right half), rows 2-3 */}
+                  <div className="h2-subscribe-card h2-subscribe-card--selfhelp">
+                    <h2 className="h2-subscribe-card__text">
+                      Subscribe Now to Access All Our Content
+                    </h2>
+                    <button
+                      className="h2-grad-btn h2-grad-btn--lg h2-subscribe-card__btn"
+                      onClick={() => navigate("/plans")}
+                    >
+                      Get Access
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </section>
@@ -662,6 +712,7 @@ export default function Home2(): JSX.Element {
             setShowLogin(false);
             // Sync reactive auth state
             setAuthUser(JSON.parse(localStorage.getItem("authUser") || "null"));
+            refreshSubscription();
             // Re-fetch with the new token — backend returns locked:false for subscriber content
             if (selectedGenre) fetchMaterials(selectedGenre.id);
             fetchSelfHelp();
@@ -681,6 +732,7 @@ export default function Home2(): JSX.Element {
    SubscribePopup — shown to logged-in non-subscribers
    ============================================================ */
 function SubscribePopup({ onClose }: { onClose: () => void }) {
+  const navigate = useNavigate();
   return (
     <div
       role="dialog"
@@ -699,19 +751,29 @@ function SubscribePopup({ onClose }: { onClose: () => void }) {
           boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
         }}
       >
+        <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>🔒</div>
         <h3 style={{ margin: 0, fontSize: "1.4rem", fontWeight: 700 }}>
-          Subscribe to unlock
+          Subscriber-only content
         </h3>
-        <p style={{ margin: "0.9rem 0 1.4rem", lineHeight: 1.5, opacity: 0.85 }}>
-          This content is for subscribers only. Become a subscriber to access
-          all materials and self-help guides.
+        <p style={{ margin: "0.9rem 0 1.6rem", lineHeight: 1.6, opacity: 0.85 }}>
+          This material is available to subscribers. Unlock everything —
+          premium materials and all self-help guides — for just ₹99/month.
         </p>
         <button
           className="h2-grad-btn h2-grad-btn--lg"
-          style={{ width: "100%" }}
-          onClick={onClose}
+          style={{ width: "100%", marginBottom: "0.75rem" }}
+          onClick={() => { onClose(); navigate("/plans"); }}
         >
-          Got it
+          View plans
+        </button>
+        <button
+          onClick={onClose}
+          style={{
+            background: "none", border: "none", color: "rgba(255,255,255,0.5)",
+            cursor: "pointer", fontSize: "0.9rem", textDecoration: "underline",
+          }}
+        >
+          Maybe later
         </button>
       </div>
     </div>
@@ -750,6 +812,13 @@ function MaterialCard({
       <div className="h2-material-card__body">
         <div className="h2-material-card__title">{doc.title}</div>
         <div className="h2-material-card__author">{doc.author}</div>
+        {!locked && doc.preview && <p className="h2-material-card__desc">{doc.preview}</p>}
+        <button
+          className="h2-material-card__btn"
+          onClick={(e) => { e.stopPropagation(); onOpen(doc); }}
+        >
+          {locked ? "Subscribe to unlock" : "Read More"}
+        </button>
       </div>
     </div>
   );

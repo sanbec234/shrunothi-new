@@ -1,0 +1,8 @@
+cd /Users/SNEHAN234/projects/shrunothi-new/shrunothi-aws-backend
+
+zip -r ../shrunothi-backend-fix2.zip . \
+  --exclude "*.pyc" \
+  --exclude "__pycache__/*" \
+  --exclude ".env" \
+  --exclude ".git/*" \
+  --exclude "*.zip"

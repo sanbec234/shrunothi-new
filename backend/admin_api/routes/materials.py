@@ -19,7 +19,7 @@ bp = Blueprint("admin_materials", __name__)
 def add_material():
     data = request.get_json() or {}
 
-    required = ["title", "author", "content", "genreId"]
+    required = ["title", "author", "content", "genreId", "thumbnailUrl"]
     if not all(data.get(k) for k in required):
         return jsonify({"error": "Missing required fields"}), 400
 
@@ -49,7 +49,7 @@ def update_material(material_id):
     data = request.get_json() or {}
 
     # Validate required fields
-    for field in ["title", "author", "content", "genreId"]:
+    for field in ["title", "author", "content", "genreId", "thumbnailUrl"]:
         if not data.get(field):
             return jsonify({ "error": f"{field} is required" }), 400
 
@@ -62,16 +62,20 @@ def update_material(material_id):
     if not db.genres.find_one({ "_id": genre_oid }):
         return jsonify({ "error": "Genre not found" }), 400
 
+    update_fields = {
+        "title": data["title"],
+        "author": data["author"],
+        "content": data["content"],
+        "genreId": data["genreId"],  # keep STRING for consistency
+        "subscriberOnly": bool(data.get("subscriberOnly", False)),
+        "updated_at": datetime.utcnow(),
+    }
+    if data.get("thumbnailUrl"):
+        update_fields["thumbnailUrl"] = data["thumbnailUrl"]
+
     result = db.materials.update_one(
         { "_id": oid },
-        { "$set": {
-            "title": data["title"],
-            "author": data["author"],
-            "content": data["content"],
-            "genreId": data["genreId"],  # keep STRING for consistency
-            "subscriberOnly": bool(data.get("subscriberOnly", False)),
-            "updated_at": datetime.utcnow()
-        }}
+        { "$set": update_fields }
     )
 
     if result.matched_count == 0:
@@ -118,6 +122,8 @@ def sync_google_doc_material():
     google_doc_url = (data.get("google_doc_url") or "").strip()
     genre_id = (data.get("genreId") or "").strip()
 
+    thumbnail_url = (data.get("thumbnailUrl") or "").strip()
+
     if not title:
         return jsonify({"error": "title is required"}), 400
     if not author:
@@ -126,6 +132,8 @@ def sync_google_doc_material():
         return jsonify({"error": "google_doc_url is required"}), 400
     if not genre_id:
         return jsonify({"error": "genreId is required"}), 400
+    if not thumbnail_url:
+        return jsonify({"error": "thumbnailUrl is required"}), 400
 
     db = get_db()
     try:
@@ -179,6 +187,7 @@ def sync_google_doc_material():
         "genreId": genre_id,  # keep STRING for consistency with existing collection
         "google_doc_id": doc_id,
         "html_content": html_content,
+        "thumbnailUrl": thumbnail_url,
         "last_synced": now,
         "source": "google_docs",
         "subscriberOnly": bool(data.get("subscriberOnly", False)),

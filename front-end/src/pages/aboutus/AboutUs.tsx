@@ -8,6 +8,7 @@ type PersonCard = {
   name: string;
   role: string;
   image: string;
+  labelVariant?: "blue" | "coral";
 };
 
 type ProductCard = {
@@ -22,11 +23,13 @@ const founders: PersonCard[] = [
     name: "Geethan",
     role: "Managing Director",
     image: "/about-us/geethan-color.png",
+    labelVariant: "blue",
   },
   {
     name: "Anuradha Kannan",
     role: "Director",
     image: "/about-us/director-color-base.png",
+    labelVariant: "coral",
   },
 ];
 
@@ -35,21 +38,25 @@ const coaches: PersonCard[] = [
     name: "Geethan",
     role: "Managing Director",
     image: "/about-us/geethan-bw.png",
+    labelVariant: "blue",
   },
   {
     name: "Anuradha Kannan",
     role: "Director",
     image: "/about-us/coach-anuradha-bw.png",
+    labelVariant: "coral",
   },
   {
     name: "Geethan",
     role: "Managing Director",
     image: "/about-us/geethan-speaking.png",
+    labelVariant: "blue",
   },
   {
     name: "Anuradha Kannan",
     role: "Director",
     image: "/about-us/coach-anuradha-office.png",
+    labelVariant: "coral",
   },
 ];
 
@@ -75,11 +82,11 @@ const products: ProductCard[] = [
 ];
 
 
-function PersonCard({ name, role, image }: PersonCard): JSX.Element {
+function PersonCard({ name, role, image, labelVariant = "blue" }: PersonCard): JSX.Element {
   return (
     <article className="about-us-person-card">
       <img className="about-us-person-image" src={image} alt={name} />
-      <div className="about-us-person-label">
+      <div className={`about-us-person-label about-us-person-label--${labelVariant}`}>
         {name} - {role}
       </div>
     </article>
@@ -91,12 +98,12 @@ export default function AboutUs(): JSX.Element {
     <main className="about-us-page">
       <SiteNav
         items={[
-          { label: "Podcast", href: "/home2#podcast" },
-          { label: "Materials", href: "/home2#materials" },
-          { label: "Self Help Resources", href: "/home2#selfhelp" },
+          { label: "Podcast", href: "/#podcast" },
+          { label: "Materials", href: "/#materials" },
+          { label: "Self Help Resources", href: "/#selfhelp" },
           { label: "About Us", href: "/about-us" },
         ]}
-        cta={{ label: "Subscribe Now", href: "/home2" }}
+        cta={{ label: "Subscribe Now", href: "/" }}
       />
 
       <div className="about-us-section-shell">
