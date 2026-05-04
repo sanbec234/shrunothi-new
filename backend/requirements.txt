@@ -12,6 +12,7 @@ zipp==3.23.0
 pymongo
 python-dotenv
 pytz
+boto3
 google-api-python-client
 google-auth
 google-auth-httplib2
