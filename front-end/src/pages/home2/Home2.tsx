@@ -519,14 +519,10 @@ export default function Home2(): JSX.Element {
           { label: "Self Help Resources", onClick: () => scrollTo(selfHelpSection) },
           { label: "About Us", href: "/about-us" },
         ]}
-        cta={
-          isLoggedIn
-            ? { label: "Logout", onClick: handleLogout }
-            : { label: "Subscribe Now", onClick: handleSubscribeClick }
-        }
+        cta={{ label: "Subscribe Now", onClick: handleSubscribeClick }}
         secondaryCta={
           isLoggedIn
-            ? undefined
+            ? { label: "Logout", onClick: handleLogout }
             : { label: "Sign In", onClick: () => setShowLogin(true) }
         }
       />
