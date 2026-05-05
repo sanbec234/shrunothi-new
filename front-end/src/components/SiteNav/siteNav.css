@@ -199,6 +199,7 @@
   padding: 0;
   margin: 0;
   flex: 1;
+  align-items: center;
 }
 
 .site-nav__drawer-links a,
@@ -268,9 +269,14 @@
 @media (max-width: 768px) {
   .site-nav {
     flex-wrap: nowrap;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 0;
     padding: 1.375rem 1.25rem;
     min-height: 80px;
+  }
+
+  .site-nav__brand {
+    flex-grow: 0;
   }
 
   .site-nav__logo {
@@ -289,5 +295,6 @@
   .site-nav__hamburger {
     display: inline-flex;
     margin-left: auto;
+    width: 2rem;
   }
 }
