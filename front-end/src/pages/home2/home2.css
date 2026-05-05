@@ -555,6 +555,12 @@ button { font: inherit; }
   grid-column: 3 / 5;
   grid-row: 2 / 4;
 }
+/* Inline variant — sits inside a horizontal scroll row */
+.h2-subscribe-card--inline {
+  flex: 0 0 auto;
+  width: clamp(18rem, 28vw, 22rem);
+  min-height: 16rem;
+}
 .h2-subscribe-card__text {
   font-family: var(--font-head);
   font-size: clamp(1.75rem, 3.5vw, 2.6rem);

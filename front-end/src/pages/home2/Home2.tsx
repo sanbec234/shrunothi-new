@@ -53,6 +53,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import DocModal from "../../components/DocModal/DocModal";
 import LoginPopup from "../../components/GoogleAuthPopup";
+import HeroCarousel from "../../components/HeroCarousel/HeroCarousel";
 import { useSubscription } from "../../hooks/useSubscription";
 import type { Genre } from "../../types/index";
 import type { TextDoc } from "../../types";
@@ -68,8 +69,7 @@ import "./home2.css";
 type Podcast      = { embed_url: string; title?: string; language?: string };
 type PodcastApi   = { podcasts?: Podcast[]; languages?: string[] };
 type MaterialDoc  = TextDoc & { thumbnailUrl?: string | null; subscriberOnly?: boolean; locked?: boolean };
-type SelfHelpDoc  = TextDoc & { preview?: string; thumbnailUrl?: string | null; subscriberOnly?: boolean; locked?: boolean };
-type Suggestion   = { id: string; title: string; kind: "podcast" | "material" | "guide"; onSelect: () => void };
+type Suggestion   = { id: string; title: string; kind: "podcast" | "material"; onSelect: () => void };
 
 const THUMB_PLACEHOLDER = "/thumb-placeholder.jpg";
 
@@ -276,7 +276,6 @@ export default function Home2(): JSX.Element {
 
   /* content */
   const [materialDocs, setMaterialDocs] = useState<MaterialDoc[]>([]);
-  const [selfHelpDocs, setSelfHelpDocs] = useState<SelfHelpDoc[]>([]);
 
   /* cross-genre suggestion pool */
   const [allMaterials, setAllMaterials] = useState<{ doc: MaterialDoc; genre: Genre }[]>([]);
@@ -294,9 +293,10 @@ export default function Home2(): JSX.Element {
   const podcastRowRef   = useRef<HTMLDivElement>(null);
   const whatsNewRowRef  = useRef<HTMLDivElement>(null);
   const materialsRowRef = useRef<HTMLDivElement>(null);
+  const exclusiveRowRef  = useRef<HTMLDivElement>(null);
   const podcastSection  = useRef<HTMLElement>(null);
   const materialsSection = useRef<HTMLElement>(null);
-  const selfHelpSection  = useRef<HTMLElement>(null);
+  const exclusiveSection = useRef<HTMLElement>(null);
 
   /* ── genres ── */
   useEffect(() => {
@@ -387,17 +387,6 @@ export default function Home2(): JSX.Element {
     fetchMaterials(selectedGenre.id);
   }, [selectedGenre, fetchMaterials]);
 
-  /* ── self-help ── */
-  const fetchSelfHelp = useCallback(() => {
-    api.get<SelfHelpDoc[]>("/corpus/self-help")
-      .then((r) => { setSelfHelpDocs(Array.isArray(r.data) ? r.data : []); })
-      .catch(() => { setSelfHelpDocs([]); });
-  }, []);
-
-  useEffect(() => {
-    fetchSelfHelp();
-  }, [fetchSelfHelp]);
-
   /* ── subscribe click — requires login first ── */
   const handleSubscribeClick = useCallback(() => {
     if (!isLoggedIn) {
@@ -419,8 +408,7 @@ export default function Home2(): JSX.Element {
     refreshSubscription();
     // Re-fetch without token — backend returns locked:true for subscriber content
     if (selectedGenre) fetchMaterials(selectedGenre.id);
-    fetchSelfHelp();
-  }, [selectedGenre, fetchMaterials, fetchSelfHelp, refreshSubscription]);
+  }, [selectedGenre, fetchMaterials, refreshSubscription]);
 
   /* ── scroll lock ── */
   useEffect(() => {
@@ -449,7 +437,7 @@ export default function Home2(): JSX.Element {
     const sectionByHash: Record<string, RefObject<HTMLElement | null>> = {
       "#podcast": podcastSection,
       "#materials": materialsSection,
-      "#selfhelp": selfHelpSection,
+      "#exclusive": exclusiveSection,
     };
     const sectionRef = sectionByHash[location.hash];
 
@@ -473,10 +461,17 @@ export default function Home2(): JSX.Element {
         (p) => p.title?.toLowerCase().includes(searchQuery.toLowerCase()),
       ) ?? null;
   const filteredMaterials = filterDocs(materialDocs);
-  const filteredSelfHelp  = filterDocs(selfHelpDocs);
 
   /* What's New = first 5 from same genre+lang feed */
   const whatsNewPodcasts = podcasts?.slice(0, 5) ?? null;
+
+  /* ── exclusive content (subscriber-only across all genres) ── */
+  const exclusiveMaterials = allMaterials
+    .filter(item => item.doc.subscriberOnly)
+    .map(item => item.doc);
+
+  /* ── non-exclusive materials for Expert Guide (avoid duplicates) ── */
+  const nonExclusiveMaterials = filteredMaterials.filter(m => !m.subscriberOnly);
 
   /* autocomplete suggestions pool — covers all genres */
   const suggestions: Suggestion[] = [
@@ -499,12 +494,6 @@ export default function Home2(): JSX.Element {
         openDoc(item.doc);
       },
     })),
-    ...selfHelpDocs.map((d) => ({
-      id: d.id,
-      title: d.title,
-      kind: "guide" as const,
-      onSelect: () => openDoc(d),
-    })),
   ];
 
   /* ============================================================
@@ -516,7 +505,7 @@ export default function Home2(): JSX.Element {
         items={[
           { label: "Podcast", onClick: () => scrollTo(podcastSection) },
           { label: "Materials", onClick: () => scrollTo(materialsSection) },
-          { label: "Self Help Resources", onClick: () => scrollTo(selfHelpSection) },
+          { label: "Exclusive Content", onClick: () => scrollTo(exclusiveSection) },
           { label: "About Us", href: "/about-us" },
         ]}
         cta={
@@ -534,24 +523,28 @@ export default function Home2(): JSX.Element {
       />
 
       {/* ── HERO ── */}
-      <section className="h2-hero">
-        <div>
-          <h1 className="h2-hero__headline">
-            Curated Resource<br />Library for<br />Business Coaching
-          </h1>
-          <p className="h2-hero__sub">
-            A single, calming space for podcasts, reading materials, and self‑help
-            guides. Switch genres to change what you see instantly, while the
-            self‑help toolkit stays steady.
-          </p>
-          <button className="h2-grad-btn h2-grad-btn--lg" onClick={() => scrollTo(podcastSection)}>
-            Explore Library
-          </button>
-        </div>
-        <div className="h2-hero__visual" aria-hidden="true">
-          <img src="/hero.png" alt="" className="h2-hero__img" />
-        </div>
-      </section>
+      <HeroCarousel
+        fallback={
+          <section className="h2-hero">
+            <div>
+              <h1 className="h2-hero__headline">
+                Curated Resource<br />Library for<br />Business Coaching
+              </h1>
+              <p className="h2-hero__sub">
+                A single, calming space for podcasts, reading materials, and self‑help
+                guides. Switch genres to change what you see instantly, while the
+                self‑help toolkit stays steady.
+              </p>
+              <button className="h2-grad-btn h2-grad-btn--lg" onClick={() => scrollTo(podcastSection)}>
+                Explore Library
+              </button>
+            </div>
+            <div className="h2-hero__visual" aria-hidden="true">
+              <img src="/hero.png" alt="" className="h2-hero__img" />
+            </div>
+          </section>
+        }
+      />
 
       {/* ── STATS BAR ── */}
       <RotatingStatsBar />
@@ -664,58 +657,47 @@ export default function Home2(): JSX.Element {
             </span>
           </div>
 
-          {filteredMaterials.length === 0 ? (
+          {nonExclusiveMaterials.length === 0 ? (
             <p className="h2-empty">
               {searchQuery ? "No materials match your search." : "No materials found for this genre."}
             </p>
           ) : (
             <PodcastRow rowRef={materialsRowRef} label="Materials">
-              {filteredMaterials.map((doc) => (
+              {nonExclusiveMaterials.map((doc) => (
                 <MaterialCard key={doc.id} doc={doc} onOpen={openDoc} locked={isDocLocked(doc)} />
               ))}
             </PodcastRow>
           )}
         </section>
 
-        {/* ── SELF HELP GUIDE ── */}
-        <section className="h2-section" id="selfhelp" ref={selfHelpSection}>
+        {/* ── EXCLUSIVE CONTENT (subscriber-only from all genres) ── */}
+        <section className="h2-section" id="exclusive" ref={exclusiveSection}>
           <div className="h2-section__head">
             <div className="h2-section__bar" />
             <span className="h2-section__name">Exclusive Content</span>
           </div>
 
-          {filteredSelfHelp.length === 0 ? (
-            <p className="h2-empty">
-              {searchQuery ? "No guides match your search." : "No self-help guides available."}
-            </p>
+          {exclusiveMaterials.length === 0 ? (
+            <p className="h2-empty">No exclusive content available yet.</p>
           ) : (
-            <div className="h2-selfhelp-grid">
-              {/* Show all cards for paid subscribers, or 10 cards + CTA for non-subscribers (4+2+4 layout) */}
-              {isPaidSubscriber ? (
-                filteredSelfHelp.map((doc) => (
-                  <GuideCard key={doc.id} doc={doc} onOpen={openDoc} locked={isDocLocked(doc)} />
-                ))
-              ) : (
-                <>
-                  {/* 10 cards total: row 1 (4) + row 2 (2) + row 3 (4) */}
-                  {filteredSelfHelp.slice(0, 10).map((doc) => (
-                    <GuideCard key={doc.id} doc={doc} onOpen={openDoc} locked={isDocLocked(doc)} />
-                  ))}
-                  {/* Subscribe CTA — spans columns 7-12 (right half), rows 2-3 */}
-                  <div className="h2-subscribe-card h2-subscribe-card--selfhelp">
-                    <h2 className="h2-subscribe-card__text">
-                      Subscribe Now to Access All Our Content
-                    </h2>
-                    <button
-                      className="h2-grad-btn h2-grad-btn--lg h2-subscribe-card__btn"
-                      onClick={() => navigate("/plans")}
-                    >
-                      Get Access
-                    </button>
-                  </div>
-                </>
+            <PodcastRow rowRef={exclusiveRowRef} label="Exclusive Content">
+              {exclusiveMaterials.map((doc) => (
+                <MaterialCard key={doc.id} doc={doc} onOpen={openDoc} locked={isDocLocked(doc)} />
+              ))}
+              {!isPaidSubscriber && (
+                <div className="h2-subscribe-card h2-subscribe-card--inline">
+                  <h2 className="h2-subscribe-card__text">
+                    Subscribe Now to Access All Our Content
+                  </h2>
+                  <button
+                    className="h2-grad-btn h2-grad-btn--lg h2-subscribe-card__btn"
+                    onClick={() => navigate("/plans")}
+                  >
+                    Get Access
+                  </button>
+                </div>
               )}
-            </div>
+            </PodcastRow>
           )}
         </section>
 
@@ -735,7 +717,6 @@ export default function Home2(): JSX.Element {
             refreshSubscription();
             // Re-fetch with the new token — backend returns locked:false for subscriber content
             if (selectedGenre) fetchMaterials(selectedGenre.id);
-            fetchSelfHelp();
             // Handle post-login redirect (e.g. from "Subscribe Now" click)
             const redirect = sessionStorage.getItem("post_login_redirect");
             if (redirect) {
@@ -855,46 +836,3 @@ function MaterialCard({
   );
 }
 
-/* ============================================================
-   GuideCard
-   ============================================================ */
-function GuideCard({
-  doc, onOpen, locked,
-}: { doc: SelfHelpDoc; onOpen: (d: SelfHelpDoc) => void; locked: boolean }) {
-  const [imgErr, setImgErr] = useState(false);
-  const src = !imgErr && doc.thumbnailUrl ? doc.thumbnailUrl : THUMB_PLACEHOLDER;
-
-  return (
-    <div
-      className={`h2-guide-card${locked ? " h2-guide-card--locked" : ""}`}
-      onClick={() => onOpen(doc)}
-      role="button" tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && onOpen(doc)}
-      aria-label={doc.title}
-      title={locked ? "Subscribe to unlock" : undefined}
-    >
-      <div className="h2-guide-card__thumb">
-        <img src={src} alt="" onError={() => setImgErr(true)} />
-        {locked && (
-          <div className="h2-guide-card__lock" aria-label="Subscribe to unlock">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="11" width="18" height="11" rx="2" stroke="white" strokeWidth="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </div>
-        )}
-      </div>
-      <div className="h2-guide-card__body">
-        <div className="h2-guide-card__title">{doc.title}</div>
-        <div className="h2-guide-card__author">{doc.author}</div>
-        {!locked && doc.preview && <p className="h2-guide-card__desc">{doc.preview}</p>}
-        <button
-          className="h2-guide-card__btn"
-          onClick={(e) => { e.stopPropagation(); onOpen(doc); }}
-        >
-          {locked ? "Subscribe to unlock" : "Read More"}
-        </button>
-      </div>
-    </div>
-  );
-}

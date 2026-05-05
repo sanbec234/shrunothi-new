@@ -10,6 +10,8 @@ import { useMaterials } from "./materials/useMaterials";
 import { useSelfHelp } from "./selfHelp/useSelfHelp";
 import { useAdminEmails } from "./adminEmails/useAdminEmails";
 import { useUsers } from "./users/useUsers";
+import { useCarousel } from "./carousel/useCarousel";
+import { useCoaches } from "./coaches/useCoaches";
 
 // Sections
 import GenresSection from "./genres/GenresSection";
@@ -19,6 +21,8 @@ import SelfHelpSection from "./selfHelp/SelfHelpSection";
 import AdminEmailsSection from "./adminEmails/AdminEmailsSection";
 import UsersSection from "./users/UsersSection";
 import AdminAnnouncements from "./announcements/AdminAnnouncements";
+import CarouselSection from "./carousel/CarouselSection";
+import CoachesAdminSection from "./coaches/CoachesSection";
 
 // Modals
 import { AddGenreModal, EditGenreModal } from "./genres/GenreModals";
@@ -49,12 +53,16 @@ export default function AdminDashboard() {
   const selfHelpHook = useSelfHelp();
   const adminEmailsHook = useAdminEmails();
   const usersHook = useUsers();
+  const carouselHook = useCarousel();
+  const coachesHook = useCoaches();
 
   // Section toggles
   const [genresOpen, setGenresOpen] = useState(true);
   const [podcastsOpen, setPodcastsOpen] = useState(false);
   const [materialsOpen, setMaterialsOpen] = useState(false);
   const [selfHelpOpen, setSelfHelpOpen] = useState(false);
+  const [carouselOpen, setCarouselOpen] = useState(false);
+  const [coachesOpen, setCoachesOpen] = useState(false);
 
   // Filters
   const [podcastGenreFilter, setPodcastGenreFilter] = useState<string>("all");
@@ -271,6 +279,25 @@ export default function AdminDashboard() {
       <section>
         <AdminAnnouncements />
       </section>
+
+      {/* Carousel Banners Section */}
+      <CarouselSection
+        banners={carouselHook.banners}
+        isOpen={carouselOpen}
+        onToggle={() => setCarouselOpen(!carouselOpen)}
+        onAdd={carouselHook.createBanner}
+        onDelete={carouselHook.deleteBanner}
+      />
+
+      {/* Coaches Section */}
+      <CoachesAdminSection
+        coaches={coachesHook.coaches}
+        isOpen={coachesOpen}
+        onToggle={() => setCoachesOpen(!coachesOpen)}
+        onAdd={coachesHook.createCoach}
+        onUpdate={coachesHook.updateCoach}
+        onDelete={coachesHook.deleteCoach}
+      />
 
       {/* Users Section */}
       <UsersSection users={usersHook.users} />

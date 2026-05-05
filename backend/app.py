@@ -25,6 +25,10 @@ from admin_api.routes.admin_uploads import bp as admin_uploads_bp
 from admin_api.routes.admin_editor_uploads import bp as admin_editor_uploads_bp
 from admin_api.routes.admin_editor_images import bp as admin_editor_images_bp
 from admin_api.routes.admin_thumbnail_uploads import bp as admin_thumbnail_uploads_bp
+from admin_api.routes.admin_carousel import bp as admin_carousel_bp
+from admin_api.routes.admin_coaches import bp as admin_coaches_bp
+from admin_api.routes.admin_carousel_uploads import bp as admin_carousel_uploads_bp
+from admin_api.routes.admin_coach_uploads import bp as admin_coach_uploads_bp
 
 # ---------- Public routes ----------
 from public_api.routes.genres import bp as public_genres
@@ -36,6 +40,8 @@ from public_api.routes.self_help import bp as public_self_help
 from public_api.routes.corpus_self_help import bp as corpus_self_help_bp
 from public_api.routes.announcements import bp as announcements_bp
 from public_api.routes.payments import bp as payments_bp
+from public_api.routes.carousel import bp as public_carousel_bp
+from public_api.routes.coaches import bp as public_coaches_bp
 
 # ---------- Auth ----------
 from auth.routes import auth_bp
@@ -126,6 +132,10 @@ def create_app():
     app.register_blueprint(admin_editor_uploads_bp)
     app.register_blueprint(admin_editor_images_bp)
     app.register_blueprint(admin_thumbnail_uploads_bp)
+    app.register_blueprint(admin_carousel_bp)
+    app.register_blueprint(admin_coaches_bp)
+    app.register_blueprint(admin_carousel_uploads_bp)
+    app.register_blueprint(admin_coach_uploads_bp)
 
     # ---------- Register public APIs ----------
     app.register_blueprint(public_genres)
@@ -137,6 +147,8 @@ def create_app():
     app.register_blueprint(corpus_self_help_bp)
     app.register_blueprint(announcements_bp)
     app.register_blueprint(payments_bp, url_prefix="/payments")
+    app.register_blueprint(public_carousel_bp)
+    app.register_blueprint(public_coaches_bp)
 
     # ---------- Auth ----------
     app.register_blueprint(auth_bp)

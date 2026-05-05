@@ -1,4 +1,5 @@
-import type { JSX } from "react";
+import { useState, useEffect, type JSX } from "react";
+import { api } from "../../api/client";
 
 import Footer from "../../components/Footer";
 import SiteNav from "../../components/SiteNav/SiteNav";
@@ -33,7 +34,8 @@ const founders: PersonCard[] = [
   },
 ];
 
-const coaches: PersonCard[] = [
+/* Fallback coaches — used if the API returns empty */
+const FALLBACK_COACHES: PersonCard[] = [
   {
     name: "Geethan",
     role: "Managing Director",
@@ -44,18 +46,6 @@ const coaches: PersonCard[] = [
     name: "Anuradha Kannan",
     role: "Director",
     image: "/about-us/coach-anuradha-bw.png",
-    labelVariant: "coral",
-  },
-  {
-    name: "Geethan",
-    role: "Managing Director",
-    image: "/about-us/geethan-speaking.png",
-    labelVariant: "blue",
-  },
-  {
-    name: "Anuradha Kannan",
-    role: "Director",
-    image: "/about-us/coach-anuradha-office.png",
     labelVariant: "coral",
   },
 ];
@@ -94,16 +84,42 @@ function PersonCard({ name, role, image, labelVariant = "blue" }: PersonCard): J
 }
 
 export default function AboutUs(): JSX.Element {
+  const [coaches, setCoaches] = useState<PersonCard[]>(FALLBACK_COACHES);
+
+  useEffect(() => {
+    let ok = true;
+    api
+      .get<{ id: string; name: string; title: string; image_url: string }[]>("/coaches")
+      .then((r) => {
+        if (!ok) return;
+        const list = Array.isArray(r.data) ? r.data : [];
+        if (list.length > 0) {
+          setCoaches(
+            list.map((c, i) => ({
+              name: c.name,
+              role: c.title,
+              image: c.image_url,
+              labelVariant: i % 2 === 0 ? ("blue" as const) : ("coral" as const),
+            }))
+          );
+        }
+      })
+      .catch(() => {
+        /* keep fallback */
+      });
+    return () => { ok = false; };
+  }, []);
+
   return (
     <main className="about-us-page">
       <SiteNav
         items={[
           { label: "Podcast", href: "/#podcast" },
           { label: "Materials", href: "/#materials" },
-          { label: "Self Help Resources", href: "/#selfhelp" },
+          { label: "Exclusive Content", href: "/#exclusive" },
           { label: "About Us", href: "/about-us" },
         ]}
-        cta={{ label: "Subscribe Now", href: "/" }}
+        cta={{ label: "Subscribe Now", href: "/plans" }}
       />
 
       <div className="about-us-section-shell">
