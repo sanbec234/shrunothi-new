@@ -108,9 +108,9 @@
 }
 
 .about-us-coaches {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
-  grid-template-columns: repeat(4, minmax(0, 284px));
   justify-content: center;
   margin-top: 106px;
 }
@@ -247,7 +247,6 @@
 
   .about-us-coaches {
     gap: 24px;
-    grid-template-columns: repeat(2, minmax(0, 284px));
   }
 
   .about-us-footer-inner {
@@ -383,10 +382,11 @@
   }
   /* 2 per row (Figma: 185×157 each side-by-side) */
   .about-us-coaches {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    justify-content: center;
     gap: 12px;
     margin-top: 32px;
+  }
+  .about-us-coaches .about-us-person-card {
+    width: calc(50% - 6px);
   }
   .about-us-section--coaches .about-us-person-image {
     aspect-ratio: 185 / 157;
