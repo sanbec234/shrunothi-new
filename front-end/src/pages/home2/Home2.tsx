@@ -421,7 +421,7 @@ export default function Home2(): JSX.Element {
   // caller's token, so it is always the correct value for the current auth state.
   const isDocLocked = (doc: { locked?: boolean }) => Boolean(doc.locked);
 
-  const openDoc = (doc: MaterialDoc | SelfHelpDoc) => {
+  const openDoc = (doc: MaterialDoc) => {
     if (isDocLocked(doc)) {
       if (!isLoggedIn) { setPendingDoc(doc); setShowLogin(true); return; }
       setShowSubscribe(true);
