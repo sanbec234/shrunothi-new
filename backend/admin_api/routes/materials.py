@@ -7,6 +7,8 @@ import json
 from auth.auth_guard import require_admin
 from googleapiclient.errors import HttpError
 from admin_api.services.google_docs import extract_doc_id, fetch_google_doc, convert_to_html
+from utils.html_sanitizer import sanitize_html
+from utils.audit import audit_log
 
 bp = Blueprint("admin_materials", __name__)
 
@@ -16,12 +18,15 @@ bp = Blueprint("admin_materials", __name__)
 # -------------------------------
 @bp.route("/admin/materials", methods=["POST"])
 @require_admin
+@audit_log("material.create")
 def add_material():
     data = request.get_json() or {}
 
     required = ["title", "author", "content", "genreId", "thumbnailUrl"]
     if not all(data.get(k) for k in required):
         return jsonify({"error": "Missing required fields"}), 400
+
+    data["content"] = sanitize_html(data["content"])
 
     db = get_db()
     material_id = create_material(db, data)
@@ -38,6 +43,7 @@ def add_material():
 # -------------------------------
 @bp.route("/admin/materials/<material_id>", methods=["PUT", "PATCH"])
 @require_admin
+@audit_log("material.update")
 def update_material(material_id):
     db = get_db()
 
@@ -65,7 +71,7 @@ def update_material(material_id):
     update_fields = {
         "title": data["title"],
         "author": data["author"],
-        "content": data["content"],
+        "content": sanitize_html(data["content"]),
         "genreId": data["genreId"],  # keep STRING for consistency
         "subscriberOnly": bool(data.get("subscriberOnly", False)),
         "updated_at": datetime.utcnow(),
@@ -90,6 +96,7 @@ def update_material(material_id):
 # -------------------------------
 @bp.route("/admin/materials/<material_id>", methods=["DELETE", "OPTIONS"])
 @require_admin
+@audit_log("material.delete")
 def delete_material(material_id):
     if request.method == "OPTIONS":
         return "", 200
@@ -115,6 +122,7 @@ def delete_material(material_id):
 # -------------------------------
 @bp.route("/admin/materials/sync-google-doc", methods=["POST"])
 @require_admin
+@audit_log("material.sync_google_doc")
 def sync_google_doc_material():
     data = request.get_json() or {}
     title = (data.get("title") or "").strip()

@@ -4,6 +4,7 @@ import "./plans.css";
 import { usePayment } from "../../hooks/usePayment";
 import { useSubscription } from "../../hooks/useSubscription";
 import LoginPopup from "../../components/GoogleAuthPopup";
+import { getGoogleIdToken } from "../../auth/token";
 
 const CHECK = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -51,7 +52,7 @@ export default function Plans(): JSX.Element {
   const { isSubscribed, refresh } = useSubscription();
   const navigate = useNavigate();
 
-  const isLoggedIn = Boolean(localStorage.getItem("google_id_token"));
+  const isLoggedIn = Boolean(getGoogleIdToken());
 
   const handleGetPremium = () => {
     // Must be logged in — the create-order endpoint requires auth.

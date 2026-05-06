@@ -1,0 +1,123 @@
+/* ── Sticky trigger button ───────────────────────────────────── */
+.upb {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: 200;
+}
+
+.upb__trigger {
+  align-items: center;
+  background: #1e1e1e;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  font-family: "Manrope", system-ui, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  height: 2.75rem;
+  justify-content: center;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  width: 2.75rem;
+}
+
+.upb__trigger:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Gold ring for subscribers */
+.upb__trigger--pro {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.upb__trigger--pro:hover {
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35), 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Popup card ──────────────────────────────────────────────── */
+.upb__card {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  bottom: 3.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  left: 0;
+  min-width: 220px;
+  padding: 1.1rem 1.2rem 1rem;
+  position: absolute;
+}
+
+/* ── Badge ───────────────────────────────────────────────────── */
+.upb__badge {
+  border-radius: 99px;
+  display: inline-block;
+  font-family: "Manrope", system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.65rem;
+  padding: 0.25rem 0.7rem;
+  text-transform: uppercase;
+}
+
+.upb__badge--pro {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.upb__badge--free {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ── Email ───────────────────────────────────────────────────── */
+.upb__email {
+  color: #ffffff;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  margin: 0 0 0.75rem;
+  opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Detail rows ─────────────────────────────────────────────── */
+.upb__detail {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-top: 0.65rem;
+}
+
+.upb__detail-label {
+  color: rgba(255, 255, 255, 0.4);
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.72rem;
+}
+
+.upb__detail-value {
+  color: #ffffff;
+  font-family: "Manrope", system-ui, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.upb__days-left {
+  color: #f59e0b;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.upb__detail--free .upb__detail-label {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.78rem;
+}

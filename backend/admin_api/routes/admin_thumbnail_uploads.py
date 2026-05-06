@@ -1,3 +1,4 @@
+import logging
 from flask import Blueprint, request, jsonify
 import boto3
 import os
@@ -65,5 +66,6 @@ def presign_thumbnail_upload():
             "fileUrl": file_url,
         }), 200
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception:
+            logging.getLogger(__name__).exception("S3 operation failed")
+            return jsonify({"error": "Upload service unavailable"}), 500

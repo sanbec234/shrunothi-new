@@ -12,9 +12,12 @@ export function useUsers() {
   }, []);
 
   async function loadUsers() {
-    // console.log("[useUsers] loadUsers CALLED");
-    const res = await api.get("/admin/users");
-    setUsers(res.data);
+    try {
+      const res = await api.get("/admin/users");
+      setUsers(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      setUsers([]);
+    }
   }
 
   return {

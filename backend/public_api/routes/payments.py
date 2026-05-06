@@ -12,6 +12,7 @@ from config.razorpay_config import (
     RAZORPAY_KEY_ID,
     RAZORPAY_WEBHOOK_SECRET,
 )
+from flask_limiter.util import get_remote_address
 from extensions import limiter
 from db.models.payment import (
     create_payment_record,
@@ -29,6 +30,13 @@ from db.client import get_db
 
 bp = Blueprint("payments", __name__)
 log = logging.getLogger(__name__)
+
+
+def _rate_key_user_or_ip():
+    """Key rate limits by authenticated user email, falling back to IP."""
+    if hasattr(request, "user") and request.user:
+        return f"user:{request.user['email']}"
+    return get_remote_address()
 
 # Server-side whitelist of valid plans. Frontend cannot dictate amounts.
 PLAN_AMOUNTS = {
@@ -48,7 +56,7 @@ def _email_hash(email: str) -> str:
 
 
 @bp.route("/create-order", methods=["POST"])
-@limiter.limit("5 per minute; 20 per hour")
+@limiter.limit("5 per minute; 20 per hour", key_func=_rate_key_user_or_ip)
 @require_user
 def create_order():
     """
@@ -128,6 +136,15 @@ def handle_webhook():
         return jsonify({"error": "Invalid signature"}), 401
 
     data = request.get_json(silent=True) or {}
+
+    # Reject events older than 5 minutes to prevent stale-replay issues.
+    event_ts = data.get("created_at")
+    if event_ts:
+        age_seconds = datetime.now(timezone.utc).timestamp() - event_ts
+        if age_seconds > 300:
+            log.warning("Webhook: stale event rejected (age=%ds)", int(age_seconds))
+            return jsonify({"status": "stale_event"}), 200
+
     event = data.get("event", "")
     payment_entity = data.get("payload", {}).get("payment", {}).get("entity", {})
 
@@ -149,13 +166,19 @@ def handle_webhook():
 
     if event == "payment.captured":
         # ONLY activate subscription on actual capture. Authorized != captured.
-        update_payment_status(
+        # update_payment_status uses atomic CAS — returns False if another
+        # webhook already transitioned this order (race-safe).
+        actually_updated = update_payment_status(
             razorpay_payment_id=razorpay_payment_id,
             status="captured",
             razorpay_order_id=razorpay_order_id,
             signature=signature,
             metadata=payment_entity,
         )
+
+        if not actually_updated:
+            log.info("Webhook CAS miss (already transitioned): order=%s", razorpay_order_id)
+            return jsonify({"status": "already_processed"}), 200
 
         user_email = payment_record["user_email"]
         payment_type = payment_record["payment_type"]
@@ -173,6 +196,9 @@ def handle_webhook():
             payment_type=payment_type,
             expires_at=expires_at,
         )
+
+        # Send payment success notification (fire-and-forget).
+        _notify_payment_event(user_email, "captured", razorpay_order_id, payment_type)
 
         log.info(
             "Subscription activated: user=%s type=%s order=%s",
@@ -197,13 +223,41 @@ def handle_webhook():
             razorpay_order_id=razorpay_order_id,
             signature=signature,
         )
+        _notify_payment_event(
+            payment_record.get("user_email"), "failed", razorpay_order_id,
+        )
         log.info("Payment failed: order=%s", razorpay_order_id)
+
+    elif event in ("payment.refunded", "refund.created", "refund.processed"):
+        # Mark payment refunded and revoke subscription access.
+        refund_entity = data.get("payload", {}).get("refund", {}).get("entity", {})
+        update_payment_status(
+            razorpay_payment_id=razorpay_payment_id,
+            status="refunded",
+            razorpay_order_id=razorpay_order_id,
+            signature=signature,
+            metadata=refund_entity,
+        )
+        user_email = payment_record.get("user_email")
+        if user_email:
+            db = get_db()
+            db.subscribers.update_one(
+                {"user_email": user_email},
+                {"$set": {"subscription_status": "refunded",
+                           "updated_at": datetime.now(timezone.utc)}},
+            )
+            _notify_payment_event(user_email, "refunded", razorpay_order_id)
+        log.info(
+            "Refund processed: order=%s user=%s",
+            razorpay_order_id,
+            _email_hash(user_email or ""),
+        )
 
     return jsonify({"status": "ok"}), 200
 
 
 @bp.route("/verify-payment", methods=["POST"])
-@limiter.limit("20 per minute")
+@limiter.limit("20 per minute", key_func=_rate_key_user_or_ip)
 @require_user
 def verify_payment():
     """
@@ -255,13 +309,17 @@ def verify_payment():
             "razorpay_status": rp_payment.get("status"),
         }), 202
 
-    update_payment_status(
+    actually_updated = update_payment_status(
         razorpay_payment_id=payment_id,
         status="captured",
         razorpay_order_id=order_id,
         signature=sig,
         metadata=rp_payment,
     )
+
+    if not actually_updated:
+        # Another path (webhook) already activated — still report success.
+        return jsonify({"status": "already_active"}), 200
 
     payment_type = payment_record["payment_type"]
     expires_at = (
@@ -278,6 +336,8 @@ def verify_payment():
         payment_type=payment_type,
         expires_at=expires_at,
     )
+
+    _notify_payment_event(user_email, "captured", order_id, payment_type)
 
     log.info(
         "Subscription activated via verify-payment: user=%s order=%s",
@@ -340,3 +400,23 @@ def _verify_webhook_signature(body: bytes, signature: str) -> bool:
         hashlib.sha256,
     ).hexdigest()
     return hmac.compare_digest(expected, signature)
+
+
+def _notify_payment_event(email, event_type, order_id, payment_type=None):
+    """
+    Fire-and-forget email notification for payment lifecycle events.
+    Failures are logged but never block the payment flow.
+    """
+    try:
+        from utils.email_notifications import send_payment_notification
+        send_payment_notification(
+            email=email,
+            event_type=event_type,
+            order_id=order_id,
+            payment_type=payment_type,
+        )
+    except Exception:
+        log.exception(
+            "Email notification failed (non-blocking): event=%s order=%s",
+            event_type, order_id,
+        )

@@ -1,32 +1,27 @@
 import axios from "axios";
+import { getGoogleIdToken, clearGoogleIdToken } from "../auth/token";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: { "Content-Type": "application/json" },
 });
 
-function decodeTokenExpiry(token: string): number | null {
+function isStoredTokenExpired(): boolean {
+  const token = getGoogleIdToken();
+  if (!token) return true;
+
   try {
     const payloadPart = token.split(".")[1];
-    if (!payloadPart) return null;
-
+    if (!payloadPart) return true;
     const base64 = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
     const normalized = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
     const payload = JSON.parse(atob(normalized)) as { exp?: unknown };
-    return typeof payload.exp === "number" ? payload.exp : null;
+    const exp = typeof payload.exp === "number" ? payload.exp : null;
+    if (!exp) return true;
+    return Date.now() >= exp * 1000;
   } catch {
-    return null;
+    return true;
   }
-}
-
-function isStoredTokenExpired(): boolean {
-  const token = localStorage.getItem("google_id_token");
-  if (!token) return true;
-
-  const exp = decodeTokenExpiry(token);
-  if (!exp) return true;
-
-  return Date.now() >= exp * 1000;
 }
 
 function isTokenErrorMessage(raw: unknown): boolean {
@@ -35,7 +30,7 @@ function isTokenErrorMessage(raw: unknown): boolean {
 }
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("google_id_token");
+  const token = getGoogleIdToken();
   if (token) {
     config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${token}`;
@@ -52,7 +47,7 @@ api.interceptors.response.use(
         isStoredTokenExpired() || isTokenErrorMessage(backendMessage);
 
       if (shouldLogout) {
-        localStorage.removeItem("google_id_token");
+        clearGoogleIdToken();
         localStorage.removeItem("authUser");
         sessionStorage.setItem("session_expired", "true");
         window.location.reload();

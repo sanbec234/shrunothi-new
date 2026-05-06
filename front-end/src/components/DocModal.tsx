@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import DOMPurify from "dompurify";
 import { api } from "../api/client";
 import type { TextDoc } from "../types";
 
@@ -33,7 +34,7 @@ export default function DocModal({ doc, onClose }: Props) {
         <button className="modal-close" onClick={onClose} aria-label="Close">×</button>
         <h2 className="modal-title">{doc.title}</h2>
         <p className="modal-author">By {doc.author}</p>
-        <div className="modal-body" dangerouslySetInnerHTML={{ __html: content }} />
+        <div className="modal-body" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />
 
       </div>
     </div>

@@ -12,6 +12,7 @@ import { useAdminEmails } from "./adminEmails/useAdminEmails";
 import { useUsers } from "./users/useUsers";
 import { useCarousel } from "./carousel/useCarousel";
 import { useCoaches } from "./coaches/useCoaches";
+import VimeoSection from "./vimeo/VimeoSection";
 
 // Sections
 import GenresSection from "./genres/GenresSection";
@@ -63,6 +64,7 @@ export default function AdminDashboard() {
   const [selfHelpOpen, setSelfHelpOpen] = useState(false);
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [coachesOpen, setCoachesOpen] = useState(false);
+  const [vimeoOpen, setVimeoOpen] = useState(false);
 
   // Filters
   const [podcastGenreFilter, setPodcastGenreFilter] = useState<string>("all");
@@ -297,6 +299,12 @@ export default function AdminDashboard() {
         onAdd={coachesHook.createCoach}
         onUpdate={coachesHook.updateCoach}
         onDelete={coachesHook.deleteCoach}
+      />
+
+      {/* Vimeo Videos Section */}
+      <VimeoSection
+        isOpen={vimeoOpen}
+        onToggle={() => setVimeoOpen(!vimeoOpen)}
       />
 
       {/* Users Section */}

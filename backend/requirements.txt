@@ -19,6 +19,7 @@ google-auth
 google-auth-httplib2
 google-auth-oauthlib
 razorpay==1.4.2
+bleach==6.2.0
 gunicorn==21.2.0
 redis==5.0.8
 limits>=3.0

@@ -51,6 +51,8 @@ function RotatingStatsBar(): JSX.Element {
 }
 import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
+import { clearGoogleIdToken } from "../../auth/token";
+import UserProfileBubble from "../../components/UserProfileBubble/UserProfileBubble";
 import DocModal from "../../components/DocModal/DocModal";
 import LoginPopup from "../../components/GoogleAuthPopup";
 import HeroCarousel from "../../components/HeroCarousel/HeroCarousel";
@@ -63,6 +65,8 @@ import {
 } from "../../constants/podcastLanguages";
 import Footer from "../../components/Footer";
 import SiteNav from "../../components/SiteNav/SiteNav";
+import VimeoCard, { type VimeoVideo } from "../../components/VimeoCard/VimeoCard";
+import VimeoPlayerModal from "../../components/VimeoPlayerModal/VimeoPlayerModal";
 import "./home2.css";
 
 /* ── Types ─────────────────────────────────────────────────── */
@@ -260,7 +264,7 @@ export default function Home2(): JSX.Element {
     JSON.parse(localStorage.getItem("authUser") || "null")
   );
   const isLoggedIn = Boolean(authUser);
-  const { isSubscribed: isPaidSubscriber, refresh: refreshSubscription } = useSubscription();
+  const { isSubscribed: isPaidSubscriber, subscriptionDetails, refresh: refreshSubscription } = useSubscription();
 
   /* genre */
   const [genres,        setGenres]        = useState<Genre[]>([]);
@@ -283,6 +287,10 @@ export default function Home2(): JSX.Element {
 
   /* pending scroll-to-podcast after genre switch */
   const [pendingPodcastTitle, setPendingPodcastTitle] = useState<string | null>(null);
+
+  /* vimeo videos */
+  const [vimeoVideos, setVimeoVideos] = useState<VimeoVideo[]>([]);
+  const [activeVimeo, setActiveVimeo] = useState<VimeoVideo | null>(null);
 
   /* modals */
   const [activeDoc,    setActiveDoc]    = useState<TextDoc | null>(null);
@@ -387,6 +395,15 @@ export default function Home2(): JSX.Element {
     fetchMaterials(selectedGenre.id);
   }, [selectedGenre, fetchMaterials]);
 
+  /* ── vimeo videos ── */
+  useEffect(() => {
+    let ok = true;
+    api.get<VimeoVideo[]>("/vimeo-videos")
+      .then((r) => { if (ok) setVimeoVideos(Array.isArray(r.data) ? r.data : []); })
+      .catch(() => { if (ok) setVimeoVideos([]); });
+    return () => { ok = false; };
+  }, []);
+
   /* ── subscribe click — requires login first ── */
   const handleSubscribeClick = useCallback(() => {
     if (!isLoggedIn) {
@@ -402,7 +419,7 @@ export default function Home2(): JSX.Element {
 
   /* ── logout ── */
   const handleLogout = useCallback(() => {
-    localStorage.removeItem("google_id_token");
+    clearGoogleIdToken();
     localStorage.removeItem("authUser");
     setAuthUser(null);
     refreshSubscription();
@@ -677,12 +694,15 @@ export default function Home2(): JSX.Element {
             <span className="h2-section__name">Exclusive Content</span>
           </div>
 
-          {exclusiveMaterials.length === 0 ? (
+          {exclusiveMaterials.length === 0 && vimeoVideos.length === 0 ? (
             <p className="h2-empty">No exclusive content available yet.</p>
           ) : (
             <PodcastRow rowRef={exclusiveRowRef} label="Exclusive Content">
               {exclusiveMaterials.map((doc) => (
                 <MaterialCard key={doc.id} doc={doc} onOpen={openDoc} locked={isDocLocked(doc)} />
+              ))}
+              {vimeoVideos.map((v) => (
+                <VimeoCard key={v.id} video={v} onExpand={setActiveVimeo} />
               ))}
               {!isPaidSubscriber && (
                 <div className="h2-subscribe-card h2-subscribe-card--inline">
@@ -708,6 +728,7 @@ export default function Home2(): JSX.Element {
 
       {/* ── MODALS ── */}
       {activeDoc && <DocModal doc={activeDoc} onClose={() => setActiveDoc(null)} />}
+      {activeVimeo && <VimeoPlayerModal video={activeVimeo} onClose={() => setActiveVimeo(null)} />}
       {showLogin && (
         <LoginPopup
           onSuccess={() => {
@@ -735,6 +756,14 @@ export default function Home2(): JSX.Element {
       )}
       {showSubscribe && (
         <SubscribePopup onClose={() => setShowSubscribe(false)} />
+      )}
+
+      {/* ── PROFILE BUBBLE ── */}
+      {isLoggedIn && authUser?.email && (
+        <UserProfileBubble
+          email={authUser.email}
+          subscription={subscriptionDetails}
+        />
       )}
     </div>
   );

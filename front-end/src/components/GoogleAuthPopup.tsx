@@ -1,5 +1,6 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { api } from "../api/client";
+import { setGoogleIdToken } from "../auth/token";
 
 type Props = {
   onSuccess?: () => void;
@@ -126,8 +127,7 @@ export default function GoogleAuthPopup({ onSuccess, onClose }: Props) {
             onSuccess={async (res) => {
               if (!res.credential) return;
 
-              // 🔑 THIS LINE WAS MISSING
-              localStorage.setItem("google_id_token", res.credential);
+              setGoogleIdToken(res.credential);
 
               const response = await api.post("/auth/google", {
                 token: res.credential,

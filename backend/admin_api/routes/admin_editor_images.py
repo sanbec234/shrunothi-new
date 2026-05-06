@@ -1,3 +1,4 @@
+import logging
 from flask import Blueprint, request, jsonify, current_app
 from bson import ObjectId
 from datetime import datetime
@@ -54,5 +55,6 @@ def delete_editor_image(id):
     try:
         current_app.db.editor_images.delete_one({"_id": ObjectId(id)})
         return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception:
+            logging.getLogger(__name__).exception("S3 operation failed")
+            return jsonify({"error": "Upload service unavailable"}), 500

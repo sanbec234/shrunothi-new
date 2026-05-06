@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import DOMPurify from "dompurify";
 import { api } from "../../api/client";
 import type { TextDoc } from "../../types";
 import "./docmodal.css";
@@ -424,7 +425,7 @@ export default function DocModal({ doc, onClose }: Props) {
         <div
           ref={modalBodyRef}
           className="modal-body tiptap-content"
-          dangerouslySetInnerHTML={{ __html: content }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
           onClick={handleParagraphClick}
         />
 

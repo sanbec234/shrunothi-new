@@ -59,6 +59,7 @@ import { useEffect, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import AdminDashboard from "../pages/admin/admindash";
 import { api } from "../api/client";
+import { setGoogleIdToken } from "../auth/token";
 
 export default function AdminGuard() {
   const [authUser, setAuthUser] = useState<any>(null);
@@ -100,8 +101,7 @@ export default function AdminGuard() {
             onSuccess={async (res) => {
               if (!res.credential) return;
 
-              // 🔑 store Google ID token
-              localStorage.setItem("google_id_token", res.credential);
+              setGoogleIdToken(res.credential);
 
               const response = await api.post("/auth/google", {
                 token: res.credential,

@@ -1,0 +1,68 @@
+.vpm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 1rem;
+  animation: vpm-fade-in 0.18s ease;
+}
+
+@keyframes vpm-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.vpm-container {
+  position: relative;
+  width: min(90vw, 1100px);
+  animation: vpm-slide-up 0.2s ease;
+}
+
+@keyframes vpm-slide-up {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.vpm-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.vpm-close:hover { background: rgba(255, 255, 255, 0.22); }
+
+.vpm-frame-wrap {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7);
+}
+
+.vpm-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.vpm-title {
+  margin-top: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+}

@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "../api/client";
+import { getGoogleIdToken } from "../auth/token";
 
 interface SubscriptionStatus {
   is_subscriber: boolean;
@@ -17,7 +18,7 @@ export function useSubscription() {
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("google_id_token");
+      const token = getGoogleIdToken();
       if (!token) {
         setIsSubscribed(false);
         setSubscriptionDetails(null);
