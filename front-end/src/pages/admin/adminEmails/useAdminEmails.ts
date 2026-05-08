@@ -12,7 +12,7 @@ export function useAdminEmails() {
   async function loadAdminEmails() {
     try {
       const res = await api.get("/admin/admin-emails");
-      setAdminEmails(res.data);
+      setAdminEmails(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Failed to load admin emails", err);
     }

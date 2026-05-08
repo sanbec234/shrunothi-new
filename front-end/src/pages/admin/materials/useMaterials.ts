@@ -39,7 +39,7 @@ export function useMaterials() {
   async function loadMaterials() {
     try {
       const res = await api.get("/materials");
-      setMaterials(res.data);
+      setMaterials(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Failed to load materials", err);
     }

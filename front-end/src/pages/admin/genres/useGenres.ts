@@ -10,8 +10,12 @@ export function useGenres() {
   }, []);
 
   async function loadGenres() {
-    const res = await api.get("/genres");
-    setGenres(res.data);
+    try {
+      const res = await api.get("/genres");
+      setGenres(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      setGenres([]);
+    }
   }
 
   async function createGenre(name: string) {

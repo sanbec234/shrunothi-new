@@ -36,7 +36,7 @@ export function useSelfHelp() {
   async function loadSelfHelp() {
     try {
       const res = await api.get("/self-help");
-      setSelfHelps(res.data);
+      setSelfHelps(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Failed to load self-help", err);
     }

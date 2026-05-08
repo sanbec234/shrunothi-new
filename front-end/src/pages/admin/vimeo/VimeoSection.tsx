@@ -27,7 +27,7 @@ export default function VimeoSection({ isOpen, onToggle }: VimeoSectionProps) {
     setLoading(true);
     try {
       const res = await api.get("/admin/vimeo-videos");
-      setVideos(res.data);
+      setVideos(Array.isArray(res.data) ? res.data : []);
     } catch {
       /* silently fail */
     } finally {

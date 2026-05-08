@@ -13,7 +13,7 @@ export function usePodcasts() {
   async function loadPodcasts() {
     try {
       const res = await api.get("/podcasts");
-      setPodcasts(res.data);
+      setPodcasts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Failed to load podcasts", err);
     }

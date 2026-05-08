@@ -14,7 +14,8 @@ export function useUsers() {
   async function loadUsers() {
     try {
       const res = await api.get("/admin/users");
-      setUsers(Array.isArray(res.data) ? res.data : []);
+      const data = res.data;
+      setUsers(Array.isArray(data) ? data : Array.isArray(data?.users) ? data.users : []);
     } catch {
       setUsers([]);
     }
