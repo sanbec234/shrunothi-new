@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { setGoogleIdToken } from "../../auth/token";
 import "./welcomegate.css";
 
 export default function WelcomeGate({
@@ -18,7 +17,6 @@ export default function WelcomeGate({
     google.accounts.id.initialize({
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       callback: (response: any) => {
-        if (response.credential) setGoogleIdToken(response.credential);
         sessionStorage.setItem("welcome_seen", "true");
         onSuccess(response);
       }

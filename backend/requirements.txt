@@ -24,3 +24,4 @@ gunicorn==21.2.0
 redis==5.0.8
 limits>=3.0
 Flask-Compress==1.15
+PyJWT==2.12.1

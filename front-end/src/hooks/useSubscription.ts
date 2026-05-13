@@ -14,7 +14,7 @@ const CACHE_KEY = "sub_status";
 
 function readCache(): SubscriptionStatus | null {
   try {
-    const raw = sessionStorage.getItem(CACHE_KEY);
+    const raw = localStorage.getItem(CACHE_KEY);
     return raw ? (JSON.parse(raw) as SubscriptionStatus) : null;
   } catch {
     return null;
@@ -23,9 +23,9 @@ function readCache(): SubscriptionStatus | null {
 
 function writeCache(data: SubscriptionStatus | null): void {
   if (data) {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
   } else {
-    sessionStorage.removeItem(CACHE_KEY);
+    localStorage.removeItem(CACHE_KEY);
   }
 }
 

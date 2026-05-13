@@ -32,6 +32,7 @@ api.interceptors.response.use(
       if (shouldLogout) {
         clearGoogleIdToken();
         localStorage.removeItem("authUser");
+        localStorage.removeItem("sub_status");
         sessionStorage.setItem("session_expired", "true");
         window.location.reload();
       } else {

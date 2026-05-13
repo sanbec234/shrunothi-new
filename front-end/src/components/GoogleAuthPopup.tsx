@@ -127,12 +127,11 @@ export default function GoogleAuthPopup({ onSuccess, onClose }: Props) {
             onSuccess={async (res) => {
               if (!res.credential) return;
 
-              setGoogleIdToken(res.credential);
-
               const response = await api.post("/auth/google", {
                 token: res.credential,
               });
 
+              setGoogleIdToken(response.data.token);
               localStorage.setItem("authUser", JSON.stringify(response.data));
               onSuccess?.();
             }}
