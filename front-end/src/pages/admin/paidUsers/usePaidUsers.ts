@@ -31,5 +31,11 @@ export function usePaidUsers() {
     }
   }
 
-  return { paidUsers, loading, reload: load };
+  async function restoreSubscription(email: string, plan: "monthly" | "annual" | "auto" = "auto") {
+    const res = await api.post("/admin/payments/subscribers/restore", { email, plan });
+    await load();
+    return res.data;
+  }
+
+  return { paidUsers, loading, reload: load, restoreSubscription };
 }

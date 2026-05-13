@@ -151,25 +151,41 @@ def cleanup_orphaned_orders(db, dry_run=False):
 
 def expire_lapsed_subscriptions(db, dry_run=False):
     """
-    Find monthly subscribers whose expires_at is in the past and mark them expired.
+    Find monthly subscribers whose expires_at is in the past (with a 24-hour grace
+    period) and mark them expired.
+
+    Grace period prevents edge cases where a renewal payment is in-flight when
+    this script runs.
     """
     now = datetime.now(timezone.utc)
+    # Only expire subscriptions that have been past their expiry for >24 hours.
+    cutoff = now - timedelta(hours=24)
     lapsed = list(db.subscribers.find({
         "subscription_status": "active",
-        "expires_at": {"$lt": now, "$ne": None},
+        "expires_at": {"$lt": cutoff, "$ne": None},
     }))
 
-    log.info("Found %d lapsed subscriptions", len(lapsed))
+    log.info("Found %d lapsed subscriptions (>24h past expiry)", len(lapsed))
 
     if dry_run:
         return
 
     for sub in lapsed:
+        # Double-check expiry with timezone awareness before updating.
+        exp = sub.get("expires_at")
+        if exp:
+            if exp.tzinfo is None:
+                exp = exp.replace(tzinfo=timezone.utc)
+            if exp >= now:
+                log.info("Skipping %s — expiry is in the future (tz mismatch guard)",
+                         sub["user_email"])
+                continue
+
         db.subscribers.update_one(
             {"user_email": sub["user_email"], "subscription_status": "active"},
             {"$set": {"subscription_status": "expired", "updated_at": now}},
         )
-        log.info("Expired subscription: %s", sub["user_email"])
+        log.info("Expired subscription: %s (was due %s)", sub["user_email"], exp)
 
 
 def main():

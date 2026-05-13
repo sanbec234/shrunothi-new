@@ -387,7 +387,7 @@ export default function Home2(): JSX.Element {
     ).then((results) => { if (ok) setAllPodcasts(results.flat()); });
 
     return () => { ok = false; };
-  }, [genres]);
+  }, [genres, isLoggedIn]);
 
   /* ── scroll to pending podcast once the row loads ── */
   useEffect(() => {
@@ -438,7 +438,7 @@ export default function Home2(): JSX.Element {
     if (!selectedGenre) { setMaterialDocs([]); return; }
     setMaterialsLoading(true);
     fetchMaterials(selectedGenre.id);
-  }, [selectedGenre, fetchMaterials]);
+  }, [selectedGenre, fetchMaterials, isLoggedIn]);
 
   /* ── vimeo videos ── */
   useEffect(() => {
@@ -447,7 +447,7 @@ export default function Home2(): JSX.Element {
       .then((r) => { if (ok) setVimeoVideos(Array.isArray(r.data) ? r.data : []); })
       .catch(() => { if (ok) setVimeoVideos([]); });
     return () => { ok = false; };
-  }, []);
+  }, [isLoggedIn]);
 
   /* ── subscribe click — requires login first ── */
   const handleSubscribeClick = useCallback(() => {

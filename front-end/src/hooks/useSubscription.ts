@@ -10,9 +10,29 @@ interface SubscriptionStatus {
   current_payment_id: string | null;
 }
 
+const CACHE_KEY = "sub_status";
+
+function readCache(): SubscriptionStatus | null {
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    return raw ? (JSON.parse(raw) as SubscriptionStatus) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(data: SubscriptionStatus | null): void {
+  if (data) {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+  } else {
+    sessionStorage.removeItem(CACHE_KEY);
+  }
+}
+
 export function useSubscription() {
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionStatus | null>(null);
+  const cached = readCache();
+  const [isSubscribed, setIsSubscribed] = useState(cached?.is_subscriber ?? false);
+  const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionStatus | null>(cached);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
@@ -22,14 +42,18 @@ export function useSubscription() {
       if (!token) {
         setIsSubscribed(false);
         setSubscriptionDetails(null);
+        writeCache(null);
         return;
       }
       const res = await api.get<SubscriptionStatus>("/payments/subscription-status");
-      setIsSubscribed(Boolean(res.data?.is_subscriber));
-      setSubscriptionDetails(res.data ?? null);
+      const data = res.data ?? null;
+      setIsSubscribed(Boolean(data?.is_subscriber));
+      setSubscriptionDetails(data);
+      writeCache(data);
     } catch {
       setIsSubscribed(false);
       setSubscriptionDetails(null);
+      writeCache(null);
     } finally {
       setLoading(false);
     }

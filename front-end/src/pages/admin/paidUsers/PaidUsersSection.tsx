@@ -18,30 +18,44 @@ export default function PaidUsersSection({ paidUsers, loading, onReload }: PaidU
   const [search, setSearch] = useState("");
 
   const visible = search
-    ? paidUsers.filter((u) =>
-        (u.name || "").toLowerCase().includes(search.toLowerCase()) ||
-        u.email.toLowerCase().includes(search.toLowerCase())
+    ? paidUsers.filter(
+        (u) =>
+          (u.name || "").toLowerCase().includes(search.toLowerCase()) ||
+          u.email.toLowerCase().includes(search.toLowerCase())
       )
     : paidUsers;
 
   return (
     <>
       <section>
-        <div className="section-header" onClick={() => setOpen(true)} style={{ marginBottom: 0 }}>
+        <div
+          className="section-header"
+          onClick={() => setOpen(true)}
+          style={{ marginBottom: 0 }}
+        >
           <span>▶</span>
           <span>Paid Subscribers</span>
-          <span style={{
-            marginLeft: 8,
-            background: "#22c55e",
-            color: "#fff",
-            borderRadius: "999px",
-            fontSize: "0.7rem",
-            fontWeight: 700,
-            padding: "0.1rem 0.55rem",
-          }}>
+          <span
+            style={{
+              marginLeft: 8,
+              background: "#22c55e",
+              color: "#fff",
+              borderRadius: "999px",
+              fontSize: "0.7rem",
+              fontWeight: 700,
+              padding: "0.1rem 0.55rem",
+            }}
+          >
             {paidUsers.length}
           </span>
-          <span style={{ marginLeft: "auto", fontSize: 13, color: "var(--text-muted)", fontWeight: 400 }}>
+          <span
+            style={{
+              marginLeft: "auto",
+              fontSize: 13,
+              color: "var(--text-muted)",
+              fontWeight: 400,
+            }}
+          >
             click to manage
           </span>
         </div>
@@ -79,7 +93,9 @@ export default function PaidUsersSection({ paidUsers, loading, onReload }: PaidU
               {visible.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="empty">
-                    {paidUsers.length === 0 ? "No active paid subscribers" : "No subscribers match your search"}
+                    {paidUsers.length === 0
+                      ? "No active paid subscribers"
+                      : "No subscribers match your search"}
                   </td>
                 </tr>
               ) : (
@@ -96,7 +112,12 @@ export default function PaidUsersSection({ paidUsers, loading, onReload }: PaidU
                     <td data-label="Subscribed On">{fmt(u.started_at)}</td>
                     <td data-label="Expires On">
                       {u.expires_at ? (
-                        <span style={{ color: new Date(u.expires_at) < new Date() ? "#ef4444" : "#22c55e" }}>
+                        <span
+                          style={{
+                            color:
+                              new Date(u.expires_at) < new Date() ? "#ef4444" : "#22c55e",
+                          }}
+                        >
                           {fmt(u.expires_at)}
                         </span>
                       ) : (

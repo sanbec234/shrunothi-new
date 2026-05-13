@@ -1,24 +1,37 @@
-// Token is held only in memory — never written to localStorage/sessionStorage.
-// This prevents XSS scripts from stealing it via storage APIs.
-// On page reload the user silently re-authenticates via Google One-Tap.
-let _token: string | null = null;
+const STORAGE_KEY = "gid_token";
 
 export function setGoogleIdToken(token: string): void {
-  _token = token;
-  // Write a non-sensitive marker so the app knows a session was active
-  // (used to show "reconnecting…" instead of the full login screen on reload).
-  sessionStorage.setItem("session_active", "1");
+  sessionStorage.setItem(STORAGE_KEY, token);
 }
 
 export function getGoogleIdToken(): string | null {
-  return _token;
+  const token = sessionStorage.getItem(STORAGE_KEY);
+  if (!token) return null;
+  if (isExpired(token)) {
+    clearGoogleIdToken();
+    return null;
+  }
+  return token;
 }
 
 export function clearGoogleIdToken(): void {
-  _token = null;
-  sessionStorage.removeItem("session_active");
+  sessionStorage.removeItem(STORAGE_KEY);
 }
 
 export function hadActiveSession(): boolean {
-  return sessionStorage.getItem("session_active") === "1";
+  return sessionStorage.getItem(STORAGE_KEY) !== null;
+}
+
+function isExpired(token: string): boolean {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return true;
+    const b64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = b64.padEnd(Math.ceil(b64.length / 4) * 4, "=");
+    const { exp } = JSON.parse(atob(padded)) as { exp?: number };
+    if (typeof exp !== "number") return true;
+    return Date.now() >= exp * 1000;
+  } catch {
+    return true;
+  }
 }

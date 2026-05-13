@@ -8,7 +8,7 @@ All endpoints require admin authentication. Provides:
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from flask import Blueprint, request, jsonify
 
@@ -220,4 +220,100 @@ def list_subscribers():
         "total": total,
         "limit": limit,
         "offset": offset,
+    }), 200
+
+
+@bp.route("/subscribers/restore", methods=["POST"])
+@limiter.limit("20 per minute")
+@require_admin
+def restore_subscriber():
+    """
+    Manually restore or grant an active subscription to a user.
+    Use this when a paid member is incorrectly shown as free tier.
+
+    Body:
+        email        – user email (required)
+        plan         – "monthly" | "annual"  (default: auto-detected from payment history)
+
+    Rules:
+        - Never reduces an existing active subscription's expiry.
+        - Monthly → expires 30 days from now.
+        - Annual  → no expiry (lifetime access for the period paid).
+    """
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").lower().strip()
+    plan = (data.get("plan") or "auto").lower().strip()
+
+    if not email:
+        return jsonify({"error": "email is required"}), 400
+    if plan not in ("monthly", "annual", "auto"):
+        return jsonify({"error": "plan must be 'monthly', 'annual', or 'auto'"}), 400
+
+    db = get_db()
+    now = datetime.now(timezone.utc)
+
+    # Determine payment_type
+    if plan == "auto":
+        sub = db.subscribers.find_one({"user_email": email})
+        payment_type = sub.get("payment_type") if sub else None
+        if not payment_type or payment_type == "legacy_grandfathered":
+            recent = db.payments.find_one(
+                {"user_email": email, "status": "captured"},
+                sort=[("created_at", -1)],
+            )
+            payment_type = recent.get("payment_type", "one_time") if recent else "one_time"
+    else:
+        payment_type = "recurring" if plan == "monthly" else "one_time"
+
+    # Compute expires_at (never reduce existing window)
+    new_expires = (
+        now + timedelta(days=30) if payment_type == "recurring" else None
+    )
+
+    existing = db.subscribers.find_one({"user_email": email})
+    effective_expires = new_expires
+
+    if existing and existing.get("subscription_status") == "active":
+        cur_exp = existing.get("expires_at")
+        if cur_exp is None:
+            effective_expires = None
+        elif new_expires is None:
+            effective_expires = None
+        else:
+            ce = cur_exp if cur_exp.tzinfo else cur_exp.replace(tzinfo=timezone.utc)
+            effective_expires = max(ce, new_expires)
+
+    # Find reference payment id
+    ref = db.payments.find_one(
+        {"user_email": email, "status": "captured"},
+        sort=[("created_at", -1)],
+    )
+    payment_id = ref["razorpay_order_id"] if ref else "admin_restore"
+
+    db.subscribers.update_one(
+        {"user_email": email},
+        {
+            "$setOnInsert": {"user_email": email, "started_at": now, "created_at": now},
+            "$set": {
+                "subscription_status": "active",
+                "subscription_tier": "standard",
+                "payment_type": payment_type,
+                "expires_at": effective_expires,
+                "current_payment_id": payment_id,
+                "updated_at": now,
+                "_restore_note": f"Restored by admin on {now.date().isoformat()}",
+            },
+        },
+        upsert=True,
+    )
+
+    final = db.subscribers.find_one({"user_email": email})
+    log.info("Admin restored subscription for %s (plan=%s)", email, payment_type)
+
+    return jsonify({
+        "status": "restored",
+        "email": email,
+        "subscription_status": final.get("subscription_status"),
+        "payment_type": final.get("payment_type"),
+        "expires_at": final["expires_at"].isoformat() if final.get("expires_at") else None,
     }), 200

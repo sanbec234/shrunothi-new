@@ -6,24 +6,6 @@ export const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-function isStoredTokenExpired(): boolean {
-  const token = getGoogleIdToken();
-  if (!token) return true;
-
-  try {
-    const payloadPart = token.split(".")[1];
-    if (!payloadPart) return true;
-    const base64 = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
-    const normalized = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
-    const payload = JSON.parse(atob(normalized)) as { exp?: unknown };
-    const exp = typeof payload.exp === "number" ? payload.exp : null;
-    if (!exp) return true;
-    return Date.now() >= exp * 1000;
-  } catch {
-    return true;
-  }
-}
-
 function isTokenErrorMessage(raw: unknown): boolean {
   const msg = String(raw || "").toLowerCase();
   return msg.includes("expired") || msg.includes("invalid token");
@@ -43,8 +25,9 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       const backendMessage = error.response?.data?.error;
+      const tokenGone = !getGoogleIdToken();
       const shouldLogout =
-        isStoredTokenExpired() || isTokenErrorMessage(backendMessage);
+        tokenGone || isTokenErrorMessage(backendMessage);
 
       if (shouldLogout) {
         clearGoogleIdToken();
