@@ -10,6 +10,7 @@ export type Podcast = {
   spotifyUrl: string;
   genreId: string;
   language?: string;
+  showInWhatsNew?: boolean;
 };
 
 export type Material = {

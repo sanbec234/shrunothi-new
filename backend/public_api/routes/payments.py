@@ -40,8 +40,8 @@ def _rate_key_user_or_ip():
 
 # Server-side whitelist of valid plans. Frontend cannot dictate amounts.
 PLAN_AMOUNTS = {
-    "monthly": 9900,    # ₹99
-    "annual":  99900,   # ₹999
+    "monthly": 29900,   # ₹299
+    "annual":  249900,  # ₹2,499
 }
 
 PLAN_TO_TYPE = {

@@ -245,3 +245,8 @@
   max-width: 560px;
   line-height: 1.5;
 }
+
+@keyframes plans-progress {
+  from { width: 0; }
+  to   { width: 100%; }
+}

@@ -169,7 +169,7 @@ check("Valid plan='monthly' returns 201", r.status_code == 201,
       f"got {r.status_code} body={r.data[:120]}")
 if r.status_code == 201:
     body = r.get_json()
-    check("Server set canonical amount=9900", body["amount"] == 9900)
+    check("Server set canonical amount=29900", body["amount"] == 29900)
     check("Server set payment_type=recurring", body["payment_type"] == "recurring")
 
 

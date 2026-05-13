@@ -24,21 +24,24 @@ export function usePodcasts() {
     spotifyUrl: string;
     genreId: string;
     language?: string;
+    showInWhatsNew?: boolean;
   }) {
     await api.post("/admin/podcasts", {
       ...data,
       language: data.language || DEFAULT_PODCAST_LANGUAGE,
+      showInWhatsNew: data.showInWhatsNew ?? false,
     });
     await loadPodcasts();
   }
 
   async function updatePodcast(
     id: string,
-    data: { title: string; spotifyUrl: string; genreId: string; language?: string }
+    data: { title: string; spotifyUrl: string; genreId: string; language?: string; showInWhatsNew?: boolean }
   ) {
     const payload = {
       ...data,
       language: data.language || DEFAULT_PODCAST_LANGUAGE,
+      showInWhatsNew: data.showInWhatsNew ?? false,
     };
     await api.put(`/admin/podcasts/${id}`, payload);
     setPodcasts((prev) =>

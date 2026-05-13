@@ -82,8 +82,8 @@ _TEMPLATES = {
 }
 
 _PLAN_LABELS = {
-    "recurring": "Monthly Plan (₹99/month)",
-    "one_time": "Annual Plan (₹999/year)",
+    "recurring": "Monthly Plan (₹299/month)",
+    "one_time": "Annual Plan (₹2,499/year)",
 }
 
 

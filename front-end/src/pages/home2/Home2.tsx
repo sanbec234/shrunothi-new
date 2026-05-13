@@ -57,6 +57,7 @@ import DocModal from "../../components/DocModal/DocModal";
 import LoginPopup from "../../components/GoogleAuthPopup";
 import HeroCarousel from "../../components/HeroCarousel/HeroCarousel";
 import { useSubscription } from "../../hooks/useSubscription";
+import { useScrollReveal } from "../../hooks/useScrollReveal";
 import type { Genre } from "../../types/index";
 import type { TextDoc } from "../../types";
 import {
@@ -70,7 +71,7 @@ import VimeoPlayerModal from "../../components/VimeoPlayerModal/VimeoPlayerModal
 import "./home2.css";
 
 /* ── Types ─────────────────────────────────────────────────── */
-type Podcast      = { embed_url: string; title?: string; language?: string };
+type Podcast      = { embed_url: string; title?: string; language?: string; show_in_whats_new?: boolean };
 type PodcastApi   = { podcasts?: Podcast[]; languages?: string[] };
 type MaterialDoc  = TextDoc & { thumbnailUrl?: string | null; subscriberOnly?: boolean; locked?: boolean };
 type Suggestion   = { id: string; title: string; kind: "podcast" | "material"; onSelect: () => void };
@@ -255,6 +256,43 @@ function LangTabs({
 }
 
 /* ============================================================
+   Skeleton placeholders
+   ============================================================ */
+function PodcastSkeletonRow({ count = 4 }: { count?: number }) {
+  return (
+    <div className="h2-scroll-wrap">
+      <div className="h2-scroll" aria-hidden="true">
+        {Array.from({ length: count }).map((_, i) => (
+          <div key={i} className="h2-skel-podcast">
+            <div className="h2-skel h2-skel--frame" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MaterialSkeletonRow({ count = 4 }: { count?: number }) {
+  return (
+    <div className="h2-scroll-wrap">
+      <div className="h2-scroll" aria-hidden="true">
+        {Array.from({ length: count }).map((_, i) => (
+          <div key={i} className="h2-skel-material">
+            <div className="h2-skel h2-skel--thumb" />
+            <div className="h2-skel-body">
+              <div className="h2-skel h2-skel--title" />
+              <div className="h2-skel h2-skel--title2" />
+              <div className="h2-skel h2-skel--author" />
+              <div className="h2-skel h2-skel--btn" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
    HOME2
    ============================================================ */
 export default function Home2(): JSX.Element {
@@ -265,6 +303,9 @@ export default function Home2(): JSX.Element {
   );
   const isLoggedIn = Boolean(authUser);
   const { isSubscribed: isPaidSubscriber, subscriptionDetails, refresh: refreshSubscription } = useSubscription();
+
+  /* scroll reveal — re-runs on each render so newly mounted elements are picked up */
+  useScrollReveal();
 
   /* genre */
   const [genres,        setGenres]        = useState<Genre[]>([]);
@@ -279,7 +320,8 @@ export default function Home2(): JSX.Element {
   const [podcastLanguages, setPodcastLanguages] = useState<string[]>([...INDIAN_PODCAST_LANGUAGES]);
 
   /* content */
-  const [materialDocs, setMaterialDocs] = useState<MaterialDoc[]>([]);
+  const [materialDocs,     setMaterialDocs]     = useState<MaterialDoc[]>([]);
+  const [materialsLoading, setMaterialsLoading] = useState(false);
 
   /* cross-genre suggestion pool */
   const [allMaterials, setAllMaterials] = useState<{ doc: MaterialDoc; genre: Genre }[]>([]);
@@ -385,13 +427,16 @@ export default function Home2(): JSX.Element {
 
   /* ── materials ── */
   const fetchMaterials = useCallback((genreId: string) => {
+    setMaterialsLoading(true);
     api.get<MaterialDoc[]>(`/genres/${genreId}/material`)
       .then((r) => { setMaterialDocs(Array.isArray(r.data) ? r.data : []); })
-      .catch(() => { setMaterialDocs([]); });
+      .catch(() => { setMaterialDocs([]); })
+      .finally(() => { setMaterialsLoading(false); });
   }, []);
 
   useEffect(() => {
     if (!selectedGenre) { setMaterialDocs([]); return; }
+    setMaterialsLoading(true);
     fetchMaterials(selectedGenre.id);
   }, [selectedGenre, fetchMaterials]);
 
@@ -479,8 +524,10 @@ export default function Home2(): JSX.Element {
       ) ?? null;
   const filteredMaterials = filterDocs(materialDocs);
 
-  /* What's New = first 5 from same genre+lang feed */
-  const whatsNewPodcasts = podcasts?.slice(0, 5) ?? null;
+  /* What's New = podcasts with show_in_whats_new flag (up to 10) */
+  const whatsNewPodcasts = podcasts === null
+    ? null
+    : podcasts.filter((p) => p.show_in_whats_new);
 
   /* ── exclusive content (subscriber-only across all genres) ── */
   const exclusiveMaterials = allMaterials
@@ -570,7 +617,7 @@ export default function Home2(): JSX.Element {
 
         {/* ── WHAT'S NEW ── */}
         <section className="h2-section">
-          <div className="h2-section__head">
+          <div className="h2-section__head" data-reveal data-reveal-variant="title">
             <div className="h2-section__bar" />
             <span className="h2-section__name">What's New</span>
           </div>
@@ -578,13 +625,13 @@ export default function Home2(): JSX.Element {
           {!selectedGenre ? (
             <p className="h2-empty">Select a genre to see what's new.</p>
           ) : whatsNewPodcasts === null ? (
-            <p className="h2-empty">Loading…</p>
+            <PodcastSkeletonRow count={4} />
           ) : whatsNewPodcasts.length === 0 ? (
             <p className="h2-empty">No new podcasts for this genre yet.</p>
           ) : (
             <PodcastRow rowRef={whatsNewRowRef} label="What's New">
               {whatsNewPodcasts.map((p, i) => (
-                <div key={i} className="h2-podcast-card">
+                <div key={i} className="h2-podcast-card" data-reveal data-reveal-delay={String(Math.min(i + 1, 6))}>
                   <iframe
                     className="h2-spotify-frame"
                     src={p.embed_url}
@@ -592,6 +639,7 @@ export default function Home2(): JSX.Element {
                     loading="lazy"
                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                   />
+                  {p.title && <p className="h2-podcast-title">{p.title}</p>}
                 </div>
               ))}
             </PodcastRow>
@@ -600,7 +648,7 @@ export default function Home2(): JSX.Element {
 
         {/* ── CONTROLS (category title + search/lang + genre chips) ── */}
         <div className="h2-controls-bar">
-          <div className="h2-category-tools">
+          <div className="h2-category-tools" data-reveal data-reveal-variant="fade">
             <h2 className="h2-category-title">Browse By Category</h2>
             <div className="h2-search-lang-row">
               <SearchWithSuggest
@@ -618,9 +666,11 @@ export default function Home2(): JSX.Element {
 
           {genres.length > 0 && (
             <div className="h2-genres">
-              {genres.map((g) => (
+              {genres.map((g, i) => (
                 <button
                   key={g.id}
+                  data-reveal
+                  data-reveal-delay={String(Math.min(i + 1, 6))}
                   className={`h2-genre-chip${selectedGenre?.id === g.id ? " h2-genre-chip--active" : ""}`}
                   onClick={() => setSelectedGenre(g)}
                 >
@@ -633,7 +683,7 @@ export default function Home2(): JSX.Element {
 
         {/* ── PODCAST ── */}
         <section className="h2-section" id="podcast" ref={podcastSection}>
-          <div className="h2-section__head">
+          <div className="h2-section__head" data-reveal data-reveal-variant="title">
             <div className="h2-section__bar" />
             <span className="h2-section__name">
               Listen and Learn{selectedGenre ? ` · ${selectedGenre.name}` : ""}
@@ -643,7 +693,7 @@ export default function Home2(): JSX.Element {
           {!selectedGenre ? (
             <p className="h2-empty">Select a genre to view podcasts.</p>
           ) : filteredPodcasts === null ? (
-            <p className="h2-empty">Loading podcasts…</p>
+            <PodcastSkeletonRow count={4} />
           ) : filteredPodcasts.length === 0 ? (
             <p className="h2-empty">
               {searchQuery ? "No podcasts match your search." : `No podcasts found in ${podcastLang} for this genre.`}
@@ -651,7 +701,7 @@ export default function Home2(): JSX.Element {
           ) : (
             <PodcastRow rowRef={podcastRowRef} label="Podcasts">
               {filteredPodcasts.map((p, i) => (
-                <div key={i} className="h2-podcast-card">
+                <div key={i} className="h2-podcast-card" data-reveal data-reveal-delay={String(Math.min(i + 1, 6))}>
                   <iframe
                     className="h2-spotify-frame"
                     src={p.embed_url}
@@ -659,6 +709,7 @@ export default function Home2(): JSX.Element {
                     loading="lazy"
                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                   />
+                  {p.title && <p className="h2-podcast-title">{p.title}</p>}
                 </div>
               ))}
             </PodcastRow>
@@ -667,14 +718,16 @@ export default function Home2(): JSX.Element {
 
         {/* ── MATERIALS ── */}
         <section className="h2-section" id="materials" ref={materialsSection}>
-          <div className="h2-section__head">
+          <div className="h2-section__head" data-reveal data-reveal-variant="title">
             <div className="h2-section__bar" />
             <span className="h2-section__name">
               Expert Guide{selectedGenre ? ` · ${selectedGenre.name}` : ""}
             </span>
           </div>
 
-          {nonExclusiveMaterials.length === 0 ? (
+          {materialsLoading ? (
+            <MaterialSkeletonRow count={4} />
+          ) : nonExclusiveMaterials.length === 0 ? (
             <p className="h2-empty">
               {searchQuery ? "No materials match your search." : "No materials found for this genre."}
             </p>
@@ -689,7 +742,7 @@ export default function Home2(): JSX.Element {
 
         {/* ── EXCLUSIVE CONTENT (subscriber-only from all genres) ── */}
         <section className="h2-section" id="exclusive" ref={exclusiveSection}>
-          <div className="h2-section__head">
+          <div className="h2-section__head" data-reveal data-reveal-variant="title">
             <div className="h2-section__bar" />
             <span className="h2-section__name">Exclusive Content</span>
           </div>
@@ -798,7 +851,7 @@ function SubscribePopup({ onClose }: { onClose: () => void }) {
         </h3>
         <p style={{ margin: "0.9rem 0 1.6rem", lineHeight: 1.6, opacity: 0.85 }}>
           This material is available to subscribers. Unlock everything —
-          premium materials and all self-help guides — for just ₹99/month.
+          premium materials and all self-help guides — for just ₹299/month.
         </p>
         <button
           className="h2-grad-btn h2-grad-btn--lg"
@@ -833,6 +886,7 @@ function MaterialCard({
   return (
     <div
       className={`h2-material-card${locked ? " h2-material-card--locked" : ""}`}
+      data-reveal
       onClick={() => onOpen(doc)}
       role="button" tabIndex={0}
       onKeyDown={(e) => e.key === "Enter" && onOpen(doc)}

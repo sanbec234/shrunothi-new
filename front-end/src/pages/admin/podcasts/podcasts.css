@@ -23,3 +23,19 @@
 .podcast-modal .form-grid-full {
   grid-column: 1 / -1;
 }
+
+.podcast-modal__checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.podcast-modal__checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #6366f1;
+}

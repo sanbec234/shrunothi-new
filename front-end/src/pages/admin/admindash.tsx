@@ -10,6 +10,7 @@ import { useMaterials } from "./materials/useMaterials";
 import { useSelfHelp } from "./selfHelp/useSelfHelp";
 import { useAdminEmails } from "./adminEmails/useAdminEmails";
 import { useUsers } from "./users/useUsers";
+import { usePaidUsers } from "./paidUsers/usePaidUsers";
 import { useCarousel } from "./carousel/useCarousel";
 import { useCoaches } from "./coaches/useCoaches";
 import VimeoSection from "./vimeo/VimeoSection";
@@ -21,6 +22,7 @@ import MaterialsSection from "./materials/MaterialsSection";
 import SelfHelpSection from "./selfHelp/SelfHelpSection";
 import AdminEmailsSection from "./adminEmails/AdminEmailsSection";
 import UsersSection from "./users/UsersSection";
+import PaidUsersSection from "./paidUsers/PaidUsersSection";
 import AdminAnnouncements from "./announcements/AdminAnnouncements";
 import CarouselSection from "./carousel/CarouselSection";
 import CoachesAdminSection from "./coaches/CoachesSection";
@@ -54,19 +56,15 @@ export default function AdminDashboard() {
   const selfHelpHook = useSelfHelp();
   const adminEmailsHook = useAdminEmails();
   const usersHook = useUsers();
+  const paidUsersHook = usePaidUsers();
   const carouselHook = useCarousel();
   const coachesHook = useCoaches();
 
-  // Section toggles
+  // Section toggles (Genres and SelfHelp keep inline accordion)
   const [genresOpen, setGenresOpen] = useState(true);
-  const [podcastsOpen, setPodcastsOpen] = useState(false);
-  const [materialsOpen, setMaterialsOpen] = useState(false);
   const [selfHelpOpen, setSelfHelpOpen] = useState(false);
-  const [carouselOpen, setCarouselOpen] = useState(false);
-  const [coachesOpen, setCoachesOpen] = useState(false);
-  const [vimeoOpen, setVimeoOpen] = useState(false);
 
-  // Filters
+  // Filters (passed down into modal sections)
   const [podcastGenreFilter, setPodcastGenreFilter] = useState<string>("all");
   const [materialGenreFilter, setMaterialGenreFilter] = useState<string>("all");
 
@@ -235,9 +233,7 @@ export default function AdminDashboard() {
       <PodcastsSection
         podcasts={podcastsHook.podcasts}
         genres={genresHook.genres}
-        isOpen={podcastsOpen}
         genreFilter={podcastGenreFilter}
-        onToggle={() => setPodcastsOpen(!podcastsOpen)}
         onFilterChange={setPodcastGenreFilter}
         onAddClick={() => setShowAddPodcast(true)}
         onEditClick={(p) => setEditingPodcast(p)}
@@ -248,9 +244,7 @@ export default function AdminDashboard() {
       <MaterialsSection
         materials={materialsHook.materials}
         genres={genresHook.genres}
-        isOpen={materialsOpen}
         genreFilter={materialGenreFilter}
-        onToggle={() => setMaterialsOpen(!materialsOpen)}
         onFilterChange={setMaterialGenreFilter}
         onAddClick={() => setShowAddMaterial(true)}
         onAddGoogleDocClick={() => setShowAddGoogleDoc(true)}
@@ -285,8 +279,6 @@ export default function AdminDashboard() {
       {/* Carousel Banners Section */}
       <CarouselSection
         banners={carouselHook.banners}
-        isOpen={carouselOpen}
-        onToggle={() => setCarouselOpen(!carouselOpen)}
         onAdd={carouselHook.createBanner}
         onDelete={carouselHook.deleteBanner}
       />
@@ -294,17 +286,19 @@ export default function AdminDashboard() {
       {/* Coaches Section */}
       <CoachesAdminSection
         coaches={coachesHook.coaches}
-        isOpen={coachesOpen}
-        onToggle={() => setCoachesOpen(!coachesOpen)}
         onAdd={coachesHook.createCoach}
         onUpdate={coachesHook.updateCoach}
         onDelete={coachesHook.deleteCoach}
       />
 
       {/* Vimeo Videos Section */}
-      <VimeoSection
-        isOpen={vimeoOpen}
-        onToggle={() => setVimeoOpen(!vimeoOpen)}
+      <VimeoSection />
+
+      {/* Paid Subscribers Section */}
+      <PaidUsersSection
+        paidUsers={paidUsersHook.paidUsers}
+        loading={paidUsersHook.loading}
+        onReload={paidUsersHook.reload}
       />
 
       {/* Users Section */}

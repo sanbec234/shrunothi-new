@@ -67,12 +67,14 @@ def add_vimeo_video():
         return jsonify({"error": "Could not extract Vimeo video ID from URL"}), 400
 
     thumbnail_url = _fetch_vimeo_thumbnail(vimeo_id)
+    is_locked = bool(data.get("is_locked", True))
 
     db = get_db()
     inserted_id = create_vimeo_video(db, {
         "title": title,
         "vimeo_id": vimeo_id,
         "thumbnail_url": thumbnail_url,
+        "is_locked": is_locked,
     })
 
     return jsonify({
@@ -103,7 +105,8 @@ def update_vimeo_video(video_id):
     if not title:
         return jsonify({"error": "title is required"}), 400
 
-    update_fields = {"title": title, "updated_at": datetime.utcnow()}
+    is_locked = bool(data.get("is_locked", True))
+    update_fields = {"title": title, "is_locked": is_locked, "updated_at": datetime.utcnow()}
 
     if vimeo_url:
         vimeo_id = _extract_vimeo_id(vimeo_url)

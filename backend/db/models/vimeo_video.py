@@ -7,6 +7,7 @@ def serialize_vimeo_video(doc):
         "title": doc.get("title"),
         "vimeo_id": doc.get("vimeo_id"),
         "thumbnail_url": doc.get("thumbnail_url"),
+        "is_locked": bool(doc.get("is_locked", True)),
         "created_at": doc["created_at"].isoformat() + "Z" if doc.get("created_at") else None,
     }
 
@@ -17,6 +18,7 @@ def create_vimeo_video(db, data):
         "title": data["title"],
         "vimeo_id": data["vimeo_id"],
         "thumbnail_url": data.get("thumbnail_url"),
+        "is_locked": bool(data.get("is_locked", True)),
         "created_at": now,
         "updated_at": now,
     })

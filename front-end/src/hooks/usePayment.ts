@@ -98,8 +98,8 @@ export function usePayment() {
         name: "Shrunothi",
         description:
           plan === "annual"
-            ? "Annual Premium (₹999)"
-            : "Monthly Premium (₹99)",
+            ? "Annual Premium (₹2,499)"
+            : "Monthly Premium (₹299)",
         prefill: { email: data.email },
         theme: { color: "#6366f1" },
         handler: async (response: RazorpaySuccessResponse) => {

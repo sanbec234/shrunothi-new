@@ -16,6 +16,7 @@ interface AddPodcastModalProps {
     spotifyUrl: string;
     genreId: string;
     language: string;
+    showInWhatsNew: boolean;
   }) => Promise<void>;
 }
 
@@ -24,12 +25,14 @@ export function AddPodcastModal({ isOpen, genres, onClose, onCreate }: AddPodcas
   const [spotifyUrl, setSpotifyUrl] = useState("");
   const [genreId, setGenreId] = useState("");
   const [language, setLanguage] = useState(DEFAULT_PODCAST_LANGUAGE);
+  const [showInWhatsNew, setShowInWhatsNew] = useState(false);
 
   const reset = () => {
     setTitle("");
     setSpotifyUrl("");
     setGenreId("");
     setLanguage(DEFAULT_PODCAST_LANGUAGE);
+    setShowInWhatsNew(false);
   };
 
   const handleCreate = async () => {
@@ -47,6 +50,7 @@ export function AddPodcastModal({ isOpen, genres, onClose, onCreate }: AddPodcas
         spotifyUrl: normalizedSpotifyUrl,
         genreId,
         language,
+        showInWhatsNew,
       });
       reset();
       onClose();
@@ -92,6 +96,14 @@ export function AddPodcastModal({ isOpen, genres, onClose, onCreate }: AddPodcas
             </option>
           ))}
         </select>
+        <label className="podcast-modal__checkbox-row">
+          <input
+            type="checkbox"
+            checked={showInWhatsNew}
+            onChange={(e) => setShowInWhatsNew(e.target.checked)}
+          />
+          Show in "What's New" section
+        </label>
         <button onClick={handleCreate}>Add Podcast</button>
       </div>
     </div>
@@ -104,7 +116,7 @@ interface EditPodcastModalProps {
   onClose: () => void;
   onSave: (
     id: string,
-    data: { title: string; spotifyUrl: string; genreId: string; language: string }
+    data: { title: string; spotifyUrl: string; genreId: string; language: string; showInWhatsNew: boolean }
   ) => Promise<void>;
 }
 
@@ -112,22 +124,21 @@ export function EditPodcastModal({ podcast, genres, onClose, onSave }: EditPodca
   const [title, setTitle] = useState(podcast?.title || "");
   const [spotifyUrl, setSpotifyUrl] = useState(podcast?.spotifyUrl || "");
   const [genreId, setGenreId] = useState(podcast?.genreId || "");
-  const [language, setLanguage] = useState(
-    podcast?.language || DEFAULT_PODCAST_LANGUAGE
-  );
+  const [language, setLanguage] = useState(podcast?.language || DEFAULT_PODCAST_LANGUAGE);
+  const [showInWhatsNew, setShowInWhatsNew] = useState(podcast?.showInWhatsNew ?? false);
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
-        if (!podcast) return;
-
-        setTitle(podcast.title);
-        setSpotifyUrl(podcast.spotifyUrl);
-        setGenreId(podcast.genreId);
-        setLanguage(podcast.language || DEFAULT_PODCAST_LANGUAGE);
-      }, [podcast]);
+    if (!podcast) return;
+    setTitle(podcast.title);
+    setSpotifyUrl(podcast.spotifyUrl);
+    setGenreId(podcast.genreId);
+    setLanguage(podcast.language || DEFAULT_PODCAST_LANGUAGE);
+    setShowInWhatsNew(podcast.showInWhatsNew ?? false);
+  }, [podcast]);
 
   if (!podcast) return null;
-      
+
   const handleSave = async () => {
     const normalizedTitle = title.trim();
     const normalizedSpotifyUrl = spotifyUrl.trim();
@@ -143,6 +154,7 @@ export function EditPodcastModal({ podcast, genres, onClose, onSave }: EditPodca
         spotifyUrl: normalizedSpotifyUrl,
         genreId,
         language,
+        showInWhatsNew,
       });
       setSuccessMessage("Podcast updated successfully");
 
@@ -198,6 +210,15 @@ export function EditPodcastModal({ podcast, genres, onClose, onSave }: EditPodca
             </option>
           ))}
         </select>
+
+        <label className="podcast-modal__checkbox-row">
+          <input
+            type="checkbox"
+            checked={showInWhatsNew}
+            onChange={(e) => setShowInWhatsNew(e.target.checked)}
+          />
+          Show in "What's New" section
+        </label>
 
         <button onClick={handleSave}>Save</button>
       </div>

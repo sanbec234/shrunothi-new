@@ -48,6 +48,7 @@ const PREMIUM_FEATURES = [
 export default function Plans(): JSX.Element {
   const [billing, setBilling] = useState<"monthly" | "annual">("annual");
   const [showLogin, setShowLogin] = useState(false);
+  const [subscribeSuccess, setSubscribeSuccess] = useState(false);
   const { startPayment, status: paymentStatus } = usePayment();
   const { isSubscribed, refresh } = useSubscription();
   const navigate = useNavigate();
@@ -63,14 +64,14 @@ export default function Plans(): JSX.Element {
     startPayment(
       billing,
       async () => {
-        // Subscription confirmed active — refresh and redirect.
         await refresh();
-        navigate("/home2");
+        setSubscribeSuccess(true);
+        setTimeout(() => navigate("/#exclusive"), 2500);
       }
     );
   };
 
-  const premiumPriceDisplay = billing === "annual" ? "₹999" : "₹99";
+  const premiumPriceDisplay = billing === "annual" ? "₹2,499" : "₹299";
   const premiumPricePeriod  = billing === "annual" ? "year" : "month";
 
   const buttonDisabled = paymentStatus === "loading"
@@ -156,24 +157,46 @@ export default function Plans(): JSX.Element {
             </p>
 
             {isSubscribed ? (
-              <div className="plans-card__cta plans-card__cta--filled" style={{ textAlign: "center", pointerEvents: "none", opacity: 0.85 }}>
-                ✓ You're subscribed
-              </div>
+              <>
+                <div
+                  className="plans-card__cta plans-card__cta--filled"
+                  style={{
+                    textAlign: "center",
+                    pointerEvents: "none",
+                    background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+                    color: "#fff",
+                  }}
+                >
+                  ✓ You're already subscribed
+                </div>
+                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.85rem", marginTop: "0.5rem", textAlign: "center" }}>
+                  You have full access to all premium content.
+                </p>
+                <button
+                  className="plans-card__cta plans-card__cta--outline"
+                  style={{ marginTop: "0.75rem" }}
+                  onClick={() => navigate("/#exclusive")}
+                >
+                  Browse exclusive content
+                </button>
+              </>
             ) : (
-              <button
-                className="plans-card__cta plans-card__cta--filled"
-                onClick={handleGetPremium}
-                disabled={buttonDisabled}
-              >
-                {buttonLabel}
-              </button>
+              <>
+                <button
+                  className="plans-card__cta plans-card__cta--filled"
+                  onClick={handleGetPremium}
+                  disabled={buttonDisabled}
+                >
+                  {buttonLabel}
+                </button>
+                {paymentStatus === "pending_capture" && (
+                  <p style={{ color: "#209ae5", fontSize: "0.85rem", marginTop: "0.5rem" }}>
+                    Your bank is taking longer than usual. We'll activate your subscription as soon as the payment captures — you can safely close this page.
+                  </p>
+                )}
+                <p className="plans-card__no-commit">Secure payment via Razorpay</p>
+              </>
             )}
-            {paymentStatus === "pending_capture" && (
-              <p style={{ color: "#6366f1", fontSize: "0.85rem", marginTop: "0.5rem" }}>
-                Your bank is taking longer than usual. We'll activate your subscription as soon as the payment captures — you can safely close this page.
-              </p>
-            )}
-            <p className="plans-card__no-commit">Secure payment via Razorpay</p>
 
             <ul className="plans-card__features">
               {PREMIUM_FEATURES.map((f) => (
@@ -196,14 +219,61 @@ export default function Plans(): JSX.Element {
         <LoginPopup
           onSuccess={() => {
             setShowLogin(false);
-            // Proceed straight to payment after login
             startPayment(billing, async () => {
               await refresh();
-              navigate("/home2");
+              setSubscribeSuccess(true);
+              setTimeout(() => navigate("/#exclusive"), 2500);
             });
           }}
           onClose={() => setShowLogin(false)}
         />
+      )}
+
+      {/* Payment success overlay */}
+      {subscribeSuccess && (
+        <div
+          style={{
+            position: "fixed", inset: 0,
+            background: "rgba(0,0,0,0.75)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 2000,
+          }}
+        >
+          <div
+            style={{
+              background: "#0d1117",
+              border: "1px solid rgba(32,154,229,0.35)",
+              borderRadius: 16,
+              padding: "2.5rem 2.75rem",
+              maxWidth: 420, width: "90%",
+              textAlign: "center",
+              boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
+            }}
+          >
+            <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>🎉</div>
+            <h2 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700, color: "#fff" }}>
+              You're subscribed!
+            </h2>
+            <p style={{ margin: "0.85rem 0 1.5rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.6 }}>
+              Welcome to Premium. Taking you to your exclusive content…
+            </p>
+            <div
+              style={{
+                height: 4, borderRadius: 4,
+                background: "rgba(255,255,255,0.1)",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  height: "100%",
+                  background: "linear-gradient(90deg, #fff 0%, #209ae5 100%)",
+                  animation: "plans-progress 2.5s linear forwards",
+                }}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

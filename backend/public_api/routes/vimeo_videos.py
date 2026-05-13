@@ -20,7 +20,8 @@ def list_vimeo_videos():
     result = []
     for doc in docs:
         item = serialize_vimeo_video(doc)
-        item["locked"] = not caller_is_subscriber
+        # A video is locked if it's marked is_locked AND the caller isn't a subscriber
+        item["locked"] = item["is_locked"] and not caller_is_subscriber
         result.append(item)
 
     return jsonify(result), 200
