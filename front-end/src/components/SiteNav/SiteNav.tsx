@@ -22,14 +22,16 @@ type Props = {
   secondaryCta?: Cta;
 };
 
+const noFocus = { outline: "none", boxShadow: "none", WebkitTapHighlightColor: "transparent" } as const;
+
 function NavLink({ item }: { item: NavItem }): JSX.Element {
   if (item.onClick) {
-    return <button type="button" onClick={item.onClick}>{item.label}</button>;
+    return <button type="button" style={noFocus} onClick={item.onClick}>{item.label}</button>;
   }
   if (item.href?.startsWith("/")) {
-    return <Link to={item.href}>{item.label}</Link>;
+    return <Link to={item.href} style={noFocus}>{item.label}</Link>;
   }
-  return <a href={item.href}>{item.label}</a>;
+  return <a href={item.href} style={noFocus}>{item.label}</a>;
 }
 
 function CtaElement({ cta, className }: { cta: Cta; className: string }): JSX.Element {

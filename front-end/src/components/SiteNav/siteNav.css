@@ -48,12 +48,54 @@
   font-weight: 400;
   opacity: 0.92;
   padding: 0;
+  position: relative;
   transition: opacity 0.18s;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.site-nav__links a::after,
+.site-nav__links button::after {
+  background: currentColor;
+  border-radius: 999px;
+  bottom: -0.35rem;
+  content: "";
+  height: 2px;
+  left: 0;
+  position: absolute;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.2s ease;
+  width: 100%;
+}
+
+.site-nav *:focus,
+.site-nav *:focus-visible,
+.site-nav *:active {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
 .site-nav__links a:hover,
-.site-nav__links button:hover {
+.site-nav__links button:hover,
+.site-nav__links a:focus,
+.site-nav__links button:focus,
+.site-nav__links a:active,
+.site-nav__links button:active {
+  background: transparent;
+  color: #ffffff;
   opacity: 1;
+  text-decoration: none;
+}
+
+.site-nav__links a:hover::after,
+.site-nav__links button:hover::after,
+.site-nav__links a:focus::after,
+.site-nav__links button:focus::after {
+  transform: scaleX(1);
 }
 
 /* ── CTA group: Sign In + Subscribe Now side by side ── */
@@ -79,15 +121,37 @@
   gap: 0.5rem;
   justify-content: center;
   padding: 0.75rem 1.7rem;
+  position: relative;
   text-decoration: none;
   transition: filter 0.18s, transform 0.15s, box-shadow 0.18s;
   white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.site-nav__cta::after {
+  background: currentColor;
+  border-radius: 999px;
+  bottom: 0.48rem;
+  content: "";
+  height: 2px;
+  left: 1.7rem;
+  position: absolute;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.2s ease;
+  width: calc(100% - 3.4rem);
 }
 
 .site-nav__cta:hover {
   box-shadow: 0 8px 22px rgba(32, 154, 229, 0.32);
   filter: brightness(0.96);
   transform: translateY(-1px);
+}
+
+.site-nav__cta:hover::after,
+.site-nav__cta:focus::after {
+  transform: scaleX(1);
 }
 
 /* Secondary CTA — ghost / plain text (Sign In) */
@@ -103,13 +167,39 @@
   font-weight: 400;
   justify-content: center;
   padding: 0.75rem 0.25rem;
+  position: relative;
   text-decoration: none;
   transition: color 0.18s;
   white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
-.site-nav__secondary-cta:hover {
+.site-nav__secondary-cta::after {
+  background: currentColor;
+  border-radius: 999px;
+  bottom: 0.45rem;
+  content: "";
+  height: 2px;
+  left: 0.25rem;
+  position: absolute;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.2s ease;
+  width: calc(100% - 0.5rem);
+}
+
+.site-nav__secondary-cta:hover,
+.site-nav__secondary-cta:focus,
+.site-nav__secondary-cta:active {
+  background: transparent;
   color: #ffffff;
+  text-decoration: none;
+}
+
+.site-nav__secondary-cta:hover::after,
+.site-nav__secondary-cta:focus::after {
+  transform: scaleX(1);
 }
 
 /* ── Hamburger — hidden on desktop ── */
@@ -213,13 +303,45 @@
   font-weight: 400;
   opacity: 0.88;
   padding: 0;
+  position: relative;
   text-decoration: none;
   display: block;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.site-nav__drawer-links a::after,
+.site-nav__drawer-links button::after {
+  background: currentColor;
+  border-radius: 999px;
+  bottom: -0.35rem;
+  content: "";
+  height: 2px;
+  left: 0;
+  position: absolute;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.2s ease;
+  width: 100%;
 }
 
 .site-nav__drawer-links a:hover,
-.site-nav__drawer-links button:hover {
+.site-nav__drawer-links button:hover,
+.site-nav__drawer-links a:focus,
+.site-nav__drawer-links button:focus,
+.site-nav__drawer-links a:active,
+.site-nav__drawer-links button:active {
+  background: transparent;
+  color: #ffffff;
   opacity: 1;
+  text-decoration: none;
+}
+
+.site-nav__drawer-links a:hover::after,
+.site-nav__drawer-links button:hover::after,
+.site-nav__drawer-links a:focus::after,
+.site-nav__drawer-links button:focus::after {
+  transform: scaleX(1);
 }
 
 /* CTA at bottom of drawer */
