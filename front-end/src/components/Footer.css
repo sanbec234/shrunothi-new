@@ -22,9 +22,9 @@
 
 .site-footer-logo {
   display: block;
-  height: 185px;
+  height: 130px;
   object-fit: contain;
-  width: 178px;
+  width: auto;
 }
 
 .site-footer-social {
@@ -38,6 +38,12 @@
   height: 36px;
   justify-content: center;
   width: 36px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.site-footer-social a:hover {
+  transform: translateY(-3px);
+  opacity: 0.75;
 }
 
 .site-footer-social img {
@@ -74,11 +80,28 @@
   text-decoration: none;
   font-size: 0.95rem;
   line-height: 1.4;
-  transition: color 0.15s;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.site-footer .site-footer-col__links a::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0%;
+  height: 1px;
+  background: #e07b39;
+  transition: width 0.2s ease;
+  border-radius: 2px;
 }
 
 .site-footer .site-footer-col__links a:hover {
   color: #e07b39;
+}
+
+.site-footer .site-footer-col__links a:hover::after {
+  width: 100%;
 }
 
 .site-footer-address {

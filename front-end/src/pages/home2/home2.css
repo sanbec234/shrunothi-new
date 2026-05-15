@@ -438,7 +438,7 @@ button { font: inherit; }
   margin: 0;
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--text-secondary, #64748b);
+  color: #ffffff;
   line-height: 1.3;
   text-align: center;
   overflow: hidden;

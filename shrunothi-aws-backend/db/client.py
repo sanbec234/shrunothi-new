@@ -5,11 +5,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MONGO_URI = os.getenv("MONGO_URI")
-
-if not MONGO_URI:
-    raise RuntimeError("MONGO_URI not set in environment")
-
 _client = None
 _db = None
 
@@ -17,8 +12,12 @@ def get_db():
     global _client, _db
 
     if _db is None:
+        mongo_uri = os.getenv("MONGO_URI")
+        if not mongo_uri:
+            raise RuntimeError("MONGO_URI not set in environment")
+
         _client = MongoClient(
-            MONGO_URI,
+            mongo_uri,
             tlsCAFile=certifi.where(),
             serverSelectionTimeoutMS=5000,
             maxPoolSize=50,

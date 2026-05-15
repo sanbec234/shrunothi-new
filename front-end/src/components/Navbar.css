@@ -44,11 +44,27 @@
   font-weight: 400;
   color: var(--text-white);
   text-decoration: none;
-  transition: color 0.2s;
   white-space: nowrap;
+  outline: none;
+  position: relative;
+  transition: color 0.25s ease;
+}
+.navbar-link::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0%;
+  height: 1.5px;
+  background: var(--accent-blue);
+  transition: width 0.25s ease;
+  border-radius: 2px;
 }
 .navbar-link:hover {
   color: var(--accent-blue);
+}
+.navbar-link:hover::after {
+  width: 100%;
 }
 
 /* Right section */
@@ -67,10 +83,14 @@
   font-weight: 500;
   padding: 14px 28px;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: opacity 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
   white-space: nowrap;
 }
-.navbar-signup-btn:hover { opacity: 0.85; }
+.navbar-signup-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
 
 /* Logged-in user */
 .navbar-user {
