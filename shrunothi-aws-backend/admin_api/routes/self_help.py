@@ -7,6 +7,8 @@ import json
 from auth.auth_guard import require_admin
 from googleapiclient.errors import HttpError
 from admin_api.services.google_docs import extract_doc_id, fetch_google_doc, convert_to_html
+from utils.html_sanitizer import sanitize_html
+from utils.audit import audit_log
 
 bp = Blueprint("admin_self_help", __name__)
 
@@ -16,12 +18,15 @@ bp = Blueprint("admin_self_help", __name__)
 # -------------------------------
 @bp.route("/admin/self-help", methods=["POST"])
 @require_admin
+@audit_log("self_help.create")
 def add_self_help():
     data = request.get_json() or {}
 
     required = ["title", "author", "content", "thumbnailUrl"]
     if not all(data.get(k) for k in required):
         return jsonify({"error": "Missing required fields"}), 400
+
+    data["content"] = sanitize_html(data["content"])
 
     db = get_db()
     doc_id = create_self_help(db, data)
@@ -38,6 +43,7 @@ def add_self_help():
 # -------------------------------
 @bp.route("/admin/self-help/<self_help_id>", methods=["PUT", "PATCH"])
 @require_admin
+@audit_log("self_help.update")
 def update_self_help(self_help_id):
     db = get_db()
 
@@ -56,7 +62,7 @@ def update_self_help(self_help_id):
     update_fields = {
         "title": data["title"],
         "author": data["author"],
-        "content": data["content"],
+        "content": sanitize_html(data["content"]),
         "subscriberOnly": bool(data.get("subscriberOnly", False)),
         "updated_at": datetime.utcnow(),
     }
@@ -80,6 +86,7 @@ def update_self_help(self_help_id):
 # -------------------------------
 @bp.route("/admin/self-help/<self_help_id>", methods=["DELETE", "OPTIONS"])
 @require_admin
+@audit_log("self_help.delete")
 def delete_self_help(self_help_id):
     if request.method == "OPTIONS":
         return "", 200

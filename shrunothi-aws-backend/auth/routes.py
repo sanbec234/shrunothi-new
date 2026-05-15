@@ -4,6 +4,7 @@ from google.auth.transport import requests
 from db.client import get_db
 from db.models.subscriber import is_subscriber
 from auth.auth_guard import attach_optional_user
+from auth.session_token import create_session_token
 import os
 from datetime import datetime
 from extensions import limiter
@@ -53,10 +54,13 @@ def google_auth():
             upsert=True
         )
 
+        session_token = create_session_token(email, role)
+
         return jsonify({
             "name": name,
             "email": email,
-            "role": role
+            "role": role,
+            "token": session_token,
         }), 200
 
     except Exception:

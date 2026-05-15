@@ -44,13 +44,43 @@ def create_subscription(db, email: str, payment_id: str, payment_type: str,
                         expires_at: Optional[datetime] = None) -> Optional[dict]:
     """
     Create or update a subscription after successful payment capture.
-    `started_at` is preserved on subsequent updates (uses $setOnInsert).
+
+    Protection rules (never downgrade an existing active subscriber):
+    - If the current record has expires_at=None (annual/lifetime), keep it as None
+      regardless of the new payment_type.
+    - If the current record has a future expires_at and the new expires_at is
+      earlier, keep the longer window.
+    - `started_at` is preserved on subsequent updates (uses $setOnInsert).
     """
     email = email.lower().strip()
     if not email:
         return None
 
     now = datetime.now(timezone.utc)
+
+    # Read the current record so we can decide whether the new expiry is an upgrade.
+    existing = db.subscribers.find_one({"user_email": email})
+
+    effective_expires_at = expires_at
+
+    if existing and existing.get("subscription_status") == "active":
+        current_expires = existing.get("expires_at")
+
+        if current_expires is None:
+            # Current is lifetime/annual — never add an expiry.
+            effective_expires_at = None
+        elif expires_at is None:
+            # New payment is annual/lifetime — upgrade from monthly to no-expiry.
+            effective_expires_at = None
+        else:
+            # Both have expiry dates — keep whichever is later.
+            cur = current_expires
+            if cur.tzinfo is None:
+                cur = cur.replace(tzinfo=timezone.utc)
+            new = expires_at
+            if new.tzinfo is None:
+                new = new.replace(tzinfo=timezone.utc)
+            effective_expires_at = max(cur, new)
 
     db.subscribers.update_one(
         {"user_email": email},
@@ -64,7 +94,7 @@ def create_subscription(db, email: str, payment_id: str, payment_type: str,
                 "subscription_status": "active",
                 "current_payment_id": payment_id,
                 "subscription_tier": "standard",
-                "expires_at": expires_at,
+                "expires_at": effective_expires_at,
                 "payment_type": payment_type,
                 "updated_at": now,
             },

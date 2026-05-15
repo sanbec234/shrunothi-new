@@ -8,15 +8,39 @@ type Props = {
   fallback: JSX.Element;
 };
 
+/** True when the viewport is narrower than the tablet breakpoint (≤768 px). */
+function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(
+    () => window.matchMedia("(max-width: 768px)").matches,
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  return isMobile;
+}
+
 export default function HeroCarousel({ fallback }: Props): JSX.Element {
+  const isMobile = useIsMobile();
   const [banners, setBanners] = useState<Banner[]>([]);
   const [current, setCurrent] = useState(0);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let ok = true;
+    // Reset while switching between desktop ↔ mobile
+    setLoaded(false);
+    setBanners([]);
+    setCurrent(0);
+
+    const endpoint = isMobile ? "/carousel-mobile" : "/carousel";
+
     api
-      .get<Banner[]>("/carousel")
+      .get<Banner[]>(endpoint)
       .then((r) => {
         if (!ok) return;
         const list = Array.isArray(r.data) ? r.data : [];
@@ -27,10 +51,11 @@ export default function HeroCarousel({ fallback }: Props): JSX.Element {
       .catch(() => {
         if (ok) setLoaded(true);
       });
+
     return () => {
       ok = false;
     };
-  }, []);
+  }, [isMobile]);
 
   /* auto-rotate every 3 seconds */
   useEffect(() => {
@@ -41,10 +66,7 @@ export default function HeroCarousel({ fallback }: Props): JSX.Element {
     return () => clearInterval(id);
   }, [banners.length]);
 
-  const goTo = useCallback(
-    (idx: number) => setCurrent(idx),
-    [],
-  );
+  const goTo = useCallback((idx: number) => setCurrent(idx), []);
 
   const prev = useCallback(
     () => setCurrent((c) => (c - 1 + banners.length) % banners.length),
@@ -57,6 +79,7 @@ export default function HeroCarousel({ fallback }: Props): JSX.Element {
   );
 
   if (!loaded) return fallback;
+  // If no banners for this platform, fall back to the hero section
   if (banners.length === 0) return fallback;
 
   return (

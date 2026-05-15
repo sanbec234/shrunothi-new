@@ -1,3 +1,4 @@
+import logging
 from flask import Flask, jsonify
 from flask_cors import CORS
 
@@ -17,8 +18,9 @@ def create_app():
         try:
             db = get_db()
             return jsonify({"status": "ok"}), 200
-        except Exception as e:
-            return jsonify({"status": "error", "error": str(e)}), 500
+        except Exception:
+            logging.getLogger(__name__).exception("Health check: DB ping failed")
+            return jsonify({"status": "error"}), 500
 
     return app
 

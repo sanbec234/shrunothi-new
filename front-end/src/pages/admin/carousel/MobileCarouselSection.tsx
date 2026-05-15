@@ -1,20 +1,18 @@
 import { useRef, useState } from "react";
-import type { Banner } from "./useCarousel";
+import type { Banner } from "./useMobileCarousel";
 import AdminTableModal from "../AdminTableModal";
 
-interface CarouselSectionProps {
+interface MobileCarouselSectionProps {
   banners: Banner[];
-  isOpen?: boolean;
-  onToggle?: () => void;
   onAdd: (file: File) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
 }
 
-export default function CarouselSection({
+export default function MobileCarouselSection({
   banners,
   onAdd,
   onDelete,
-}: CarouselSectionProps) {
+}: MobileCarouselSectionProps) {
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +34,7 @@ export default function CarouselSection({
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this banner?")) return;
+    if (!confirm("Delete this mobile banner?")) return;
     try { await onDelete(id); }
     catch { alert("Failed to delete banner"); }
   };
@@ -44,10 +42,34 @@ export default function CarouselSection({
   return (
     <>
       <section>
-        <div className="section-header" onClick={() => setOpen(true)} style={{ marginBottom: 0 }}>
+        <div
+          className="section-header"
+          onClick={() => setOpen(true)}
+          style={{ marginBottom: 0 }}
+        >
           <span>▶</span>
-          <span>Carousel Banners</span>
-          <span style={{ marginLeft: "auto", fontSize: 13, color: "var(--text-muted)", fontWeight: 400 }}>
+          <span>Carousel Banners · Mobile</span>
+          <span
+            style={{
+              marginLeft: 8,
+              background: "#3b82f6",
+              color: "#fff",
+              borderRadius: "999px",
+              fontSize: "0.7rem",
+              fontWeight: 700,
+              padding: "0.1rem 0.55rem",
+            }}
+          >
+            📱
+          </span>
+          <span
+            style={{
+              marginLeft: "auto",
+              fontSize: 13,
+              color: "var(--text-muted)",
+              fontWeight: 400,
+            }}
+          >
             {banners.length > 0 ? `${banners.length} banners · ` : ""}click to manage
           </span>
         </div>
@@ -55,7 +77,7 @@ export default function CarouselSection({
 
       <AdminTableModal
         isOpen={open}
-        title="Carousel Banners"
+        title="Carousel Banners · Mobile"
         count={banners.length}
         onClose={() => setOpen(false)}
         actions={
@@ -67,9 +89,11 @@ export default function CarouselSection({
               onChange={handleFileChange}
               style={{ display: "none" }}
             />
-            <span style={{ fontSize: 12, color: "#6b7280" }}>Recommended: 1440×900px</span>
+            <span style={{ fontSize: 12, color: "#6b7280" }}>
+              Required: 750×1334px (portrait)
+            </span>
             <button onClick={() => fileRef.current?.click()} disabled={uploading}>
-              {uploading ? "Uploading…" : "+ Add Banner"}
+              {uploading ? "Uploading…" : "+ Add Mobile Banner"}
             </button>
           </>
         }
@@ -79,7 +103,7 @@ export default function CarouselSection({
         )}
 
         {banners.length === 0 ? (
-          <p className="empty">No banners yet</p>
+          <p className="empty">No mobile banners yet</p>
         ) : (
           <table>
             <thead>
@@ -93,11 +117,23 @@ export default function CarouselSection({
               {banners.map((b) => (
                 <tr key={b.id}>
                   <td data-label="Preview">
-                    <img src={b.image_url} alt="Banner" style={{ width: 220, height: "auto", borderRadius: 6, maxHeight: 80, objectFit: "cover" }} />
+                    <img
+                      src={b.image_url}
+                      alt="Mobile Banner"
+                      style={{
+                        width: 60,
+                        height: 107,       /* maintains 750:1334 ratio */
+                        borderRadius: 6,
+                        objectFit: "cover",
+                        display: "block",
+                      }}
+                    />
                   </td>
                   <td data-label="Order">{b.order}</td>
                   <td data-label="Actions">
-                    <button className="danger" onClick={() => handleDelete(b.id)}>Delete</button>
+                    <button className="danger" onClick={() => handleDelete(b.id)}>
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}

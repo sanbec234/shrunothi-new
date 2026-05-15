@@ -12,6 +12,7 @@ import { useAdminEmails } from "./adminEmails/useAdminEmails";
 import { useUsers } from "./users/useUsers";
 import { usePaidUsers } from "./paidUsers/usePaidUsers";
 import { useCarousel } from "./carousel/useCarousel";
+import { useMobileCarousel } from "./carousel/useMobileCarousel";
 import { useCoaches } from "./coaches/useCoaches";
 import VimeoSection from "./vimeo/VimeoSection";
 
@@ -25,6 +26,7 @@ import UsersSection from "./users/UsersSection";
 import PaidUsersSection from "./paidUsers/PaidUsersSection";
 import AdminAnnouncements from "./announcements/AdminAnnouncements";
 import CarouselSection from "./carousel/CarouselSection";
+import MobileCarouselSection from "./carousel/MobileCarouselSection";
 import CoachesAdminSection from "./coaches/CoachesSection";
 
 // Modals
@@ -58,6 +60,7 @@ export default function AdminDashboard() {
   const usersHook = useUsers();
   const paidUsersHook = usePaidUsers();
   const carouselHook = useCarousel();
+  const mobileCarouselHook = useMobileCarousel();
   const coachesHook = useCoaches();
 
   // Section toggles (Genres and SelfHelp keep inline accordion)
@@ -276,11 +279,18 @@ export default function AdminDashboard() {
         <AdminAnnouncements />
       </section>
 
-      {/* Carousel Banners Section */}
+      {/* Carousel Banners Section — Desktop */}
       <CarouselSection
         banners={carouselHook.banners}
         onAdd={carouselHook.createBanner}
         onDelete={carouselHook.deleteBanner}
+      />
+
+      {/* Carousel Banners Section — Mobile */}
+      <MobileCarouselSection
+        banners={mobileCarouselHook.banners}
+        onAdd={mobileCarouselHook.createBanner}
+        onDelete={mobileCarouselHook.deleteBanner}
       />
 
       {/* Coaches Section */}

@@ -4,6 +4,7 @@ from bson import ObjectId
 from pymongo.errors import DuplicateKeyError
 from datetime import datetime
 from auth.auth_guard import require_admin
+from utils.audit import audit_log
 
 bp = Blueprint("admin_emails", __name__)
 
@@ -31,6 +32,7 @@ def list_admin_emails():
 # --------------------
 @bp.route("/admin/admin-emails", methods=["POST", "OPTIONS"])
 @require_admin
+@audit_log("admin_email.add")
 def add_admin_email():
     if request.method == "OPTIONS":
         return "", 200
@@ -55,6 +57,7 @@ def add_admin_email():
 
 @bp.route("/admin/admin-emails/<email_id>", methods=["DELETE", "OPTIONS"])
 @require_admin
+@audit_log("admin_email.delete")
 def delete_admin_email(email_id):
     if request.method == "OPTIONS":
         return "", 200

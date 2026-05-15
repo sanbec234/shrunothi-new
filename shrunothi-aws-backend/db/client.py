@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 import os
+import certifi
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,6 +19,7 @@ def get_db():
     if _db is None:
         _client = MongoClient(
             MONGO_URI,
+            tlsCAFile=certifi.where(),
             serverSelectionTimeoutMS=5000,
             maxPoolSize=50,
             minPoolSize=5,

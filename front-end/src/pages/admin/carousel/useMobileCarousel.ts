@@ -3,8 +3,9 @@ import { api } from "../../../api/client";
 
 export type Banner = { id: string; image_url: string; order: number };
 
-const REQUIRED_WIDTH = 1440;
-const REQUIRED_HEIGHT = 900;
+// Portrait banners for mobile — 750 × 1334 px (2× retina of 375 × 667)
+const REQUIRED_WIDTH = 750;
+const REQUIRED_HEIGHT = 1334;
 
 const validateImageDimensions = (
   file: File,
@@ -22,12 +23,12 @@ const validateImageDimensions = (
   });
 };
 
-export function useCarousel() {
+export function useMobileCarousel() {
   const [banners, setBanners] = useState<Banner[]>([]);
 
   const fetchBanners = useCallback(() => {
     api
-      .get<Banner[]>("/admin/carousel")
+      .get<Banner[]>("/admin/carousel-mobile")
       .then((r) => {
         const list = Array.isArray(r.data) ? r.data : [];
         list.sort((a, b) => a.order - b.order);
@@ -44,24 +45,24 @@ export function useCarousel() {
     async (file: File) => {
       const valid = await validateImageDimensions(file, REQUIRED_WIDTH, REQUIRED_HEIGHT);
       if (!valid) {
-        throw new Error(`Image must be exactly ${REQUIRED_WIDTH}x${REQUIRED_HEIGHT}px`);
+        throw new Error(`Image must be exactly ${REQUIRED_WIDTH}×${REQUIRED_HEIGHT}px`);
       }
 
-      // Get presigned URL
-      const { data: presign } = await api.post("/admin/uploads/carousel-presign", {
+      const { data: presign } = await api.post("/admin/uploads/carousel-mobile-presign", {
         filename: file.name,
         contentType: file.type,
       });
 
-      // Upload to S3
       await fetch(presign.uploadUrl, {
         method: "PUT",
         headers: { "Content-Type": file.type },
         body: file,
       });
 
-      // Create banner record
-      await api.post("/admin/carousel", { image_url: presign.fileUrl, s3_key: presign.s3Key });
+      await api.post("/admin/carousel-mobile", {
+        image_url: presign.fileUrl,
+        s3_key: presign.s3Key,
+      });
       fetchBanners();
     },
     [fetchBanners],
@@ -69,7 +70,7 @@ export function useCarousel() {
 
   const deleteBanner = useCallback(
     async (id: string) => {
-      await api.delete(`/admin/carousel/${id}`);
+      await api.delete(`/admin/carousel-mobile/${id}`);
       fetchBanners();
     },
     [fetchBanners],

@@ -6,10 +6,9 @@ import uuid
 from dotenv import load_dotenv
 from auth.auth_guard import require_admin
 
-# 🔑 Load .env ONLY for local development
 load_dotenv()
 
-bp = Blueprint("admin_uploads", __name__)
+bp = Blueprint("admin_mobile_carousel_uploads", __name__)
 
 AWS_REGION = os.environ.get("AWS_REGION", "ap-south-1")
 BUCKET = os.environ.get("AWS_BUCKET_NAME")
@@ -24,10 +23,13 @@ s3 = boto3.client(
     aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
 )
 
-@bp.route("/admin/uploads/presign", methods=["POST", "OPTIONS"])
+ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
+
+
+@bp.route("/admin/uploads/carousel-mobile-presign", methods=["POST", "OPTIONS"])
 @require_admin
-def presign_upload():
-    # 🟡 Handle CORS preflight explicitly (important)
+def presign_mobile_carousel_upload():
+    """Generate presigned URL for mobile carousel banner uploads."""
     if request.method == "OPTIONS":
         return "", 200
 
@@ -41,11 +43,10 @@ def presign_upload():
 
     ext = filename.rsplit(".", 1)[-1].lower()
 
-    # 🔒 Optional safety: allow only images
-    if ext not in {"jpg", "jpeg", "png", "webp"}:
-        return jsonify({"error": "Unsupported file type"}), 400
+    if ext not in ALLOWED_EXTENSIONS:
+        return jsonify({"error": "Unsupported file type. Allowed: jpg, jpeg, png, webp"}), 400
 
-    key = f"announcements/{uuid.uuid4()}.{ext}"
+    key = f"carousel-mobile/{uuid.uuid4()}.{ext}"
 
     try:
         upload_url = s3.generate_presigned_url(
@@ -55,16 +56,17 @@ def presign_upload():
                 "Key": key,
                 "ContentType": content_type,
             },
-            ExpiresIn=300,  # 5 minutes
+            ExpiresIn=300,
         )
 
         file_url = f"https://{BUCKET}.s3.{AWS_REGION}.amazonaws.com/{key}"
 
         return jsonify({
             "uploadUrl": upload_url,
-            "fileUrl": file_url
+            "fileUrl": file_url,
+            "s3Key": key,
         }), 200
 
     except Exception:
-            logging.getLogger(__name__).exception("S3 operation failed")
-            return jsonify({"error": "Upload service unavailable"}), 500
+        logging.getLogger(__name__).exception("S3 operation failed")
+        return jsonify({"error": "Upload service unavailable"}), 500

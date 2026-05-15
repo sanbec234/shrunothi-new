@@ -28,6 +28,8 @@ from admin_api.routes.admin_thumbnail_uploads import bp as admin_thumbnail_uploa
 from admin_api.routes.admin_carousel import bp as admin_carousel_bp
 from admin_api.routes.admin_coaches import bp as admin_coaches_bp
 from admin_api.routes.admin_carousel_uploads import bp as admin_carousel_uploads_bp
+from admin_api.routes.admin_mobile_carousel import bp as admin_mobile_carousel_bp
+from admin_api.routes.admin_mobile_carousel_uploads import bp as admin_mobile_carousel_uploads_bp
 from admin_api.routes.admin_coach_uploads import bp as admin_coach_uploads_bp
 from admin_api.routes.admin_payments import bp as admin_payments_bp
 from admin_api.routes.admin_vimeo import bp as admin_vimeo_bp
@@ -43,6 +45,7 @@ from public_api.routes.corpus_self_help import bp as corpus_self_help_bp
 from public_api.routes.announcements import bp as announcements_bp
 from public_api.routes.payments import bp as payments_bp
 from public_api.routes.carousel import bp as public_carousel_bp
+from public_api.routes.carousel_mobile import bp as public_carousel_mobile_bp
 from public_api.routes.coaches import bp as public_coaches_bp
 from public_api.routes.vimeo_videos import bp as public_vimeo_videos_bp
 
@@ -157,6 +160,8 @@ def create_app():
     app.register_blueprint(admin_editor_images_bp)
     app.register_blueprint(admin_thumbnail_uploads_bp)
     app.register_blueprint(admin_carousel_bp)
+    app.register_blueprint(admin_mobile_carousel_bp)
+    app.register_blueprint(admin_mobile_carousel_uploads_bp)
     app.register_blueprint(admin_coaches_bp)
     app.register_blueprint(admin_carousel_uploads_bp)
     app.register_blueprint(admin_coach_uploads_bp)
@@ -174,6 +179,7 @@ def create_app():
     app.register_blueprint(announcements_bp)
     app.register_blueprint(payments_bp, url_prefix="/payments")
     app.register_blueprint(public_carousel_bp)
+    app.register_blueprint(public_carousel_mobile_bp)
     app.register_blueprint(public_coaches_bp)
     app.register_blueprint(public_vimeo_videos_bp)
 

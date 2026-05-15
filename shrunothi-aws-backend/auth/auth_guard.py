@@ -2,6 +2,7 @@ from functools import wraps
 from flask import request, jsonify
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
+from auth.session_token import verify_session_token
 from db.client import get_db
 import os
 
@@ -49,14 +50,21 @@ GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 
 def _verify_bearer_token():
     """
-    Returns the verified user dict ({email, sub}) or None if no/invalid token.
-    Does NOT raise — callers decide whether missing auth is fatal.
+    Returns the verified user dict ({email, role}) or None if no/invalid token.
+    Tries our own session JWT first, then falls back to Google ID token.
     """
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         return None
 
     token = auth_header.split(" ", 1)[1]
+
+    # Try our long-lived session token first.
+    user = verify_session_token(token)
+    if user:
+        return user
+
+    # Fall back to Google ID token (legacy / admin guard).
     try:
         payload = id_token.verify_oauth2_token(
             token, google_requests.Request(), GOOGLE_CLIENT_ID
@@ -97,41 +105,21 @@ def require_admin(f):
     @wraps(f)
     def decorated(*args, **kwargs):
 
-        # ✅ ALLOW CORS PREFLIGHT — DO NOT AUTH OPTIONS
         if request.method == "OPTIONS":
             return "", 200
 
-        auth_header = request.headers.get("Authorization")
+        user = _verify_bearer_token()
+        if not user:
+            return jsonify({"error": "Unauthorized"}), 401
 
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return jsonify({ "error": "Unauthorized" }), 401
-
-        token = auth_header.split(" ")[1]
-
-        try:
-            payload = id_token.verify_oauth2_token(
-                token,
-                google_requests.Request(),
-                GOOGLE_CLIENT_ID
-            )
-        except Exception:
-            return jsonify({ "error": "Invalid or expired token" }), 401
-
-        email = payload.get("email", "").lower().strip()
-        if not email:
-            return jsonify({ "error": "Unauthorized" }), 401
-
+        email = user["email"]
         db = get_db()
-        is_admin = db.admin_emails.find_one({ "email": email })
+        is_admin = db.admin_emails.find_one({"email": email})
 
         if not is_admin:
-            return jsonify({ "error": "Forbidden" }), 403
+            return jsonify({"error": "Forbidden"}), 403
 
-        request.user = {
-            "email": email,
-            "sub": payload.get("sub"),
-        }
-
+        request.user = user
         return f(*args, **kwargs)
 
     return decorated

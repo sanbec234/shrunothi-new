@@ -23,6 +23,7 @@ def normalize_payload(data):
         "spotifyUrl": (data.get("spotifyUrl") or "").strip(),
         "genreId": (data.get("genreId") or "").strip(),
         "language": normalized_language(data.get("language")),
+        "show_in_whats_new": bool(data.get("showInWhatsNew", False)),
     }
 
 
@@ -130,9 +131,10 @@ def update_podcast(podcast_id):
                 "$set": {
                     "title": payload["title"],
                     "spotifyUrl": payload["spotifyUrl"],
-                    "genreId": payload["genreId"],  # keep as string
+                    "genreId": payload["genreId"],
                     "language": payload["language"],
-                    "updated_at": datetime.utcnow()
+                    "show_in_whats_new": payload["show_in_whats_new"],
+                    "updated_at": datetime.utcnow(),
                 }
             }
         )

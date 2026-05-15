@@ -41,6 +41,7 @@ def genre_podcasts(genre_id):
             "title": d["title"],
             "embed_url": to_embed_url(d["spotifyUrl"]),
             "language": doc_language,
+            "show_in_whats_new": bool(d.get("show_in_whats_new", False)),
         })
 
     available = {normalized_language(d) for d in docs}

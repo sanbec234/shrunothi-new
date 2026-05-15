@@ -18,7 +18,7 @@ class Config:
     GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
     
     # Session
-    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = False
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
@@ -48,19 +48,23 @@ class ProductionConfig(Config):
     """Production configuration"""
     DEBUG = False
     TESTING = False
-    
-    # CORS - Whitelist only production domains
+
+    # Validation happens in create_app() to avoid KeyError at import time.
+    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+    MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/shrunothi')
+
+    # CORS - Whitelist only production domains (enforced in create_app)
     CORS_ORIGINS = os.getenv('CORS_ORIGINS', '').split(',')
-    
+
     # Session - Secure in production
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Strict'
-    
+
     # Logging
     LOG_LEVEL = "INFO"
-    
-    # Rate Limiting - Use Redis in production
+
+    # Rate Limiting - require Redis; fall back to memory only as last resort
     RATELIMIT_STORAGE_URL = os.getenv('REDIS_URL', "memory://")
 
 
