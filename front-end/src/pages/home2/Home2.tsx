@@ -329,6 +329,9 @@ export default function Home2(): JSX.Element {
   /* pending scroll-to-podcast after genre switch */
   const [pendingPodcastTitle, setPendingPodcastTitle] = useState<string | null>(null);
 
+  /* what's new — fetched independently across all genres */
+  const [whatsNewPodcasts, setWhatsNewPodcasts] = useState<Podcast[] | null>(null);
+
   /* vimeo videos */
   const [vimeoVideos, setVimeoVideos] = useState<VimeoVideo[]>([]);
   const [activeVimeo, setActiveVimeo] = useState<VimeoVideo | null>(null);
@@ -439,6 +442,15 @@ export default function Home2(): JSX.Element {
     fetchMaterials(selectedGenre.id);
   }, [selectedGenre, fetchMaterials, isLoggedIn]);
 
+  /* ── what's new podcasts — all genres, re-fetch on language change ── */
+  useEffect(() => {
+    let ok = true;
+    api.get<{ podcasts: Podcast[] }>("/podcasts/whats-new", { params: { language: podcastLang } })
+      .then((r) => { if (ok) setWhatsNewPodcasts(Array.isArray(r.data?.podcasts) ? r.data.podcasts : []); })
+      .catch(() => { if (ok) setWhatsNewPodcasts([]); });
+    return () => { ok = false; };
+  }, [podcastLang]);
+
   /* ── vimeo videos ── */
   useEffect(() => {
     let ok = true;
@@ -499,11 +511,6 @@ export default function Home2(): JSX.Element {
         (p) => p.title?.toLowerCase().includes(searchQuery.toLowerCase()),
       ) ?? null;
   const filteredMaterials = filterDocs(materialDocs);
-
-  /* What's New = podcasts with show_in_whats_new flag (up to 10) */
-  const whatsNewPodcasts = podcasts === null
-    ? null
-    : podcasts.filter((p) => p.show_in_whats_new);
 
   /* ── exclusive content (subscriber-only across all genres) ── */
   const exclusiveMaterials = allMaterials
@@ -584,12 +591,10 @@ export default function Home2(): JSX.Element {
             <span className="h2-section__name">What's New</span>
           </div>
 
-          {!selectedGenre ? (
-            <p className="h2-empty">Select a genre to see what's new.</p>
-          ) : whatsNewPodcasts === null ? (
+          {whatsNewPodcasts === null ? (
             <PodcastSkeletonRow count={4} />
           ) : whatsNewPodcasts.length === 0 ? (
-            <p className="h2-empty">No new podcasts for this genre yet.</p>
+            <p className="h2-empty">No new podcasts yet.</p>
           ) : (
             <PodcastRow rowRef={whatsNewRowRef} label="What's New">
               {whatsNewPodcasts.map((p, i) => (
