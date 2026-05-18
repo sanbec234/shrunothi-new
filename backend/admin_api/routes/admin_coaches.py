@@ -3,8 +3,12 @@ from db.client import get_db
 from bson import ObjectId
 from datetime import datetime
 from auth.auth_guard import require_admin
+from utils.audit import audit_log
 import boto3
+import logging
 import os
+
+log = logging.getLogger(__name__)
 
 bp = Blueprint("admin_coaches", __name__)
 
@@ -109,6 +113,7 @@ def update_coach(coach_id):
 
 @bp.route("/admin/coaches/<coach_id>", methods=["DELETE", "OPTIONS"])
 @require_admin
+@audit_log("coach.delete")
 def delete_coach(coach_id):
     if request.method == "OPTIONS":
         return "", 200
@@ -124,13 +129,20 @@ def delete_coach(coach_id):
     if not doc:
         return jsonify({"error": "Coach not found"}), 404
 
-    # Delete photo from S3 (best-effort)
+    # Delete photo from S3 first. Abort if it fails — prevents orphan + sync drift.
     s3_key = doc.get("s3_key")
     if s3_key and BUCKET:
         try:
             s3.delete_object(Bucket=BUCKET, Key=s3_key)
-        except Exception:
-            pass  # Don't fail if S3 delete fails
+        except Exception as e:
+            log.exception(
+                "S3 delete failed for coach_id=%s s3_key=%s",
+                coach_id, s3_key,
+            )
+            return jsonify({
+                "error": "Failed to delete photo from storage. The coach was NOT removed. Please retry.",
+                "detail": str(e),
+            }), 502
 
     db.coaches.delete_one({"_id": oid})
 

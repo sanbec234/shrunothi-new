@@ -60,9 +60,12 @@ def presign_editor_image():
 
         file_url = f"https://{BUCKET}.s3.{AWS_REGION}.amazonaws.com/{key}"
 
+        # Return s3_key so the frontend can store it alongside fileUrl
+        # in the editor_images record — this is what makes orphan cleanup possible.
         return jsonify({
             "uploadUrl": upload_url,
-            "fileUrl": file_url
+            "fileUrl": file_url,
+            "s3_key": key,
         }), 200
 
     except Exception:

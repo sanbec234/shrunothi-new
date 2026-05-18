@@ -33,6 +33,7 @@ from admin_api.routes.admin_mobile_carousel_uploads import bp as admin_mobile_ca
 from admin_api.routes.admin_coach_uploads import bp as admin_coach_uploads_bp
 from admin_api.routes.admin_payments import bp as admin_payments_bp
 from admin_api.routes.admin_vimeo import bp as admin_vimeo_bp
+from admin_api.routes.admin_trash import bp as admin_trash_bp
 
 # ---------- Public routes ----------
 from public_api.routes.genres import bp as public_genres
@@ -167,6 +168,7 @@ def create_app():
     app.register_blueprint(admin_coach_uploads_bp)
     app.register_blueprint(admin_vimeo_bp)
     app.register_blueprint(admin_payments_bp)
+    app.register_blueprint(admin_trash_bp)
 
     # ---------- Register public APIs ----------
     app.register_blueprint(public_genres)
@@ -185,6 +187,14 @@ def create_app():
 
     # ---------- Auth ----------
     app.register_blueprint(auth_bp)
+
+    # ---------- Outbound IP check (exempt from rate limiting) ----------
+    @app.route("/debug/outbound-ip", methods=["GET"])
+    @limiter.exempt
+    def outbound_ip():
+        import requests as _requests
+        ip = _requests.get("https://api.ipify.org", timeout=5).text
+        return jsonify({"outbound_ip": ip}), 200
 
     # ---------- Health check (exempt from rate limiting) ----------
     @app.route("/health", methods=["GET"])

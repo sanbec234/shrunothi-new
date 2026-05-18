@@ -9,6 +9,7 @@ from googleapiclient.errors import HttpError
 from admin_api.services.google_docs import extract_doc_id, fetch_google_doc, convert_to_html
 from utils.html_sanitizer import sanitize_html
 from utils.audit import audit_log
+from utils.soft_delete import soft_delete
 
 bp = Blueprint("admin_materials", __name__)
 
@@ -23,8 +24,9 @@ def add_material():
     data = request.get_json() or {}
 
     required = ["title", "author", "content", "genreId", "thumbnailUrl"]
-    if not all(data.get(k) for k in required):
-        return jsonify({"error": "Missing required fields"}), 400
+    missing = [k for k in required if not data.get(k)]
+    if missing:
+        return jsonify({"error": f"Missing required fields: {', '.join(missing)}"}), 400
 
     data["content"] = sanitize_html(data["content"])
 
@@ -54,8 +56,8 @@ def update_material(material_id):
 
     data = request.get_json() or {}
 
-    # Validate required fields
-    for field in ["title", "author", "content", "genreId", "thumbnailUrl"]:
+    # Validate required fields (thumbnailUrl optional on edit — kept if not changed)
+    for field in ["title", "author", "content", "genreId"]:
         if not data.get(field):
             return jsonify({ "error": f"{field} is required" }), 400
 
@@ -108,12 +110,17 @@ def delete_material(material_id):
     except Exception:
         return jsonify({ "error": "Invalid material id" }), 400
 
-    result = db.materials.delete_one({ "_id": oid })
+    # Soft delete — document is marked deleted but kept for recovery.
+    # Cleanup of S3 thumbnails happens via background purge job.
+    actor = (request.user or {}).get("email") if hasattr(request, "user") else None
+    if not soft_delete(db.materials, oid, actor):
+        # Either doesn't exist or was already deleted
+        existing = db.materials.find_one({"_id": oid})
+        if not existing:
+            return jsonify({ "error": "Material not found" }), 404
+        return jsonify({ "status": "already_deleted" }), 200
 
-    if result.deleted_count == 0:
-        return jsonify({ "error": "Material not found" }), 404
-
-    return jsonify({ "status": "deleted" }), 200
+    return jsonify({ "status": "deleted", "recoverable": True }), 200
 
 
 # -------------------------------

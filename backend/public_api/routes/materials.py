@@ -5,6 +5,7 @@ from db.models.subscriber import is_subscriber
 from auth.auth_guard import attach_optional_user
 from bson import ObjectId
 from extensions import limiter
+from utils.soft_delete import not_deleted_filter
 import re
 
 bp = Blueprint("public_materials", __name__)
@@ -42,7 +43,7 @@ def list_materials():
     db = get_db()
     user = attach_optional_user()
     caller_is_subscriber = is_subscriber(db, user["email"]) if user else False
-    docs = db.materials.find()
+    docs = db.materials.find(not_deleted_filter())
     return jsonify([_serialize_for_caller(d, caller_is_subscriber) for d in docs]), 200
 
 
@@ -54,6 +55,7 @@ def get_materials_by_genre(genre_id):
     caller_is_subscriber = is_subscriber(db, user["email"]) if user else False
 
     docs = db.materials.find({
+        **not_deleted_filter(),
         "$or": [
             { "genreId": genre_id },
             { "genreId": ObjectId(genre_id) }

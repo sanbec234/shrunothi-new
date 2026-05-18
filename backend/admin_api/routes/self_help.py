@@ -9,6 +9,7 @@ from googleapiclient.errors import HttpError
 from admin_api.services.google_docs import extract_doc_id, fetch_google_doc, convert_to_html
 from utils.html_sanitizer import sanitize_html
 from utils.audit import audit_log
+from utils.soft_delete import soft_delete
 
 bp = Blueprint("admin_self_help", __name__)
 
@@ -98,12 +99,14 @@ def delete_self_help(self_help_id):
     except Exception:
         return jsonify({ "error": "Invalid self-help id" }), 400
 
-    result = db.self_help.delete_one({ "_id": oid })
+    actor = (request.user or {}).get("email") if hasattr(request, "user") else None
+    if not soft_delete(db.self_help, oid, actor):
+        existing = db.self_help.find_one({"_id": oid})
+        if not existing:
+            return jsonify({ "error": "Self-help not found" }), 404
+        return jsonify({ "status": "already_deleted" }), 200
 
-    if result.deleted_count == 0:
-        return jsonify({ "error": "Self-help not found" }), 404
-
-    return jsonify({ "status": "deleted" }), 200
+    return jsonify({ "status": "deleted", "recoverable": True }), 200
 
 
 # -------------------------------

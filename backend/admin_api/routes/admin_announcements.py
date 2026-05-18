@@ -1,9 +1,12 @@
 from flask import Blueprint, request, jsonify, current_app
 from bson import ObjectId
 from datetime import datetime
+import logging
 import pytz
 from auth.auth_guard import require_admin
+from utils.audit import audit_log
 
+log = logging.getLogger(__name__)
 IST = pytz.timezone("Asia/Kolkata")
 
 bp = Blueprint("admin_announcements", __name__)
@@ -60,7 +63,7 @@ def parse_datetime(value):
         return ist_dt.astimezone(pytz.UTC)
 
     except Exception as e:
-        print(f"⚠️ Failed to parse datetime: {value}, error: {e}")
+        log.warning(f"⚠️ Failed to parse datetime: {value}, error: {e}")
         return None
 
 # -------------------------
@@ -69,10 +72,10 @@ def parse_datetime(value):
 @bp.route("/admin/announcements", methods=["GET"])
 @require_admin
 def list_announcements():
-    print("\n📋 Fetching all announcements for admin...")
+    log.info("\n📋 Fetching all announcements for admin...")
     docs = current_app.db.announcements.find().sort("created_at", -1)
     announcements = [serialize_announcement(d) for d in docs]
-    print(f"✅ Returning {len(announcements)} announcements")
+    log.info(f"✅ Returning {len(announcements)} announcements")
     return jsonify(announcements)
 
 
@@ -81,26 +84,27 @@ def list_announcements():
 # -------------------------
 @bp.route("/admin/announcements", methods=["POST"])
 @require_admin
+@audit_log("announcement.create")
 def create_announcement():
-    print("\n🆕 Creating new announcement...")
+    log.info("Creating new announcement")
     data = request.json
 
     if not data:
-        print("❌ No data provided")
+        log.warning("❌ No data provided")
         return jsonify({"error": "Missing payload"}), 400
 
-    print(f"📦 Received data: {data}")
+    log.info(f"📦 Received data: {data}")
 
     # Parse datetime strings to datetime objects
     start_at = parse_datetime(data.get("startAt"))
     end_at = parse_datetime(data.get("endAt"))
     
-    print(f"⏰ Parsed start_at: {start_at} (type: {type(start_at)})")
-    print(f"⏰ Parsed end_at: {end_at} (type: {type(end_at)})")
+    log.info(f"⏰ Parsed start_at: {start_at} (type: {type(start_at)})")
+    log.info(f"⏰ Parsed end_at: {end_at} (type: {type(end_at)})")
     
     # Validate date range
     if start_at and end_at and end_at <= start_at:
-        print("❌ Invalid date range: end_at must be after start_at")
+        log.warning("❌ Invalid date range: end_at must be after start_at")
         return jsonify({"error": "End time must be after start time"}), 400
 
     doc = {
@@ -112,12 +116,12 @@ def create_announcement():
         "created_at": datetime.utcnow(),
     }
 
-    print(f"💾 Saving to MongoDB: {doc}")
+    log.info(f"💾 Saving to MongoDB: {doc}")
 
     result = current_app.db.announcements.insert_one(doc)
     doc["_id"] = result.inserted_id
 
-    print(f"✅ Created announcement with ID: {result.inserted_id}")
+    log.info(f"✅ Created announcement with ID: {result.inserted_id}")
 
     return jsonify(serialize_announcement(doc)), 201
 
@@ -127,8 +131,9 @@ def create_announcement():
 # -------------------------
 @bp.route("/admin/announcements/<id>", methods=["PUT", "PATCH"])
 @require_admin
+@audit_log("announcement.update")
 def update_announcement(id):
-    print(f"\n📝 Updating announcement: {id}")
+    log.info(f"\n📝 Updating announcement: {id}")
     
     try:
         oid = ObjectId(id)
@@ -136,18 +141,18 @@ def update_announcement(id):
         return jsonify({"error": "Invalid announcement ID"}), 400
     
     data = request.json
-    print(f"📦 Update data: {data}")
+    log.info(f"📦 Update data: {data}")
     
     # Parse datetime strings to datetime objects
     start_at = parse_datetime(data.get("startAt"))
     end_at = parse_datetime(data.get("endAt"))
     
-    print(f"⏰ Parsed start_at: {start_at} (type: {type(start_at)})")
-    print(f"⏰ Parsed end_at: {end_at} (type: {type(end_at)})")
+    log.info(f"⏰ Parsed start_at: {start_at} (type: {type(start_at)})")
+    log.info(f"⏰ Parsed end_at: {end_at} (type: {type(end_at)})")
     
     # Validate date range
     if start_at and end_at and end_at <= start_at:
-        print("❌ Invalid date range")
+        log.warning("❌ Invalid date range")
         return jsonify({"error": "End time must be after start time"}), 400
     
     update_data = {
@@ -164,10 +169,10 @@ def update_announcement(id):
     )
     
     if result.matched_count == 0:
-        print("❌ Announcement not found")
+        log.warning("❌ Announcement not found")
         return jsonify({"error": "Announcement not found"}), 404
     
-    print("✅ Announcement updated successfully")
+    log.info("✅ Announcement updated successfully")
     return jsonify({"status": "updated"}), 200
 
 
@@ -176,8 +181,9 @@ def update_announcement(id):
 # -------------------------
 @bp.route("/admin/announcements/<id>", methods=["DELETE"])
 @require_admin
+@audit_log("announcement.delete")
 def delete_announcement(id):
-    print(f"\n🗑️ Deleting announcement: {id}")
+    log.info(f"\n🗑️ Deleting announcement: {id}")
     
     try:
         oid = ObjectId(id)
@@ -187,8 +193,8 @@ def delete_announcement(id):
     result = current_app.db.announcements.delete_one({"_id": oid})
     
     if result.deleted_count == 0:
-        print("❌ Announcement not found")
+        log.warning("❌ Announcement not found")
         return jsonify({"error": "Announcement not found"}), 404
     
-    print("✅ Announcement deleted successfully")
+    log.info("✅ Announcement deleted successfully")
     return jsonify({"success": True})

@@ -3,8 +3,12 @@ from db.client import get_db
 from bson import ObjectId
 from datetime import datetime
 from auth.auth_guard import require_admin
+from utils.audit import audit_log
 import boto3
+import logging
 import os
+
+log = logging.getLogger(__name__)
 
 bp = Blueprint("admin_carousel", __name__)
 
@@ -103,6 +107,7 @@ def update_carousel_banner(banner_id):
 
 @bp.route("/admin/carousel/<banner_id>", methods=["DELETE", "OPTIONS"])
 @require_admin
+@audit_log("carousel.delete")
 def delete_carousel_banner(banner_id):
     if request.method == "OPTIONS":
         return "", 200
@@ -118,14 +123,23 @@ def delete_carousel_banner(banner_id):
     if not doc:
         return jsonify({"error": "Banner not found"}), 404
 
-    # Delete from S3 (best-effort)
+    # Delete S3 object FIRST. If it fails, abort — keeps DB & S3 in sync.
+    # We log failures with the full S3 key so admins can investigate orphans.
     s3_key = doc.get("s3_key")
     if s3_key and BUCKET:
         try:
             s3.delete_object(Bucket=BUCKET, Key=s3_key)
-        except Exception:
-            pass  # Don't fail if S3 delete fails
+        except Exception as e:
+            log.exception(
+                "S3 delete failed for carousel banner_id=%s s3_key=%s; aborting DB delete",
+                banner_id, s3_key,
+            )
+            return jsonify({
+                "error": "Failed to delete image from storage. The banner was NOT removed. Please retry.",
+                "detail": str(e),
+            }), 502
 
+    # Only delete from DB if S3 succeeded (or there was nothing to delete in S3)
     db.carousel_banners.delete_one({"_id": oid})
 
     return jsonify({"status": "deleted"}), 200

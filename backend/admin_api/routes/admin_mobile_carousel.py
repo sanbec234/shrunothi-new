@@ -3,8 +3,12 @@ from db.client import get_db
 from bson import ObjectId
 from datetime import datetime
 from auth.auth_guard import require_admin
+from utils.audit import audit_log
 import boto3
+import logging
 import os
+
+log = logging.getLogger(__name__)
 
 bp = Blueprint("admin_mobile_carousel", __name__)
 
@@ -74,6 +78,7 @@ def create_mobile_carousel_banner():
 
 @bp.route("/admin/carousel-mobile/<banner_id>", methods=["DELETE", "OPTIONS"])
 @require_admin
+@audit_log("mobile_carousel.delete")
 def delete_mobile_carousel_banner(banner_id):
     if request.method == "OPTIONS":
         return "", 200
@@ -89,12 +94,20 @@ def delete_mobile_carousel_banner(banner_id):
     if not doc:
         return jsonify({"error": "Banner not found"}), 404
 
+    # Delete S3 object first to prevent orphans. Abort DB delete on S3 failure.
     s3_key = doc.get("s3_key")
     if s3_key and BUCKET:
         try:
             s3.delete_object(Bucket=BUCKET, Key=s3_key)
-        except Exception:
-            pass
+        except Exception as e:
+            log.exception(
+                "S3 delete failed for mobile carousel banner_id=%s s3_key=%s",
+                banner_id, s3_key,
+            )
+            return jsonify({
+                "error": "Failed to delete image from storage. The banner was NOT removed. Please retry.",
+                "detail": str(e),
+            }), 502
 
     db.carousel_mobile_banners.delete_one({"_id": oid})
 

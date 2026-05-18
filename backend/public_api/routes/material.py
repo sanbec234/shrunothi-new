@@ -4,6 +4,7 @@ from db.client import get_db
 from db.models.subscriber import is_subscriber
 from auth.auth_guard import attach_optional_user
 from extensions import limiter
+from utils.soft_delete import not_deleted_filter
 
 bp = Blueprint("public_material", __name__)
 
@@ -27,7 +28,7 @@ def get_material(material_id):
     user = attach_optional_user()
     caller_is_subscriber = is_subscriber(db, user["email"]) if user else False
 
-    doc = db.materials.find_one({ "_id": oid })
+    doc = db.materials.find_one({"_id": oid, **not_deleted_filter()})
     if doc:
         subscriber_only = bool(doc.get("subscriberOnly", False))
         if subscriber_only and not caller_is_subscriber:
@@ -41,7 +42,7 @@ def get_material(material_id):
             "subscriberOnly": subscriber_only,
         }), 200
 
-    doc = db.self_help.find_one({ "_id": oid })
+    doc = db.self_help.find_one({"_id": oid, **not_deleted_filter()})
     if doc:
         subscriber_only = bool(doc.get("subscriberOnly", False))
         if subscriber_only and not caller_is_subscriber:

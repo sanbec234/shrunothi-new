@@ -126,6 +126,7 @@ button { font: inherit; }
   padding: 1rem clamp(1.5rem, 5vw, 5.5rem) 3.5rem;
   flex-wrap: wrap;
   min-height: 4rem; /* prevent layout shift during transitions */
+  padding-top: 3rem;
 }
 .h2-statsbar__item { font-size: 1rem; color: var(--ink); }
 .h2-statsbar__dot {

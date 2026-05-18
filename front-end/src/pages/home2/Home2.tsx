@@ -442,14 +442,14 @@ export default function Home2(): JSX.Element {
     fetchMaterials(selectedGenre.id);
   }, [selectedGenre, fetchMaterials, isLoggedIn]);
 
-  /* ── what's new podcasts — all genres, re-fetch on language change ── */
+  /* ── what's new podcasts — all genres, all languages, fetch once ── */
   useEffect(() => {
     let ok = true;
-    api.get<{ podcasts: Podcast[] }>("/podcasts/whats-new", { params: { language: podcastLang } })
+    api.get<{ podcasts: Podcast[] }>("/podcasts/whats-new")
       .then((r) => { if (ok) setWhatsNewPodcasts(Array.isArray(r.data?.podcasts) ? r.data.podcasts : []); })
       .catch(() => { if (ok) setWhatsNewPodcasts([]); });
     return () => { ok = false; };
-  }, [podcastLang]);
+  }, []);
 
   /* ── vimeo videos ── */
   useEffect(() => {
