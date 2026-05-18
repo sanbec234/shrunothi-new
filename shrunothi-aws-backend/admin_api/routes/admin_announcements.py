@@ -9,7 +9,7 @@ from utils.audit import audit_log
 log = logging.getLogger(__name__)
 IST = pytz.timezone("Asia/Kolkata")
 
-bp = Bluelog.info("admin_announcements", __name__)
+bp = Blueprint("admin_announcements", __name__)
 
 # -------------------------
 # Serializer (MANDATORY)

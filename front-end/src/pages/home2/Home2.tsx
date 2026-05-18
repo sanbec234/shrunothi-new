@@ -51,7 +51,6 @@ function RotatingStatsBar(): JSX.Element {
 }
 import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
-import { clearGoogleIdToken } from "../../auth/token";
 import UserProfileBubble from "../../components/UserProfileBubble/UserProfileBubble";
 import DocModal from "../../components/DocModal/DocModal";
 import LoginPopup from "../../components/GoogleAuthPopup";
@@ -448,29 +447,6 @@ export default function Home2(): JSX.Element {
       .catch(() => { if (ok) setVimeoVideos([]); });
     return () => { ok = false; };
   }, [isLoggedIn]);
-
-  /* ── subscribe click — requires login first ── */
-  const handleSubscribeClick = useCallback(() => {
-    if (!isLoggedIn) {
-      // Show login popup; after login redirect to /plans
-      setPendingDoc(null);
-      setShowLogin(true);
-      // Store intent so onSuccess knows to redirect
-      sessionStorage.setItem("post_login_redirect", "/plans");
-    } else {
-      navigate("/plans");
-    }
-  }, [isLoggedIn, navigate]);
-
-  /* ── logout ── */
-  const handleLogout = useCallback(() => {
-    clearGoogleIdToken();
-    localStorage.removeItem("authUser");
-    setAuthUser(null);
-    refreshSubscription();
-    // Re-fetch without token — backend returns locked:true for subscriber content
-    if (selectedGenre) fetchMaterials(selectedGenre.id);
-  }, [selectedGenre, fetchMaterials, refreshSubscription]);
 
   /* ── scroll lock ── */
   useEffect(() => {
