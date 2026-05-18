@@ -3,23 +3,18 @@ import { api } from "../../../api/client";
 
 export type Banner = { id: string; image_url: string; order: number };
 
-// Portrait banners for mobile — 750 × 1334 px (2× retina of 375 × 667)
-const REQUIRED_WIDTH = 750;
-const REQUIRED_HEIGHT = 1334;
+// Portrait banners for mobile — 750 × 1334 px (9:16)
+export const REQUIRED_WIDTH = 750;
+export const REQUIRED_HEIGHT = 1334;
 
-const validateImageDimensions = (
-  file: File,
-  requiredWidth: number,
-  requiredHeight: number,
-): Promise<boolean> => {
+const validateImageDimensions = (file: File): Promise<boolean> => {
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => {
       URL.revokeObjectURL(img.src);
-      // Allow 2-pixel tolerance for browser/editor rounding
       resolve(
-        Math.abs(img.width - requiredWidth) <= 2 &&
-          Math.abs(img.height - requiredHeight) <= 2,
+        Math.abs(img.width - REQUIRED_WIDTH) <= 10 &&
+          Math.abs(img.height - REQUIRED_HEIGHT) <= 10,
       );
     };
     img.onerror = () => resolve(false);
@@ -47,9 +42,9 @@ export function useMobileCarousel() {
 
   const createBanner = useCallback(
     async (file: File) => {
-      const valid = await validateImageDimensions(file, REQUIRED_WIDTH, REQUIRED_HEIGHT);
+      const valid = await validateImageDimensions(file);
       if (!valid) {
-        throw new Error(`Image must be exactly ${REQUIRED_WIDTH}×${REQUIRED_HEIGHT}px`);
+        throw new Error(`Mobile banner must be ${REQUIRED_WIDTH}×${REQUIRED_HEIGHT}px (9:16 portrait). Resize your image before uploading.`);
       }
 
       const { data: presign } = await api.post("/admin/uploads/carousel-mobile-presign", {

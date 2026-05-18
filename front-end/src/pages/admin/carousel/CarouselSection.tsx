@@ -67,7 +67,7 @@ export default function CarouselSection({
               onChange={handleFileChange}
               style={{ display: "none" }}
             />
-            <span style={{ fontSize: 12, color: "#6b7280" }}>Recommended: 1440×900px</span>
+            <span style={{ fontSize: 12, color: "#6b7280" }}>Required: 1920×1080px (16:9)</span>
             <button onClick={() => fileRef.current?.click()} disabled={uploading}>
               {uploading ? "Uploading…" : "+ Add Banner"}
             </button>
