@@ -1,15 +1,27 @@
 /* ── Hero Carousel ─────────────────────────────────── */
 /*
   Carousel is locked to 16:9 (1920×1080) on desktop.
+  max-height caps it to the remaining viewport so it never overflows.
   Mobile uses 9:16 (750×1334) portrait banners.
-  Images fill the container edge-to-edge with object-fit: cover.
   Base font = 16px → 1rem = 16px
 */
+:root {
+  --nav-height: 7.75rem; /* logo 5.25rem + 2×1.25rem padding */
+}
+
+@media (max-width: 56.25rem) { /* 900px */
+  :root { --nav-height: 7rem; }
+}
+
+@media (max-width: 48rem) { /* 768px */
+  :root { --nav-height: 5rem; }
+}
 
 .hero-carousel {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;  /* matches required upload dimensions */
+  aspect-ratio: 16 / 9;
+  max-height: calc(100svh - var(--nav-height)); /* never taller than viewport */
   overflow: hidden;
 }
 
@@ -17,6 +29,7 @@
 @media (max-width: 48rem) {
   .hero-carousel {
     aspect-ratio: 9 / 16;
+    max-height: calc(100svh - var(--nav-height));
   }
 }
 
