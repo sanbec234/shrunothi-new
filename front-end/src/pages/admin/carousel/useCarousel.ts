@@ -15,7 +15,10 @@ const validateImageDimensions = (
     const img = new Image();
     img.onload = () => {
       URL.revokeObjectURL(img.src);
-      resolve(img.width === requiredWidth && img.height === requiredHeight);
+      resolve(
+        Math.abs(img.width - requiredWidth) <= 2 &&
+          Math.abs(img.height - requiredHeight) <= 2,
+      );
     };
     img.onerror = () => resolve(false);
     img.src = URL.createObjectURL(file);

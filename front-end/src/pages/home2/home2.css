@@ -37,7 +37,7 @@ button { font: inherit; }
   background: #151515;
   color: var(--ink);
   font-family: var(--font-body);
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
 }
 

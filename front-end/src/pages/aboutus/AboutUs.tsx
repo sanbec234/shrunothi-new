@@ -2,7 +2,7 @@ import { useState, useEffect, type JSX } from "react";
 import { api } from "../../api/client";
 
 import Footer from "../../components/Footer";
-import SiteNav from "../../components/SiteNav/SiteNav";
+import SiteHeader from "../../components/SiteHeader/SiteHeader";
 import "./aboutUs.css";
 
 type PersonCard = {
@@ -112,15 +112,7 @@ export default function AboutUs(): JSX.Element {
 
   return (
     <main className="about-us-page">
-      <SiteNav
-        items={[
-          { label: "Podcast", href: "/#podcast" },
-          { label: "Materials", href: "/#materials" },
-          { label: "Exclusive Content", href: "/#exclusive" },
-          { label: "About Us", href: "/about-us" },
-        ]}
-        cta={{ label: "Subscribe Now", href: "/plans" }}
-      />
+      <SiteHeader />
 
       <div className="about-us-section-shell">
         <div className="about-us-section about-us-section--intro">

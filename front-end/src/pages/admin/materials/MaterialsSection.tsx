@@ -110,8 +110,7 @@ export default function MaterialsSection({
                   <div className="action-group">
                     <button
                       onClick={() => onEditClick(m)}
-                      disabled={m.source === "google_docs"}
-                      title={m.source === "google_docs" ? "Edit disabled for Google-synced materials" : undefined}
+                      title={m.source === "google_docs" ? "Edit metadata / update thumbnail (content re-syncs from Google)" : undefined}
                     >
                       Edit
                     </button>

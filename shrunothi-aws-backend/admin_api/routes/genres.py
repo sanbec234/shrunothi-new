@@ -3,6 +3,8 @@ from db.client import get_db
 from db.models.genre import create_genre
 from bson import ObjectId
 from auth.auth_guard import require_admin
+from utils.soft_delete import soft_delete, not_deleted_filter
+from utils.audit import audit_log
 
 bp = Blueprint("admin_genres", __name__)
 
@@ -12,6 +14,7 @@ bp = Blueprint("admin_genres", __name__)
 # -------------------------------
 @bp.route("/admin/genres", methods=["POST"])
 @require_admin
+@audit_log("genre.create")
 def add_genre():
     data = request.get_json() or {}
     name = data.get("name", "").strip()
@@ -34,6 +37,7 @@ def add_genre():
 # -------------------------------
 @bp.route("/admin/genres/<genre_id>", methods=["PUT", "PATCH"])
 @require_admin
+@audit_log("genre.update")
 def update_genre(genre_id):
     db = get_db()
 
@@ -65,6 +69,7 @@ def update_genre(genre_id):
 # -------------------------------
 @bp.route("/admin/genres/<genre_id>", methods=["DELETE", "OPTIONS"])
 @require_admin
+@audit_log("genre.delete")
 def delete_genre(genre_id):
     if request.method == "OPTIONS":
         return "", 200
@@ -76,8 +81,9 @@ def delete_genre(genre_id):
     except Exception:
         return jsonify({ "error": "Invalid genre id" }), 400
 
-    # 🔒 Block delete if podcasts exist
+    # 🔒 Block delete if podcasts exist (only count live ones)
     if db.podcasts.count_documents({
+        **not_deleted_filter(),
         "$or": [
             { "genreId": oid },
             { "genreId": genre_id }  # legacy string
@@ -85,8 +91,9 @@ def delete_genre(genre_id):
     }) > 0:
         return jsonify({ "error": "Genre has podcasts" }), 400
 
-    # 🔒 Block delete if materials exist
+    # 🔒 Block delete if materials exist (only count live ones)
     if db.materials.count_documents({
+        **not_deleted_filter(),
         "$or": [
             { "genreId": oid },
             { "genreId": genre_id }
@@ -94,9 +101,11 @@ def delete_genre(genre_id):
     }) > 0:
         return jsonify({ "error": "Genre has materials" }), 400
 
-    result = db.genres.delete_one({ "_id": oid })
+    actor = (request.user or {}).get("email") if hasattr(request, "user") else None
+    if not soft_delete(db.genres, oid, actor):
+        existing = db.genres.find_one({"_id": oid})
+        if not existing:
+            return jsonify({ "error": "Genre not found" }), 404
+        return jsonify({ "status": "already_deleted" }), 200
 
-    if result.deleted_count == 0:
-        return jsonify({ "error": "Genre not found" }), 404
-
-    return jsonify({ "status": "deleted" }), 200
+    return jsonify({ "status": "deleted", "recoverable": True }), 200

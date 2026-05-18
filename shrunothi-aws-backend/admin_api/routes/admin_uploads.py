@@ -62,7 +62,8 @@ def presign_upload():
 
         return jsonify({
             "uploadUrl": upload_url,
-            "fileUrl": file_url
+            "fileUrl": file_url,
+            "s3_key": key,
         }), 200
 
     except Exception:

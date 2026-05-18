@@ -4,6 +4,7 @@ from db.models.self_help import serialize_self_help
 from db.models.subscriber import is_subscriber
 from auth.auth_guard import attach_optional_user
 from extensions import limiter
+from utils.soft_delete import not_deleted_filter
 
 bp = Blueprint("public_self_help", __name__)
 
@@ -16,7 +17,7 @@ def list_self_help():
     caller_is_subscriber = is_subscriber(db, user["email"]) if user else False
 
     results = []
-    for d in db.self_help.find():
+    for d in db.self_help.find(not_deleted_filter()):
         item = serialize_self_help(d)
         item["locked"] = bool(item.get("subscriberOnly")) and not caller_is_subscriber
         results.append(item)

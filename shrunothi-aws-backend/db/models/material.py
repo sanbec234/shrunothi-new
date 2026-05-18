@@ -20,6 +20,8 @@ def create_material(db, data):
         "content": data["content"],
         "genreId": data["genreId"],
         "thumbnailUrl": data.get("thumbnailUrl"),
+        # Store s3_key for orphan cleanup on delete. Optional for backwards-compat.
+        "thumbnail_s3_key": data.get("thumbnail_s3_key"),
         "subscriberOnly": bool(data.get("subscriberOnly", False)),
         "created_at": now,
         "updated_at": now

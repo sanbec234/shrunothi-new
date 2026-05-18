@@ -65,7 +65,7 @@ import {
   INDIAN_PODCAST_LANGUAGES,
 } from "../../constants/podcastLanguages";
 import Footer from "../../components/Footer";
-import SiteNav from "../../components/SiteNav/SiteNav";
+import SiteHeader from "../../components/SiteHeader/SiteHeader";
 import VimeoCard, { type VimeoVideo } from "../../components/VimeoCard/VimeoCard";
 import VimeoPlayerModal from "../../components/VimeoPlayerModal/VimeoPlayerModal";
 import "./home2.css";
@@ -565,25 +565,11 @@ export default function Home2(): JSX.Element {
      ============================================================ */
   return (
     <div className="h2-root">
-      <SiteNav
-        items={[
-          { label: "Podcast", onClick: () => scrollTo(podcastSection) },
-          { label: "Materials", onClick: () => scrollTo(materialsSection) },
-          { label: "Exclusive Content", onClick: () => scrollTo(exclusiveSection) },
-          { label: "About Us", href: "/about-us" },
-        ]}
-        cta={
-          isPaidSubscriber
-            ? { label: "Logout", onClick: handleLogout }
-            : { label: "Subscribe Now", onClick: handleSubscribeClick }
-        }
-        secondaryCta={
-          isPaidSubscriber
-            ? undefined
-            : isLoggedIn
-              ? { label: "Logout", onClick: handleLogout }
-              : { label: "Sign In", onClick: () => setShowLogin(true) }
-        }
+      <SiteHeader
+        onPodcastClick={() => scrollTo(podcastSection)}
+        onMaterialsClick={() => scrollTo(materialsSection)}
+        onExclusiveClick={() => scrollTo(exclusiveSection)}
+        onSignInClick={() => setShowLogin(true)}
       />
 
       {/* ── HERO ── */}

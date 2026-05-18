@@ -5,6 +5,8 @@ from bson import ObjectId
 from datetime import datetime
 from auth.auth_guard import require_admin
 from pymongo.errors import DuplicateKeyError
+from utils.soft_delete import soft_delete, not_deleted_filter
+from utils.audit import audit_log
 
 bp = Blueprint("admin_podcasts", __name__)
 SUPPORTED_LANGUAGES = {"English", "Hindi", "Tamil"}
@@ -52,6 +54,7 @@ def validate_payload(payload):
 # -------------------------------
 @bp.route("/admin/podcasts", methods=["POST"])
 @require_admin
+@audit_log("podcast.create")
 def add_podcast():
     payload = normalize_payload(request.get_json() or {})
     validation_error = validate_payload(payload)
@@ -90,6 +93,7 @@ def add_podcast():
 # -------------------------------
 @bp.route("/admin/podcasts/<podcast_id>", methods=["PUT", "PATCH"])
 @require_admin
+@audit_log("podcast.update")
 def update_podcast(podcast_id):
     try:
         pid = ObjectId(podcast_id)
@@ -156,6 +160,7 @@ def update_podcast(podcast_id):
 # -------------------------------
 @bp.route("/admin/podcasts/<podcast_id>", methods=["DELETE", "OPTIONS"])
 @require_admin
+@audit_log("podcast.delete")
 def delete_podcast(podcast_id):
     if request.method == "OPTIONS":
         return "", 200
@@ -167,9 +172,12 @@ def delete_podcast(podcast_id):
     except Exception:
         return jsonify({"error": "Invalid podcast id"}), 400
 
-    result = db.podcasts.delete_one({ "_id": oid })
+    # Soft delete — recoverable for 30 days via purge job grace period.
+    actor = (request.user or {}).get("email") if hasattr(request, "user") else None
+    if not soft_delete(db.podcasts, oid, actor):
+        existing = db.podcasts.find_one({"_id": oid})
+        if not existing:
+            return jsonify({"error": "Podcast not found"}), 404
+        return jsonify({"status": "already_deleted"}), 200
 
-    if result.deleted_count == 0:
-        return jsonify({"error": "Podcast not found"}), 404
-
-    return jsonify({ "status": "deleted" }), 200
+    return jsonify({"status": "deleted", "recoverable": True}), 200
